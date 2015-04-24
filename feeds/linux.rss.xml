@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Let There Be Light!</title><link>http://weyo.github.com/</link><description></description><atom:link href="http://weyo.github.com/feeds/linux.rss.xml" rel="self"></atom:link><lastBuildDate>Tue, 01 Apr 2014 00:00:00 +0800</lastBuildDate><item><title>Linux 系统时间配置入门</title><link>http://weyo.github.com/pages/2014/04/01/Linux/</link><description>&lt;h1&gt;Linux 系统时间配置&lt;/h1&gt;
-&lt;p&gt;标签： 环境搭建 Linux&lt;/p&gt;
-&lt;hr /&gt;
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Let There Be Light!</title><link>http://weyo.github.com/</link><description></description><atom:link href="http://weyo.github.com/feeds/linux.rss.xml" rel="self"></atom:link><lastBuildDate>Fri, 04 Jul 2014 00:00:00 +0800</lastBuildDate><item><title>Linux 系统时间配置入门</title><link>http://weyo.github.com/pages/2014/07/04/linux-time-setting/</link><description>&lt;hr /&gt;
 &lt;blockquote&gt;
-&lt;ul&gt;
-&lt;li&gt;手动配置&lt;/li&gt;
-&lt;li&gt;ntp 配置&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;Linux 系统时间配置基本分为手动设置与基于 ntp 的配置两种方式。&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h3&gt;手动配置系统时间&lt;/h3&gt;
+&lt;h3&gt;手动设置系统时间&lt;/h3&gt;
 &lt;h4&gt;1. 说明&lt;/h4&gt;
 &lt;p&gt;Linux将时钟分为系统时钟(System Clock)和硬件(Real Time Clock，简称RTC)时钟两种。系统时间是指当前Linux Kernel中的时钟，而硬件时钟则是主板上由电池供电的那个主板硬件时钟，这个时钟可以在BIOS的“Standard BIOS Feture”项中进行设置。Linux并没有默认哪个时钟系统。当Linux启动时，硬件时钟会去读取系统时钟的设置，然后系统时钟就会独立于硬件运作。&lt;/p&gt;
 &lt;h4&gt;2. 设置方法&lt;/h4&gt;
@@ -154,4 +149,4 @@ transmit(10.75.80.47)
 &lt;li&gt;http://bbs.chinaunix.net/thread-4131894-1-1.html&lt;/li&gt;
 &lt;li&gt;http://blog.csdn.net/weidan1121/article/details/3953021&lt;/li&gt;
 &lt;/ol&gt;
-&lt;/blockquote&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Weyo</dc:creator><pubDate>Tue, 01 Apr 2014 00:00:00 +0800</pubDate><guid>tag:weyo.github.com,2014-04-01:pages/2014/04/01/Linux/</guid><category>Linux</category><category>Time</category><category>Configuration</category></item></channel></rss>
+&lt;/blockquote&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Weyo</dc:creator><pubDate>Fri, 04 Jul 2014 00:00:00 +0800</pubDate><guid>tag:weyo.github.com,2014-07-04:pages/2014/07/04/linux-time-setting/</guid><category>Linux</category><category>环境搭建</category></item></channel></rss>

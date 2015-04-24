@@ -1,14 +1,102 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Let There Be Light!</title><link>http://weyo.github.com/</link><description></description><atom:link href="http://weyo.github.com/feeds/all.rss.xml" rel="self"></atom:link><lastBuildDate>Tue, 01 Apr 2014 00:00:00 +0800</lastBuildDate><item><title>Linux 系统时间配置入门</title><link>http://weyo.github.com/pages/2014/04/01/Linux/</link><description>&lt;h1&gt;Linux 系统时间配置&lt;/h1&gt;
-&lt;p&gt;标签： 环境搭建 Linux&lt;/p&gt;
-&lt;hr /&gt;
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Let There Be Light!</title><link>http://weyo.github.com/</link><description></description><atom:link href="http://weyo.github.com/feeds/all.rss.xml" rel="self"></atom:link><lastBuildDate>Fri, 10 Apr 2015 00:00:00 +0800</lastBuildDate><item><title>Flume-Kafka 集成部署</title><link>http://weyo.github.com/pages/2015/04/10/flume-kafka-integration/</link><description>&lt;hr /&gt;
 &lt;blockquote&gt;
-&lt;ul&gt;
-&lt;li&gt;手动配置&lt;/li&gt;
-&lt;li&gt;ntp 配置&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;系统版本：
+- Flume-ng 1.5.3
+- Kafka 0.8.2&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h3&gt;手动配置系统时间&lt;/h3&gt;
+&lt;h3&gt;1. 配置 Flume&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="cp"&gt;# 每个flume分别进行配置&lt;/span&gt;
+&lt;span class="n"&gt;vi&lt;/span&gt; &lt;span class="n"&gt;conf&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;flume&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;conf&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;properties&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sources&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;src1&lt;/span&gt;
+&lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;channels&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ch1&lt;/span&gt;
+&lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sinks&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;k1&lt;/span&gt;
+
+&lt;span class="cp"&gt;# For each one of the sources, the type is defined&lt;/span&gt;
+&lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sources&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;src1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;type&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;avro&lt;/span&gt;
+
+&lt;span class="cp"&gt;# The channel can be defined as follows.&lt;/span&gt;
+&lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sources&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;src1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;channels&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ch1&lt;/span&gt;
+&lt;span class="cp"&gt;# 本地flume服务器地址&lt;/span&gt;
+&lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sources&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;src1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;bind&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;hd181&lt;/span&gt;
+&lt;span class="cp"&gt;# flume绑定端口&lt;/span&gt;
+&lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sources&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;src1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;port&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;41414&lt;/span&gt;
+
+&lt;span class="cp"&gt;# Each sink&amp;#39;s type must be defined&lt;/span&gt;
+&lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sinks&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;k1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;type&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;com&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;thilinamb&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;flume&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sink&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;KafkaSink&lt;/span&gt;
+&lt;span class="cp"&gt;# 需要连接的topic名称&lt;/span&gt;
+&lt;span class="cp"&gt;# 注意：如果此topic不存在（即在Kafka集群中未创建）则默认连接到一个名为“default-flume-topic”的topic，而Kafka不会自动创建一个topic&lt;/span&gt;
+&lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sinks&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;k1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;custom&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;topic&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;flumeTopic&lt;/span&gt;
+&lt;span class="cp"&gt;# 需要连接到的Kafka服务器地址（这里是hd182）&lt;/span&gt;
+&lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sinks&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;k1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;kafka&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;metadata&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;broker&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;list&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;hd182&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;9092&lt;/span&gt;
+&lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sinks&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;k1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;kafka&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;serializer&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;class&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;kafka&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;serializer&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;StringEncoder&lt;/span&gt;
+&lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sinks&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;k1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;kafka&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;request&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;required&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;acks&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+
+&lt;span class="cp"&gt;#Specify the channel the sink should use&lt;/span&gt;
+&lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sinks&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;k1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;channel&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ch1&lt;/span&gt;
+
+&lt;span class="cp"&gt;# Each channel&amp;#39;s type is defined.&lt;/span&gt;
+&lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;channels&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;ch1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;type&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;memory&lt;/span&gt;
+&lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;channels&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;ch1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;capacity&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1000&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;2. 准备 flume-kafka 插件&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;下载插件&lt;/strong&gt;（该插件即将集成到1.6版本的flume官方程序中，但在1.5及以下的版本中仍然需要手动配置）
+https://github.com/thilinamb/flume-ng-kafka-sink&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;编译&lt;/strong&gt;
+&lt;code&gt;mvn clean install&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;编译完成之后在 &lt;code&gt;dist/target&lt;/code&gt; 目录下会生成 &lt;code&gt;flume-kafka-sink-dist-0.5.0-bin.zip&lt;/code&gt;，解压缩后，在 lib 目录下有四个依赖jar包：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;flume-kafka-sink-impl-0.5.0.jar&lt;/li&gt;
+&lt;li&gt;kafka_2.10-0.8.1.1.jar&lt;/li&gt;
+&lt;li&gt;metrics-core-2.2.0.jar&lt;/li&gt;
+&lt;li&gt;scala-library-2.10.1.jar&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;添加依赖包&lt;/strong&gt;
+ 在Flume的安装目录下建立 &lt;code&gt;plugins.d&lt;/code&gt; 文件夹，再在该文件夹下建立 &lt;code&gt;kafka-sink&lt;/code&gt; 文件夹，然后在kafka-sink文件夹下建立 &lt;code&gt;lib&lt;/code&gt; 与 &lt;code&gt;libext&lt;/code&gt; 两个文件夹，将 flume-kafka-sink-impl-0.5.0.jar 拷贝到 lib 下，其他三个jar包拷贝到 libext 下，整个目录结构如下所示：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="cp"&gt;${&lt;/span&gt;&lt;span class="n"&gt;FLUME_HOME&lt;/span&gt;&lt;span class="cp"&gt;}&lt;/span&gt;
+ |-- plugins.d
+        |-- kafka-sink
+            |-- lib
+                |-- flume-kafka-sink-impl-x.x.x.jar
+            |-- libext
+                |-- kafka_x.x.-x.x.x.x.jar
+                |-- metrics-core-x.x.x.jar
+                |-- scala-library-x.x.x.jar
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;3. 运行&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;启动 Kafka server（每个 flume agent 对应的 Kafka broker，本例中为 hd182）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;code&gt;bin/kafka-server-start.sh config/server.properties &amp;amp;&lt;/code&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;创建 Kafka topic（上面 Flume 配置文件中对应的topic名称）
+ &lt;code&gt;bin/kafka-topics.sh --create --zookeeper hd181:2181 --replication 1 --partition 1 --topic flumeTopic&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;启动 Kafka consumer
+ &lt;code&gt;bin/kafka-console-consumer.sh --zookeeper hd182:2181 --topic flumeTopic --from-beginning&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;启动 Flume （本例中为 agent181）
+ &lt;code&gt;flume-ng agent -c /home/flume/apache-flume-1.5.2-bin/conf/ -f /home/flume/apache-flume-1.5.2-bin/conf/flume-conf.properties -Dflume.root.logger=DEBUG,console -n agent181 -Dflume.monitoring.type=http -Dflume.monitoring.port=34545 &amp;amp;&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;启动 Flume 数据源发送数据&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;在 Kafka consumer 客户端观察数据接收情况&lt;/li&gt;
+&lt;/ul&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Weyo</dc:creator><pubDate>Fri, 10 Apr 2015 00:00:00 +0800</pubDate><guid>tag:weyo.github.com,2015-04-10:pages/2015/04/10/flume-kafka-integration/</guid><category>Flume</category><category>Kafka</category><category>环境搭建</category></item><item><title>Linux 系统时间配置入门</title><link>http://weyo.github.com/pages/2014/07/04/linux-time-setting/</link><description>&lt;hr /&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Linux 系统时间配置基本分为手动设置与基于 ntp 的配置两种方式。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3&gt;手动设置系统时间&lt;/h3&gt;
 &lt;h4&gt;1. 说明&lt;/h4&gt;
 &lt;p&gt;Linux将时钟分为系统时钟(System Clock)和硬件(Real Time Clock，简称RTC)时钟两种。系统时间是指当前Linux Kernel中的时钟，而硬件时钟则是主板上由电池供电的那个主板硬件时钟，这个时钟可以在BIOS的“Standard BIOS Feture”项中进行设置。Linux并没有默认哪个时钟系统。当Linux启动时，硬件时钟会去读取系统时钟的设置，然后系统时钟就会独立于硬件运作。&lt;/p&gt;
 &lt;h4&gt;2. 设置方法&lt;/h4&gt;
@@ -154,66 +242,4 @@ transmit(10.75.80.47)
 &lt;li&gt;http://bbs.chinaunix.net/thread-4131894-1-1.html&lt;/li&gt;
 &lt;li&gt;http://blog.csdn.net/weidan1121/article/details/3953021&lt;/li&gt;
 &lt;/ol&gt;
-&lt;/blockquote&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Weyo</dc:creator><pubDate>Tue, 01 Apr 2014 00:00:00 +0800</pubDate><guid>tag:weyo.github.com,2014-04-01:pages/2014/04/01/Linux/</guid><category>Linux</category><category>Time</category><category>Configuration</category></item><item><title>test2</title><link>http://weyo.github.com/pages/2014/01/10/test2/</link><description>&lt;h2&gt;Blog Intro&lt;/h2&gt;
-&lt;h4&gt;This is my secong blog article.&lt;/h4&gt;
-&lt;h1&gt;Welcome!&lt;/h1&gt;
-&lt;p&gt;==end&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Weyo</dc:creator><pubDate>Fri, 10 Jan 2014 00:00:00 +0800</pubDate><guid>tag:weyo.github.com,2014-01-10:pages/2014/01/10/test2/</guid><category>pelican</category><category>markdown</category><category>github</category></item><item><title>Blog Intro</title><link>http://weyo.github.com/pages/2014/01/07/test1/</link><description>&lt;h2&gt;Blog Intro&lt;/h2&gt;
-&lt;h4&gt;This is my first blog article.&lt;/h4&gt;
-&lt;h1&gt;Welcome!&lt;/h1&gt;
-&lt;p&gt;Notepad++ v6.5.3 new features and bug fixes:&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;Make advanced scrolling optional so it can be disabled in case of touchpad scrolling problem.&lt;/li&gt;
-&lt;li&gt;Enhance sort lines feature: if several lines are selected, only the selected lines are sorted.&lt;/li&gt;
-&lt;li&gt;Add hex value column in Ascii Insert Panel.&lt;/li&gt;
-&lt;li&gt;Enhance performance: prevent switched-in document from being parsed by function list and by document map while these 2 panels are hidden.&lt;/li&gt;
-&lt;li&gt;Fix the bug that modified tab interface colour settings cannot be saved in stylers configurator.&lt;/li&gt;
-&lt;li&gt;Fix text crazy flickering while resizing the frame on a specific position.&lt;/li&gt;
-&lt;li&gt;Fix the context menu not shown for the all other users (accounts) in the same PC.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;Included plugins:&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;DSpellCheck v1.2.11&lt;/li&gt;
-&lt;li&gt;NppFTP 0.24.1&lt;/li&gt;
-&lt;li&gt;NppExport v0.2.8&lt;/li&gt;
-&lt;li&gt;Plugin Manager 1.0.8&lt;/li&gt;
-&lt;li&gt;Converter 3.0&lt;/li&gt;
-&lt;li&gt;Mime Tool 1.9&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;Notepad++ v6.5.3 new features and bug fixes:&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;Make advanced scrolling optional so it can be disabled in case of touchpad scrolling problem.&lt;/li&gt;
-&lt;li&gt;Enhance sort lines feature: if several lines are selected, only the selected lines are sorted.&lt;/li&gt;
-&lt;li&gt;Add hex value column in Ascii Insert Panel.&lt;/li&gt;
-&lt;li&gt;Enhance performance: prevent switched-in document from being parsed by function list and by document map while these 2 panels are hidden.&lt;/li&gt;
-&lt;li&gt;Fix the bug that modified tab interface colour settings cannot be saved in stylers configurator.&lt;/li&gt;
-&lt;li&gt;Fix text crazy flickering while resizing the frame on a specific position.&lt;/li&gt;
-&lt;li&gt;Fix the context menu not shown for the all other users (accounts) in the same PC.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;Included plugins:&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;DSpellCheck v1.2.11&lt;/li&gt;
-&lt;li&gt;NppFTP 0.24.1&lt;/li&gt;
-&lt;li&gt;NppExport v0.2.8&lt;/li&gt;
-&lt;li&gt;Plugin Manager 1.0.8&lt;/li&gt;
-&lt;li&gt;Converter 3.0&lt;/li&gt;
-&lt;li&gt;Mime Tool 1.9&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;Notepad++ v6.5.3 new features and bug fixes:&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;Make advanced scrolling optional so it can be disabled in case of touchpad scrolling problem.&lt;/li&gt;
-&lt;li&gt;Enhance sort lines feature: if several lines are selected, only the selected lines are sorted.&lt;/li&gt;
-&lt;li&gt;Add hex value column in Ascii Insert Panel.&lt;/li&gt;
-&lt;li&gt;Enhance performance: prevent switched-in document from being parsed by function list and by document map while these 2 panels are hidden.&lt;/li&gt;
-&lt;li&gt;Fix the bug that modified tab interface colour settings cannot be saved in stylers configurator.&lt;/li&gt;
-&lt;li&gt;Fix text crazy flickering while resizing the frame on a specific position.&lt;/li&gt;
-&lt;li&gt;Fix the context menu not shown for the all other users (accounts) in the same PC.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;Included plugins:&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;DSpellCheck v1.2.11&lt;/li&gt;
-&lt;li&gt;NppFTP 0.24.1&lt;/li&gt;
-&lt;li&gt;NppExport v0.2.8&lt;/li&gt;
-&lt;li&gt;Plugin Manager 1.0.8&lt;/li&gt;
-&lt;li&gt;Converter 3.0&lt;/li&gt;
-&lt;li&gt;Mime Tool 1.9&lt;/li&gt;
-&lt;/ol&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Weyo</dc:creator><pubDate>Tue, 07 Jan 2014 00:00:00 +0800</pubDate><guid>tag:weyo.github.com,2014-01-07:pages/2014/01/07/test1/</guid><category>pelican</category><category>markdown</category><category>github</category></item></channel></rss>
+&lt;/blockquote&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Weyo</dc:creator><pubDate>Fri, 04 Jul 2014 00:00:00 +0800</pubDate><guid>tag:weyo.github.com,2014-07-04:pages/2014/07/04/linux-time-setting/</guid><category>Linux</category><category>环境搭建</category></item></channel></rss>
