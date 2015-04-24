@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+
+        <title>Linux 系统时间配置入门</title>
+        <meta charset="utf-8" />
+        <link href="http://weyo.github.com/feeds/all.rss.xml" type="application/rss+xml" rel="alternate" title="Let There Be Light! Full RSS Feed" />
+        <link href="http://weyo.github.com/feeds/linux.rss.xml" type="application/rss+xml" rel="alternate" title="Let There Be Light! Categories RSS Feed" />
+
+
+        <!-- Mobile viewport optimized: j.mp/bplateviewport -->
+        <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1">
+
+        <link rel="stylesheet" type="text/css" href="http://weyo.github.com/theme/gumby.css" />
+        <link rel="stylesheet" type="text/css" href="http://weyo.github.com/theme/style.css" />
+        <link rel="stylesheet" type="text/css" href="http://weyo.github.com/theme/pygment.css" />
+
+        <script src="http://weyo.github.com/theme/js/libs/modernizr-2.6.2.min.js"></script>
+
+
+
+
+
+
+</head>
+
+<body id="index" class="home">
+
+
+    <div class="container">
+
+        <div class="row">
+
+          <header id="banner" class="body">
+                  <h1><a href="http://weyo.github.com">Let There Be Light! <strong></strong></a></h1>
+          </header><!-- /#banner -->
+
+            <div id="navigation" class="navbar row">
+              <a href="#" gumby-trigger="#navigation &gt; ul" class="toggle"><i class="icon-menu"></i></a>
+             
+              <ul class="columns">
+                <li><a href="http://weyo.github.com">Home</a></li>
+
+                <li><a href="http://weyo.github.com/pages/about.html">About</a></li>
+                <li><a href="http://weyo.github.com/pages/search.html">Site Search</a></li>
+
+              </ul>
+            </div>
+
+<section id="content" class="body">
+
+   <div class="row">
+        <div class="eleven columns">
+
+
+            <header>
+              <h2 class="entry-title">
+                <a href="http://weyo.github.com/pages/2014/04/01/Linux/" rel="bookmark"
+                   title="Permalink to Linux 系统时间配置入门">Linux 系统时间配置入门</a></h2>
+           
+            </header>
+            <footer class="post-info">
+              <abbr class="published" title="2014-04-01T00:00:00">
+                周二 01 四月 2014
+              </abbr>
+              <address class="vcard author">
+                By <a class="url fn" href="http://weyo.github.com/author/weyo.html">Weyo</a>
+              </address>
+            </footer><!-- /.post-info -->
+            <div class="entry-content">
+              <h1>Linux 系统时间配置</h1>
+<p>标签： 环境搭建 Linux</p>
+<hr />
+<blockquote>
+<ul>
+<li>手动配置</li>
+<li>ntp 配置</li>
+</ul>
+</blockquote>
+<h3>手动配置系统时间</h3>
+<h4>1. 说明</h4>
+<p>Linux将时钟分为系统时钟(System Clock)和硬件(Real Time Clock，简称RTC)时钟两种。系统时间是指当前Linux Kernel中的时钟，而硬件时钟则是主板上由电池供电的那个主板硬件时钟，这个时钟可以在BIOS的“Standard BIOS Feture”项中进行设置。Linux并没有默认哪个时钟系统。当Linux启动时，硬件时钟会去读取系统时钟的设置，然后系统时钟就会独立于硬件运作。</p>
+<h4>2. 设置方法</h4>
+<div class="highlight"><pre><span class="n">date</span> <span class="mf">042612492015.28</span>
+<span class="n">hwclock</span> <span class="err">–</span><span class="n">w</span>
+</pre></div>
+
+
+<p>说明：
+第一步是设置时间，设置完成可以使用date命令查看是否正确，<strong>注意</strong>：时间设置格式为<strong><code>月日时分年.秒</code></strong>；
+第二步是将系统时间写入硬件时钟，这样可以避免重启之后需要重新设置系统时间。</p>
+<h4>3. 相关操作命令</h4>
+<ul>
+<li>查看硬件时钟</li>
+</ul>
+<div class="highlight"><pre><span class="n">hwclock</span> <span class="o">--</span><span class="n">show</span> 
+</pre></div>
+
+
+<ul>
+<li>设置硬件时钟
+通用的设置格式：hwclock/clock --set --date=“月/日/年 时：分：秒”。</li>
+</ul>
+<div class="highlight"><pre><span class="n">hwclock</span> <span class="o">--</span><span class="n">set</span> <span class="o">--</span><span class="n">date</span><span class="o">=</span><span class="s">&quot;09/17/2003 13:26:00&quot;</span>
+</pre></div>
+
+
+<ul>
+<li>硬件时钟与系统时钟同步</li>
+</ul>
+<div class="highlight"><pre><span class="n">hwclock</span> <span class="err">–</span><span class="n">hctosys</span>
+</pre></div>
+
+
+<ul>
+<li>系统时钟与硬件时钟同步</li>
+</ul>
+<div class="highlight"><pre><span class="n">hwclock</span> <span class="err">–</span><span class="n">systohc</span>
+</pre></div>
+
+
+<h3>通过 ntpd 服务同步设置时间</h3>
+<h4>1. 说明</h4>
+<p>ntpd 服务是通过网络对系统时间进行同步配置的 Linux 服务，可以确保系统时间的一致性。</p>
+<h4>2. 配置同步时间</h4>
+<div class="highlight"><pre><span class="n">ntpdate</span> <span class="err">$</span><span class="n">ntpserver</span>
+</pre></div>
+
+
+<p>ntpserver 是网络时间服务器地址。</p>
+<h4>3. 配置系统开机时间同步</h4>
+<p>在<code>/etc/rc.local</code>中添加</p>
+<div class="highlight"><pre><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">sbin</span><span class="o">/</span><span class="n">ntpdate</span> <span class="err">$</span><span class="n">ntpserver</span> <span class="o">&gt;&gt;</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">log</span><span class="o">/</span><span class="n">ntpdate</span><span class="p">.</span><span class="n">log</span>
+</pre></div>
+
+
+<p>另外，也可以使用 crontab 来定时对时间进行同步，在<code>/etc/crontab</code>中添加</p>
+<div class="highlight"><pre><span class="mi">10</span> <span class="mi">5</span> <span class="o">*</span> <span class="o">*</span> <span class="o">*</span> <span class="n">root</span> <span class="n">ntpdate</span> <span class="err">$</span><span class="n">ntpserver</span><span class="p">;</span><span class="n">hwclock</span> <span class="o">-</span><span class="n">w</span>
+</pre></div>
+
+
+<p>这样每天5:10自动进行网络校时，并同时更新BIOS的时间。</p>
+<h4>4. 网络时间同步服务器</h4>
+<p>时间服务器分为两种，一种是一级时间服务器，另外一种是二级时间服务器。我们如果是同步自己的服务器的时间，那么选择二级时间服务器，因为一级时间服务器是为二级时间服务器提供时间校对服务器，我们尽量不要增加一级服务器的压力。这种层级的概念和DNS的层级概念是一致的。
+一级时间服务器列表：http://support.ntp.org/bin/view/Servers/StratumOneTimeServers
+二级时间服务器列表：http://support.ntp.org/bin/view/Servers/StratumTwoTimeServers</p>
+<blockquote>
+<p><strong>附二级服务器列表</strong></p>
+</blockquote>
+<div class="highlight"><pre><span class="mf">0.</span><span class="n">pool</span><span class="p">.</span><span class="n">ntp</span><span class="p">.</span><span class="n">org</span>            <span class="err">有域名负载均衡</span>
+<span class="mf">0.</span><span class="n">cn</span><span class="p">.</span><span class="n">pool</span><span class="p">.</span><span class="n">ntp</span><span class="p">.</span><span class="n">org</span>         <span class="err">有域名负载均衡</span>
+<span class="n">ntp</span><span class="p">.</span><span class="n">tuna</span><span class="p">.</span><span class="n">tsinghua</span><span class="p">.</span><span class="n">edu</span><span class="p">.</span><span class="n">cn</span>  <span class="err">清华大学</span>
+<span class="n">time</span><span class="p">.</span><span class="n">windows</span><span class="p">.</span><span class="n">com</span>          <span class="err">微软</span>
+<span class="n">ntp</span><span class="p">.</span><span class="n">fudan</span><span class="p">.</span><span class="n">edu</span><span class="p">.</span><span class="n">cn</span>          <span class="err">复旦大学</span>
+</pre></div>
+
+
+<h3>问题</h3>
+<ol>
+<li><strong>no server suitable for synchronization found</strong>
+ 执行ntpdate命令更新NTP客户端的时间时，如果报以下错误：
+ <code>no server suitable for synchronization found</code>
+ 则可采用以下步骤检测：
+ (1) 在NTP服务端执行以下命令检测NTP服务是否运行
+ <code>service ntpd status</code>
+ (2) 运行ping命令检测NTP客户端与NTP服务端是否连通
+ <code>ping NTP服务端IP</code>
+ (3) 在NTP客户端执行
+ <code>ntpdate -d NTP服务端IP</code>
+ 如果输出结果如下：<blockquote>
+<p>6 Nov 10:23:16 ntpdate[3521]: ntpdate 4.2.2p1@1.1570-o Tue Nov 18 07:40:49 UTC             2008 (1)
+Looking for host 10.75.80.47 and service ntp
+host found : 10.75.80.47
+transmit(10.75.80.47)
+transmit(10.75.80.47)
+transmit(10.75.80.47)
+transmit(10.75.80.47)
+transmit(10.75.80.47)
+10.75.80.47: <strong>Server dropped: no data</strong>
+……
+……
+6 Nov 10:23:20 ntpdate[3521]: no server suitable for synchronization found</p>
+</blockquote>
+</li>
+</ol>
+<p>如果出现以上情况，请按以下步骤处理：
+ a) 检查NTP服务端使用的ntp版本：
+ <code>ntpq -c version</code>
+ 如果输出版本是 ntp4.2（包括4.2）之后的版本，则请检测是否在restrict的定义中使用了notrust。如果有则删除notrust，再进行NTP时间同步。</p>
+<blockquote>
+<p>在 /etc/ntp.conf 中检查 restrict 定义
+ 如果有类似<code>restrict 192.168.0.0 mask 255.255.255.0 notrust nomodify notrap</code>的 notrust 定义，则对应删除。</p>
+</blockquote>
+<p>b) 检查NTP服务端的防火墙是否开放NTP服务端口：udp 123
+ <code>service iptables stop</code>
+ 执行以上命令关闭NTP服务端的防火墙，然后再进行NTP时间同步</p>
+<ol>
+<li><strong>Server dropped: Strata too high</strong>
+ 执行<code>ntpdate serverIP</code>，出现 <em>no server suitable for synchronization found</em> 的错误。
+ 使用<code>ntpdate –d serverIP</code>查看，发现有“Server dropped: strata too high”的错误，并且显示“stratum 16”。而正常情况下 stratum 这个值得范围是“0~15”。这是因为NTP server 还没有和其自身或者它的 server 同步上。以下的定义是让 NTP Server 和其自身保持同步，如果在 /ntp.conf 中定义的 server 都不可用时，将使用 local 时间作为ntp服务提供给ntp客户端。
+ <code>server 127.127.1.0 fudge
+ 127.127.1.0 stratum 8</code>
+ 在ntp server上重新启动ntp服务后，ntp server自身或者与其server的同步的需要一个时间段，这个过程可能是5分钟，在这个时间之内在客户端运行ntpdate命令时会产生no server suitable for synchronization found的错误。
+ 在ntp server上使用命令：
+ <code>watch ntpq -p</code>
+ 出现画面：
+ ```
+ Every 2.0s: ntpq -p                                                                               <br />
+                         Thu Jul 10 02:28:32 2008</li>
+</ol>
+<p>remote           refid      st t when poll reach   delay   offset jitter
+ ==============================================================================
+ 192.168.30.22   LOCAL(0)         8 u   22   64    1    2.113 179133.   0.001
+ LOCAL(0)        LOCAL(0)        10 l   21   64    1    0.000   0.000  0.001
+ ```
+ 注意LOCAL的这个就是与自身同步的ntp server。注意reach这个值，在启动 ntp server 服务后，这个值就从0开始不断增加，当增加到17的时候，从0到17是5次的变更，每一次是poll的值的秒数，是64秒*5=320秒的时间。如果之后从ntp客户端同步ntp server还失败的话，用 ntpdate –d 来查询详细错误信息，再做判断。</p>
+<hr />
+<blockquote>
+<h3>Reference</h3>
+<ol>
+<li>http://blog.chinaunix.net/uid-234760-id-761243.html</li>
+<li>http://www.chenyudong.com/archives/linux-ntpdate-time-synchronize.html</li>
+<li>http://bbs.chinaunix.net/thread-4131894-1-1.html</li>
+<li>http://blog.csdn.net/weidan1121/article/details/3953021</li>
+</ol>
+</blockquote>
+            </div><!-- /.entry-content -->
+            <div class="comments">
+              <h3>Comments</h3>
+              <div id="disqus_thread"></div>
+              <script type="text/javascript">
+                var disqus_identifier = "pages/2014/04/01/Linux/";
+                (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                dsq.src = 'http://weyo.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                })();
+              </script>
+            </div>
+
+
+        </div><!-- /.eleven.columns -->
+        
+<div class="three columns">
+
+<h4>Pages</h4>
+
+ <ul>
+      <li><a href="http://weyo.github.com/pages/about.html">About</a></li>
+      <li><a href="http://weyo.github.com/pages/search.html">Site Search</a></li>
+  </ul>
+
+<h4>Categories</h4>
+<ul>
+		<li><a href="http://weyo.github.com/category/github.html">Github</a></li>
+		<li><a href="http://weyo.github.com/category/linux.html">Linux</a></li>
+		<li><a href="http://weyo.github.com/category/python.html">Python</a></li>
+</ul>
+
+
+<h4>Tags</h4>
+	<ul>
+	    <li class="tag-1"><a href="http://weyo.github.com/tag/pelican.html">pelican</a></li>
+	    <li class="tag-1"><a href="http://weyo.github.com/tag/github.html">github</a></li>
+	    <li class="tag-1"><a href="http://weyo.github.com/tag/markdown.html">markdown</a></li>
+	    <li class="tag-4"><a href="http://weyo.github.com/tag/configuration.html">Configuration</a></li>
+	    <li class="tag-4"><a href="http://weyo.github.com/tag/time.html">Time</a></li>
+	    <li class="tag-4"><a href="http://weyo.github.com/tag/linux.html">Linux</a></li>
+</ul>
+
+
+<nav class="widget">
+  <h4>Social</h4>
+  <ul>
+    <li><a href="https://github.com/weyo/">Github</a></li>
+    <li><a href="http://www.linkedin.com/pub/yong-wei/5a/319/240">LinkedIn</a></li>
+    <li><a href="http://weibo.com/iipc">新浪微博</a></li>
+    <li><a href="http://www.douban.com/people/onenote/">豆瓣</a></li>
+    <li><a href="http://anerd.diandian.com">点点</a></li>
+  </ul>
+</nav>
+
+</div> </div><!-- /.row -->
+
+
+</section>
+
+       </div><!-- /.row -->
+    </div><!-- /.container -->
+
+
+       <div class="container.nopad bg">
+
+    
+        <footer id="credits" class="row">
+          <div class="seven columns left-center">
+
+                   <address id="about" class="vcard body">
+                    Proudly powered by <a href="http://getpelican.com/">Pelican</a>,
+                    which takes great advantage of <a href="http://python.org">Python</a>.
+                    <br />
+                    Based on the <a target="_blank" href="http://gumbyframework.com">Gumby Framework</a>
+                    </address>
+          </div>
+
+
+          <div class="seven columns">
+            <div class="row">
+              <ul class="socbtns">
+
+
+
+
+
+              </ul>
+            </div>
+          </div>
+        </footer>
+
+    </div>
+
+
+<script type="text/javascript">
+    var disqus_shortname = 'weyo';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+  <script src="http://weyo.github.com/theme/js/libs/jquery-1.9.1.min.js"></script>
+  <script src="http://weyo.github.com/theme/js/libs/gumby.min.js"></script>
+  <script src="http://weyo.github.com/theme/js/plugins.js"></script>
+
+</body>
+</html>

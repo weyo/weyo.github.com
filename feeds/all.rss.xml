@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Let There Be Light!</title><link>http://weyo.github.com/</link><description></description><atom:link href="http://weyo.github.com/feeds/all.rss.xml" rel="self"></atom:link><lastBuildDate>Tue, 01 Apr 2014 00:00:00 +0800</lastBuildDate><item><title>Linux 系统时间配置入门</title><link>http://weyo.github.com/pages/2014/04/01/Linux/</link><description>&lt;h1&gt;Linux 系统时间配置&lt;/h1&gt;
+&lt;p&gt;标签： 环境搭建 Linux&lt;/p&gt;
+&lt;hr /&gt;
+&lt;blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;手动配置&lt;/li&gt;
+&lt;li&gt;ntp 配置&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
+&lt;h3&gt;手动配置系统时间&lt;/h3&gt;
+&lt;h4&gt;1. 说明&lt;/h4&gt;
+&lt;p&gt;Linux将时钟分为系统时钟(System Clock)和硬件(Real Time Clock，简称RTC)时钟两种。系统时间是指当前Linux Kernel中的时钟，而硬件时钟则是主板上由电池供电的那个主板硬件时钟，这个时钟可以在BIOS的“Standard BIOS Feture”项中进行设置。Linux并没有默认哪个时钟系统。当Linux启动时，硬件时钟会去读取系统时钟的设置，然后系统时钟就会独立于硬件运作。&lt;/p&gt;
+&lt;h4&gt;2. 设置方法&lt;/h4&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;date&lt;/span&gt; &lt;span class="mf"&gt;042612492015.28&lt;/span&gt;
+&lt;span class="n"&gt;hwclock&lt;/span&gt; &lt;span class="err"&gt;–&lt;/span&gt;&lt;span class="n"&gt;w&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;说明：
+第一步是设置时间，设置完成可以使用date命令查看是否正确，&lt;strong&gt;注意&lt;/strong&gt;：时间设置格式为&lt;strong&gt;&lt;code&gt;月日时分年.秒&lt;/code&gt;&lt;/strong&gt;；
+第二步是将系统时间写入硬件时钟，这样可以避免重启之后需要重新设置系统时间。&lt;/p&gt;
+&lt;h4&gt;3. 相关操作命令&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;查看硬件时钟&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;hwclock&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;show&lt;/span&gt; 
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;设置硬件时钟
+通用的设置格式：hwclock/clock --set --date=“月/日/年 时：分：秒”。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;hwclock&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;set&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;date&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;09/17/2003 13:26:00&amp;quot;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;硬件时钟与系统时钟同步&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;hwclock&lt;/span&gt; &lt;span class="err"&gt;–&lt;/span&gt;&lt;span class="n"&gt;hctosys&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;系统时钟与硬件时钟同步&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;hwclock&lt;/span&gt; &lt;span class="err"&gt;–&lt;/span&gt;&lt;span class="n"&gt;systohc&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;通过 ntpd 服务同步设置时间&lt;/h3&gt;
+&lt;h4&gt;1. 说明&lt;/h4&gt;
+&lt;p&gt;ntpd 服务是通过网络对系统时间进行同步配置的 Linux 服务，可以确保系统时间的一致性。&lt;/p&gt;
+&lt;h4&gt;2. 配置同步时间&lt;/h4&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;ntpdate&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="n"&gt;ntpserver&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;ntpserver 是网络时间服务器地址。&lt;/p&gt;
+&lt;h4&gt;3. 配置系统开机时间同步&lt;/h4&gt;
+&lt;p&gt;在&lt;code&gt;/etc/rc.local&lt;/code&gt;中添加&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;usr&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;sbin&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;ntpdate&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="n"&gt;ntpserver&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;var&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;log&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;ntpdate&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;log&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;另外，也可以使用 crontab 来定时对时间进行同步，在&lt;code&gt;/etc/crontab&lt;/code&gt;中添加&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="mi"&gt;10&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;root&lt;/span&gt; &lt;span class="n"&gt;ntpdate&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="n"&gt;ntpserver&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;&lt;span class="n"&gt;hwclock&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;w&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;这样每天5:10自动进行网络校时，并同时更新BIOS的时间。&lt;/p&gt;
+&lt;h4&gt;4. 网络时间同步服务器&lt;/h4&gt;
+&lt;p&gt;时间服务器分为两种，一种是一级时间服务器，另外一种是二级时间服务器。我们如果是同步自己的服务器的时间，那么选择二级时间服务器，因为一级时间服务器是为二级时间服务器提供时间校对服务器，我们尽量不要增加一级服务器的压力。这种层级的概念和DNS的层级概念是一致的。
+一级时间服务器列表：http://support.ntp.org/bin/view/Servers/StratumOneTimeServers
+二级时间服务器列表：http://support.ntp.org/bin/view/Servers/StratumTwoTimeServers&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;附二级服务器列表&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="mf"&gt;0.&lt;/span&gt;&lt;span class="n"&gt;pool&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;ntp&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;org&lt;/span&gt;            &lt;span class="err"&gt;有域名负载均衡&lt;/span&gt;
+&lt;span class="mf"&gt;0.&lt;/span&gt;&lt;span class="n"&gt;cn&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;pool&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;ntp&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;org&lt;/span&gt;         &lt;span class="err"&gt;有域名负载均衡&lt;/span&gt;
+&lt;span class="n"&gt;ntp&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;tuna&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;tsinghua&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;edu&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;cn&lt;/span&gt;  &lt;span class="err"&gt;清华大学&lt;/span&gt;
+&lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;windows&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;com&lt;/span&gt;          &lt;span class="err"&gt;微软&lt;/span&gt;
+&lt;span class="n"&gt;ntp&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;fudan&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;edu&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;cn&lt;/span&gt;          &lt;span class="err"&gt;复旦大学&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;问题&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;no server suitable for synchronization found&lt;/strong&gt;
+ 执行ntpdate命令更新NTP客户端的时间时，如果报以下错误：
+ &lt;code&gt;no server suitable for synchronization found&lt;/code&gt;
+ 则可采用以下步骤检测：
+ (1) 在NTP服务端执行以下命令检测NTP服务是否运行
+ &lt;code&gt;service ntpd status&lt;/code&gt;
+ (2) 运行ping命令检测NTP客户端与NTP服务端是否连通
+ &lt;code&gt;ping NTP服务端IP&lt;/code&gt;
+ (3) 在NTP客户端执行
+ &lt;code&gt;ntpdate -d NTP服务端IP&lt;/code&gt;
+ 如果输出结果如下：&lt;blockquote&gt;
+&lt;p&gt;6 Nov 10:23:16 ntpdate[3521]: ntpdate 4.2.2p1@1.1570-o Tue Nov 18 07:40:49 UTC             2008 (1)
+Looking for host 10.75.80.47 and service ntp
+host found : 10.75.80.47
+transmit(10.75.80.47)
+transmit(10.75.80.47)
+transmit(10.75.80.47)
+transmit(10.75.80.47)
+transmit(10.75.80.47)
+10.75.80.47: &lt;strong&gt;Server dropped: no data&lt;/strong&gt;
+……
+……
+6 Nov 10:23:20 ntpdate[3521]: no server suitable for synchronization found&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;如果出现以上情况，请按以下步骤处理：
+ a) 检查NTP服务端使用的ntp版本：
+ &lt;code&gt;ntpq -c version&lt;/code&gt;
+ 如果输出版本是 ntp4.2（包括4.2）之后的版本，则请检测是否在restrict的定义中使用了notrust。如果有则删除notrust，再进行NTP时间同步。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;在 /etc/ntp.conf 中检查 restrict 定义
+ 如果有类似&lt;code&gt;restrict 192.168.0.0 mask 255.255.255.0 notrust nomodify notrap&lt;/code&gt;的 notrust 定义，则对应删除。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;b) 检查NTP服务端的防火墙是否开放NTP服务端口：udp 123
+ &lt;code&gt;service iptables stop&lt;/code&gt;
+ 执行以上命令关闭NTP服务端的防火墙，然后再进行NTP时间同步&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Server dropped: Strata too high&lt;/strong&gt;
+ 执行&lt;code&gt;ntpdate serverIP&lt;/code&gt;，出现 &lt;em&gt;no server suitable for synchronization found&lt;/em&gt; 的错误。
+ 使用&lt;code&gt;ntpdate –d serverIP&lt;/code&gt;查看，发现有“Server dropped: strata too high”的错误，并且显示“stratum 16”。而正常情况下 stratum 这个值得范围是“0~15”。这是因为NTP server 还没有和其自身或者它的 server 同步上。以下的定义是让 NTP Server 和其自身保持同步，如果在 /ntp.conf 中定义的 server 都不可用时，将使用 local 时间作为ntp服务提供给ntp客户端。
+ &lt;code&gt;server 127.127.1.0 fudge
+ 127.127.1.0 stratum 8&lt;/code&gt;
+ 在ntp server上重新启动ntp服务后，ntp server自身或者与其server的同步的需要一个时间段，这个过程可能是5分钟，在这个时间之内在客户端运行ntpdate命令时会产生no server suitable for synchronization found的错误。
+ 在ntp server上使用命令：
+ &lt;code&gt;watch ntpq -p&lt;/code&gt;
+ 出现画面：
+ ```
+ Every 2.0s: ntpq -p                                                                               &lt;br /&gt;
+                         Thu Jul 10 02:28:32 2008&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;remote           refid      st t when poll reach   delay   offset jitter
+ ==============================================================================
+ 192.168.30.22   LOCAL(0)         8 u   22   64    1    2.113 179133.   0.001
+ LOCAL(0)        LOCAL(0)        10 l   21   64    1    0.000   0.000  0.001
+ ```
+ 注意LOCAL的这个就是与自身同步的ntp server。注意reach这个值，在启动 ntp server 服务后，这个值就从0开始不断增加，当增加到17的时候，从0到17是5次的变更，每一次是poll的值的秒数，是64秒*5=320秒的时间。如果之后从ntp客户端同步ntp server还失败的话，用 ntpdate –d 来查询详细错误信息，再做判断。&lt;/p&gt;
+&lt;hr /&gt;
+&lt;blockquote&gt;
+&lt;h3&gt;Reference&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;http://blog.chinaunix.net/uid-234760-id-761243.html&lt;/li&gt;
+&lt;li&gt;http://www.chenyudong.com/archives/linux-ntpdate-time-synchronize.html&lt;/li&gt;
+&lt;li&gt;http://bbs.chinaunix.net/thread-4131894-1-1.html&lt;/li&gt;
+&lt;li&gt;http://blog.csdn.net/weidan1121/article/details/3953021&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/blockquote&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Weyo</dc:creator><pubDate>Tue, 01 Apr 2014 00:00:00 +0800</pubDate><guid>tag:weyo.github.com,2014-04-01:pages/2014/04/01/Linux/</guid><category>Linux</category><category>Time</category><category>Configuration</category></item><item><title>test2</title><link>http://weyo.github.com/pages/2014/01/10/test2/</link><description>&lt;h2&gt;Blog Intro&lt;/h2&gt;
+&lt;h4&gt;This is my secong blog article.&lt;/h4&gt;
+&lt;h1&gt;Welcome!&lt;/h1&gt;
+&lt;p&gt;==end&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Weyo</dc:creator><pubDate>Fri, 10 Jan 2014 00:00:00 +0800</pubDate><guid>tag:weyo.github.com,2014-01-10:pages/2014/01/10/test2/</guid><category>pelican</category><category>markdown</category><category>github</category></item><item><title>Blog Intro</title><link>http://weyo.github.com/pages/2014/01/07/test1/</link><description>&lt;h2&gt;Blog Intro&lt;/h2&gt;
+&lt;h4&gt;This is my first blog article.&lt;/h4&gt;
+&lt;h1&gt;Welcome!&lt;/h1&gt;
+&lt;p&gt;Notepad++ v6.5.3 new features and bug fixes:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Make advanced scrolling optional so it can be disabled in case of touchpad scrolling problem.&lt;/li&gt;
+&lt;li&gt;Enhance sort lines feature: if several lines are selected, only the selected lines are sorted.&lt;/li&gt;
+&lt;li&gt;Add hex value column in Ascii Insert Panel.&lt;/li&gt;
+&lt;li&gt;Enhance performance: prevent switched-in document from being parsed by function list and by document map while these 2 panels are hidden.&lt;/li&gt;
+&lt;li&gt;Fix the bug that modified tab interface colour settings cannot be saved in stylers configurator.&lt;/li&gt;
+&lt;li&gt;Fix text crazy flickering while resizing the frame on a specific position.&lt;/li&gt;
+&lt;li&gt;Fix the context menu not shown for the all other users (accounts) in the same PC.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Included plugins:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;DSpellCheck v1.2.11&lt;/li&gt;
+&lt;li&gt;NppFTP 0.24.1&lt;/li&gt;
+&lt;li&gt;NppExport v0.2.8&lt;/li&gt;
+&lt;li&gt;Plugin Manager 1.0.8&lt;/li&gt;
+&lt;li&gt;Converter 3.0&lt;/li&gt;
+&lt;li&gt;Mime Tool 1.9&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Notepad++ v6.5.3 new features and bug fixes:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Make advanced scrolling optional so it can be disabled in case of touchpad scrolling problem.&lt;/li&gt;
+&lt;li&gt;Enhance sort lines feature: if several lines are selected, only the selected lines are sorted.&lt;/li&gt;
+&lt;li&gt;Add hex value column in Ascii Insert Panel.&lt;/li&gt;
+&lt;li&gt;Enhance performance: prevent switched-in document from being parsed by function list and by document map while these 2 panels are hidden.&lt;/li&gt;
+&lt;li&gt;Fix the bug that modified tab interface colour settings cannot be saved in stylers configurator.&lt;/li&gt;
+&lt;li&gt;Fix text crazy flickering while resizing the frame on a specific position.&lt;/li&gt;
+&lt;li&gt;Fix the context menu not shown for the all other users (accounts) in the same PC.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Included plugins:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;DSpellCheck v1.2.11&lt;/li&gt;
+&lt;li&gt;NppFTP 0.24.1&lt;/li&gt;
+&lt;li&gt;NppExport v0.2.8&lt;/li&gt;
+&lt;li&gt;Plugin Manager 1.0.8&lt;/li&gt;
+&lt;li&gt;Converter 3.0&lt;/li&gt;
+&lt;li&gt;Mime Tool 1.9&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Notepad++ v6.5.3 new features and bug fixes:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Make advanced scrolling optional so it can be disabled in case of touchpad scrolling problem.&lt;/li&gt;
+&lt;li&gt;Enhance sort lines feature: if several lines are selected, only the selected lines are sorted.&lt;/li&gt;
+&lt;li&gt;Add hex value column in Ascii Insert Panel.&lt;/li&gt;
+&lt;li&gt;Enhance performance: prevent switched-in document from being parsed by function list and by document map while these 2 panels are hidden.&lt;/li&gt;
+&lt;li&gt;Fix the bug that modified tab interface colour settings cannot be saved in stylers configurator.&lt;/li&gt;
+&lt;li&gt;Fix text crazy flickering while resizing the frame on a specific position.&lt;/li&gt;
+&lt;li&gt;Fix the context menu not shown for the all other users (accounts) in the same PC.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Included plugins:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;DSpellCheck v1.2.11&lt;/li&gt;
+&lt;li&gt;NppFTP 0.24.1&lt;/li&gt;
+&lt;li&gt;NppExport v0.2.8&lt;/li&gt;
+&lt;li&gt;Plugin Manager 1.0.8&lt;/li&gt;
+&lt;li&gt;Converter 3.0&lt;/li&gt;
+&lt;li&gt;Mime Tool 1.9&lt;/li&gt;
+&lt;/ol&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Weyo</dc:creator><pubDate>Tue, 07 Jan 2014 00:00:00 +0800</pubDate><guid>tag:weyo.github.com,2014-01-07:pages/2014/01/07/test1/</guid><category>pelican</category><category>markdown</category><category>github</category></item></channel></rss>
