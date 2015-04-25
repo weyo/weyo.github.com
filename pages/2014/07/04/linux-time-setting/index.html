@@ -14,7 +14,7 @@
             <meta property="og:type" content="article"/>
             <meta property="og:title" content="Linux 系统时间配置入门"/>
             <meta property="og:url" content="http://weyo.github.com/pages/2014/07/04/linux-time-setting/"/>
-            <meta property="og:description" content="Linux 系统时间配置可以分为“手动”设置与基于 ntp 的配置两种方式。 手动设置系统时间 1. 说明 Linux将时钟分为系统时钟(System Clock)和硬件(Real Time Clock，简称RTC)时钟两种。系统时间是指当前Linux Kernel中的时钟，而硬件时钟则是主板上由电池供电的那个主板硬件时钟，这个时钟可以在BIOS的“Standard BIOS Feture”项中进行设置。Linux并没有默认哪个时钟系统。当Linux启动时，硬件时钟会去读取系统时钟的设置，然后系统时钟就会独立于硬件运作。 2. 设置方法 date 042612492015.28 hwclock –w 说明： 第一步是设置时间，设置完成可以使用date命令查看是否正确，注意：时间设置格式为月日时分年.秒； 第二步是将系统时间写入硬件时钟，这样可以避免重启之后需要重新设置系统时间。 3. 相关操作命令 查看硬件时钟 hwclock ..."/>
+            <meta property="og:description" content="本文根据网络资料整理。Linux 系统时间配置大致可以大致分为“手动”设置与基于 ntp 的配置两种方式。 手动设置系统时间 1. 说明 Linux将时钟分为系统时钟(System Clock)和硬件(Real Time Clock，简称RTC)时钟两种。系统时间是指当前Linux Kernel中的时钟，而硬件时钟则是主板上由电池供电的那个主板硬件时钟，这个时钟可以在BIOS的“Standard BIOS Feture”项中进行设置。Linux并没有默认哪个时钟系统。当Linux启动时，硬件时钟会去读取系统时钟的设置，然后系统时钟就会独立于硬件运作。 2. 设置方法 date 042612492015.28 hwclock –w 说明： 第一步是设置时间，设置完成可以使用date命令查看是否正确，注意：时间设置格式为月日时分年.秒； 第二步是将系统时间写入硬件时钟，这样可以避免重启之后需要重新设置系统时间。 3. 相关操作命令 查看硬件时钟 ..."/>
 
     <!-- Bootstrap -->
         <link rel="stylesheet" href="http://weyo.github.com/theme/css/bootstrap.min.css" type="text/css"/>
@@ -96,7 +96,7 @@
 <footer class="post-info">
     <span class="label label-default">Date</span>
     <span class="published">
-        <i class="icon-calendar"></i>周五 04 七月 2014
+        <i class="icon-calendar"></i>2014-07-04, 周五
     </span>
 
 
@@ -108,7 +108,7 @@
 </footer><!-- /.post-info -->                    </div>
                 </div>
                 <blockquote>
-<p>Linux 系统时间配置可以分为“手动”设置与基于 ntp 的配置两种方式。</p>
+<p>本文根据网络资料整理。Linux 系统时间配置大致可以大致分为“手动”设置与基于 ntp 的配置两种方式。</p>
 </blockquote>
 <h3>手动设置系统时间</h3>
 <h4>1. 说明</h4>
@@ -119,9 +119,11 @@
 </pre></div>
 
 
-<p>说明：
-第一步是设置时间，设置完成可以使用date命令查看是否正确，<strong>注意</strong>：时间设置格式为<strong><code>月日时分年.秒</code></strong>；
+<blockquote>
+<p>说明：<br />
+第一步是设置时间，设置完成可以使用date命令查看是否正确，<strong>注意</strong>：时间设置格式为<strong><code>月日时分年.秒</code></strong>；<br />
 第二步是将系统时间写入硬件时钟，这样可以避免重启之后需要重新设置系统时间。</p>
+</blockquote>
 <h4>3. 相关操作命令</h4>
 <ul>
 <li>查看硬件时钟</li>
@@ -174,9 +176,12 @@
 
 <p>这样每天5:10自动进行网络校时，并同时更新BIOS的时间。</p>
 <h4>4. 网络时间同步服务器</h4>
-<p>时间服务器分为两种，一种是一级时间服务器，另外一种是二级时间服务器。我们如果是同步自己的服务器的时间，那么选择二级时间服务器，因为一级时间服务器是为二级时间服务器提供时间校对服务器，我们尽量不要增加一级服务器的压力。这种层级的概念和DNS的层级概念是一致的。
-一级时间服务器列表： http://support.ntp.org/bin/view/Servers/StratumOneTimeServers
-二级时间服务器列表： http://support.ntp.org/bin/view/Servers/StratumTwoTimeServers</p>
+<p>时间服务器分为两种，一种是一级时间服务器，另外一种是二级时间服务器。如果是同步自己的服务器的时间，那么选择二级时间服务器，因为一级时间服务器是为二级时间服务器提供时间校对服务器，我们尽量不要增加一级服务器的压力。这种层级的概念和DNS的层级概念是一致的。<br /></p>
+<ul>
+<li>一级时间服务器列表： http://support.ntp.org/bin/view/Servers/StratumOneTimeServers</li>
+<li>二级时间服务器列表： http://support.ntp.org/bin/view/Servers/StratumTwoTimeServers
+<br /></li>
+</ul>
 <blockquote>
 <p><strong>附二级服务器列表</strong></p>
 </blockquote>
@@ -188,43 +193,45 @@
 </pre></div>
 
 
+<p><br /></p>
 <h3>Q&amp;A</h3>
 <h4>1. <strong>no server suitable for synchronization found</strong></h4>
-<p>执行ntpdate命令更新NTP客户端的时间时，如果报以下错误：
- <code>no server suitable for synchronization found</code>
- 则可采用以下步骤检测：
- (1) 在NTP服务端执行以下命令检测NTP服务是否运行
- <code>service ntpd status</code>
- (2) 运行ping命令检测NTP客户端与NTP服务端是否连通
- <code>ping NTP服务端IP</code>
- (3) 在NTP客户端执行
- <code>ntpdate -d NTP服务端IP</code>
- 如果输出结果如下：</p>
-<blockquote>
-<p>6 Nov 10:23:16 ntpdate[3521]: ntpdate 4.2.2p1@1.1570-o Tue Nov 18 07:40:49 UTC             2008 (1)
- Looking for host 10.75.80.47 and service ntp
- host found : 10.75.80.47
- transmit(10.75.80.47)
- transmit(10.75.80.47)
- transmit(10.75.80.47)
- transmit(10.75.80.47)
- transmit(10.75.80.47)
- 10.75.80.47: <strong>Server dropped: no data</strong>
- ……
- ……
- 6 Nov 10:23:20 ntpdate[3521]: no server suitable for synchronization found</p>
-</blockquote>
-<p>如果出现以上情况，请按以下步骤处理：
- a) 检查NTP服务端使用的ntp版本：
- <code>ntpq -c version</code>
- 如果输出版本是 ntp4.2（包括4.2）之后的版本，则请检测是否在restrict的定义中使用了notrust。如果有则删除notrust，再进行NTP时间同步。</p>
+<p>执行ntpdate命令更新NTP客户端的时间时，如果报以下错误：<br /> 
+<code>no server suitable for synchronization found</code><br />
+则可采用以下步骤检测：<br />
+(1) 在NTP服务端执行以下命令检测NTP服务是否运行<br />
+<code>service ntpd status</code><br />
+(2) 运行ping命令检测NTP客户端与NTP服务端是否连通<br />
+<code>ping NTP服务端IP</code><br />
+(3) 在NTP客户端执行<br />
+<code>ntpdate -d NTP服务端IP</code><br />
+如果输出结果如下：<br /></p>
+<div class="highlight"><pre><span class="mi">6</span> <span class="n">Nov</span> <span class="mi">10</span><span class="o">:</span><span class="mi">23</span><span class="o">:</span><span class="mi">16</span> <span class="n">ntpdate</span><span class="p">[</span><span class="mi">3521</span><span class="p">]</span><span class="o">:</span> <span class="n">ntpdate</span> <span class="mf">4.2.2</span><span class="n">p1</span><span class="err">@</span><span class="mf">1.1570</span><span class="o">-</span><span class="n">o</span> <span class="n">Tue</span> <span class="p">...</span>
+<span class="n">Looking</span> <span class="k">for</span> <span class="n">host</span> <span class="mf">10.75.80.47</span> <span class="n">and</span> <span class="n">service</span> <span class="n">ntp</span>
+<span class="n">host</span> <span class="n">found</span> <span class="o">:</span> <span class="mf">10.75.80.47</span>
+<span class="n">transmit</span><span class="p">(</span><span class="mf">10.75.80.47</span><span class="p">)</span>
+<span class="n">transmit</span><span class="p">(</span><span class="mf">10.75.80.47</span><span class="p">)</span>
+<span class="n">transmit</span><span class="p">(</span><span class="mf">10.75.80.47</span><span class="p">)</span>
+<span class="n">transmit</span><span class="p">(</span><span class="mf">10.75.80.47</span><span class="p">)</span>
+<span class="n">transmit</span><span class="p">(</span><span class="mf">10.75.80.47</span><span class="p">)</span>
+<span class="mf">10.75.80.47</span><span class="o">:</span> <span class="o">**</span><span class="n">Server</span> <span class="n">dropped</span><span class="o">:</span> <span class="n">no</span> <span class="n">data</span><span class="o">**</span>
+<span class="p">...</span>
+<span class="p">...</span>
+<span class="mi">6</span> <span class="n">Nov</span> <span class="mi">10</span><span class="o">:</span><span class="mi">23</span><span class="o">:</span><span class="mi">20</span> <span class="n">ntpdate</span><span class="p">[</span><span class="mi">3521</span><span class="p">]</span><span class="o">:</span> <span class="n">no</span> <span class="n">server</span> <span class="n">suitable</span> <span class="k">for</span> <span class="n">synchronization</span> <span class="n">found</span>
+</pre></div>
+
+
+<p>请按以下步骤处理：<br />
+a) 检查NTP服务端使用的ntp版本：<br />
+<code>ntpq -c version</code><br />
+如果输出版本是 ntp4.2之后（含4.2）的版本，则请检测是否在restrict的定义中使用了notrust。如果有则删除notrust，再进行NTP时间同步。<br /></p>
 <blockquote>
 <p>在 /etc/ntp.conf 中检查 restrict 定义
- 如果有类似<code>restrict 192.168.0.0 mask 255.255.255.0 notrust nomodify notrap</code>的 notrust 定义，则对应删除。</p>
+如果有类似 <code>restrict 192.168.0.0 mask 255.255.255.0 notrust nomodify notrap</code> 的 notrust 定义，则对应删除。</p>
 </blockquote>
-<p>b) 检查NTP服务端的防火墙是否开放NTP服务端口：udp 123
- <code>service iptables stop</code>
- 执行以上命令关闭NTP服务端的防火墙，然后再进行NTP时间同步</p>
+<p>b) 检查NTP服务端的防火墙是否开放NTP服务端口：udp 123<br />
+<code>service iptables stop</code><br />
+执行以上命令关闭NTP服务端的防火墙，然后再进行NTP时间同步<br /></p>
 <hr />
 <blockquote>
 <h3>Reference</h3>
@@ -297,13 +304,13 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.github.com/tag/storm.html">
-                                Storm
+                            <a href="http://weyo.github.com/tag/flume.html">
+                                Flume
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.github.com/tag/flume.html">
-                                Flume
+                            <a href="http://weyo.github.com/tag/storm.html">
+                                Storm
                             </a>
                         </li>
         </ul>

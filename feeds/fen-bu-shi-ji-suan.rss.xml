@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Let There Be Light!</title><link>http://weyo.github.com/</link><description></description><atom:link href="http://weyo.github.com/feeds/fen-bu-shi-ji-suan.rss.xml" rel="self"></atom:link><lastBuildDate>Mon, 13 Apr 2015 00:00:00 +0800</lastBuildDate><item><title>Kafka-Storm 集成部署</title><link>http://weyo.github.com/pages/2015/04/13/kafka-storm-integration/</link><description>&lt;h3&gt;前言&lt;/h3&gt;
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Let There Be Light!</title><link>http://weyo.github.com/</link><description></description><atom:link href="http://weyo.github.com/feeds/fen-bu-shi-ji-suan.rss.xml" rel="self"></atom:link><lastBuildDate>Mon, 13 Apr 2015 00:00:00 +0800</lastBuildDate><item><title>Kafka-Storm 集成部署</title><link>http://weyo.github.com/pages/2015/04/13/kafka-storm-integration/</link><description>&lt;blockquote&gt;
+&lt;h3&gt;前言&lt;/h3&gt;
 &lt;p&gt;分布式实时计算的主要组件采用基于流式计算的 Apache Storm，而实时计算的数据源来自基础数据输入组件中的 Kafka，如何将 Kafka 的消息数据传入 Storm 就是本文讨论的内容。&lt;/p&gt;
-&lt;hr /&gt;
+&lt;/blockquote&gt;
 &lt;h3&gt;0. 材料准备&lt;/h3&gt;
 &lt;ul&gt;
 &lt;li&gt;正常稳定运行的 Kafka 集群&lt;/li&gt;
@@ -18,8 +19,10 @@
 &lt;h3&gt;1. Storm Topology 工程&lt;/h3&gt;
 &lt;p&gt;Storm 的任务（Job）称为 Topology，为了处理实时计算任务，需要新建一个 Storm Topology 工程。由于 Kafka 的消息传输模式，所谓的 Kafka-Storm 集成部署实际上就是需要实现一个接收 Kafka 消息的 Spout 接口。幸运的是，最新的 Storm 官方版本中已经内置了可靠的 KafkaSpout，不需要再去手工编写，只需要将 KafkaSpout 配置为 Topology 的输入数据源即可。&lt;/p&gt;
 &lt;h3&gt;2. Maven 配置&lt;/h3&gt;
-&lt;p&gt;本项目工程主要采用 Maven 构建。
-- 需要配置的主要依赖（Maven）&lt;/p&gt;
+&lt;p&gt;本项目工程基于 Maven 构建。&lt;br /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;需要配置的主要依赖&lt;/li&gt;
+&lt;/ul&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;        &lt;span class="nt"&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
             &lt;span class="nt"&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;org.apache.storm&lt;span class="nt"&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
             &lt;span class="nt"&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;storm-kafka&lt;span class="nt"&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
@@ -167,10 +170,11 @@
 &lt;/ul&gt;
 &lt;/blockquote&gt;
 &lt;h3&gt;5. 上线运行&lt;/h3&gt;
-&lt;p&gt;向 Storm 集群提交任务，观察数据输出结果。另外，还可以在 Storm 的 UI 界面查看 Topology 内部组件运行状态（需要使用 &lt;strong&gt;Cluster&lt;/strong&gt; 模式）。&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Mon, 13 Apr 2015 00:00:00 +0800</pubDate><guid>tag:weyo.github.com,2015-04-13:pages/2015/04/13/kafka-storm-integration/</guid><category>Kafka</category><category>Storm</category><category>环境搭建</category></item><item><title>Flume-Kafka 集成部署</title><link>http://weyo.github.com/pages/2015/04/10/flume-kafka-integration/</link><description>&lt;h3&gt;前言&lt;/h3&gt;
-&lt;p&gt;数据采集与数据传输是大数据/分布式计算技术的两项基本需求，对应于这两项需求，开源社区有很多成熟的解决方案，包括 Scribe，Flume，Chukwa，Kafka，各类MQ等等，基于不同的业务场景可以灵活选择。考虑到公司的多数据源、复杂业务场景、高实时性的业务模式与实际技术特点，在分布式计算系统中需要选择轻量级、可定制程度好、扩展性强、易于维护的数据采集与传输子系统。其中，采集单元选用模块化程度极高的 Flume-ng，传输单元选择高吞吐率的　Kafka，将两者结合共同构成分布式计算集群的基础数据输入组件。&lt;/p&gt;
-&lt;hr /&gt;
-&lt;h3&gt;0. 准备材料&lt;/h3&gt;
+&lt;p&gt;向 Storm 集群提交任务，观察数据输出结果。另外，还可以在 Storm 的 UI 界面查看 Topology 内部组件运行状态（需要使用 &lt;strong&gt;Cluster&lt;/strong&gt; 模式）。&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Mon, 13 Apr 2015 00:00:00 +0800</pubDate><guid>tag:weyo.github.com,2015-04-13:pages/2015/04/13/kafka-storm-integration/</guid><category>Kafka</category><category>Storm</category><category>环境搭建</category></item><item><title>Flume-Kafka 集成部署</title><link>http://weyo.github.com/pages/2015/04/10/flume-kafka-integration/</link><description>&lt;blockquote&gt;
+&lt;h3&gt;前言&lt;/h3&gt;
+&lt;p&gt;数据采集与数据传输是大数据/分布式计算技术的两项基本需求。对应于这两项需求，开源社区有很多成熟的解决方案，包括 Scribe，Flume，Chukwa，Kafka，各类MQ等等，基于不同的业务场景可以灵活选择。考虑到公司的多数据源、复杂业务场景、高实时性的业务模式与实际技术特点，在分布式计算系统中需要选择轻量级、可定制程度好、扩展性强、易于维护的数据采集与传输子系统。其中，采集单元选用模块化程度极高的 Flume-ng，传输单元选择高吞吐率的 Kafka，将两者结合共同构成分布式计算集群的基础数据输入组件。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3&gt;0. 材料准备&lt;/h3&gt;
 &lt;ul&gt;
 &lt;li&gt;Flume 安装程序&lt;/li&gt;
 &lt;li&gt;Kafka 安装程序&lt;/li&gt;
@@ -189,7 +193,8 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="cp"&gt;# 本agent的名称为“agent181”&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="cp"&gt;## 定义 agent&lt;/span&gt;
+&lt;span class="cp"&gt;# 本agent的名称为“agent181”&lt;/span&gt;
 &lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sources&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;src1&lt;/span&gt;
 &lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;channels&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ch1&lt;/span&gt;
 &lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sinks&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;k1&lt;/span&gt;
@@ -221,7 +226,7 @@
 
 &lt;h3&gt;2. 准备 flume-kafka 插件&lt;/h3&gt;
 &lt;p&gt;&lt;strong&gt;下载插件&lt;/strong&gt;（该插件即将集成到1.6版本的flume官方程序中，但在1.5及以下的版本中仍然需要手动配置）
-https://github.com/thilinamb/flume-ng-kafka-sink&lt;/p&gt;
+&lt;a href="https://github.com/thilinamb/flume-ng-kafka-sink"&gt;https://github.com/thilinamb/flume-ng-kafka-sink&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;编译&lt;/strong&gt;
 &lt;code&gt;mvn clean install&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;编译完成之后在 &lt;code&gt;dist/target&lt;/code&gt; 目录下会生成 &lt;code&gt;flume-kafka-sink-dist-0.5.0-bin.zip&lt;/code&gt;，解压缩后，在 lib 目录下有四个依赖jar包：&lt;/p&gt;
@@ -245,6 +250,9 @@ https://github.com/thilinamb/flume-ng-kafka-sink&lt;/p&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
+&lt;blockquote&gt;
+&lt;p&gt;说明：上述 Flume 配置文件中提到的“默认连接到一个名为‘default-flume-topic’的topic”实际上是在&lt;code&gt;flume-ng-kafka-sink&lt;/code&gt;项目中定义的，如果需要修改默认名称等属性，可以修改 &lt;code&gt;Constants&lt;/code&gt; 与 &lt;code&gt;MessagePreprocessor&lt;/code&gt; 接口实现类的 &lt;code&gt;extractTopic&lt;/code&gt; 方法。Key 和 Message 的处理也可以根据需要通过 &lt;code&gt;MessagePreprocessor&lt;/code&gt; 接口的另外两个方法类似实现。更多配置信息可以参考插件的 Github 页面。&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;h3&gt;3. 运行&lt;/h3&gt;
 &lt;ul&gt;
 &lt;li&gt;
@@ -267,4 +275,5 @@ https://github.com/thilinamb/flume-ng-kafka-sink&lt;/p&gt;
 &lt;p&gt;启动 Flume 数据源发送数据&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;在 Kafka consumer 客户端观察数据接收情况&lt;/li&gt;
-&lt;/ul&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Fri, 10 Apr 2015 00:00:00 +0800</pubDate><guid>tag:weyo.github.com,2015-04-10:pages/2015/04/10/flume-kafka-integration/</guid><category>Flume</category><category>Kafka</category><category>环境搭建</category></item></channel></rss>
+&lt;/ul&gt;
+&lt;hr /&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Fri, 10 Apr 2015 00:00:00 +0800</pubDate><guid>tag:weyo.github.com,2015-04-10:pages/2015/04/10/flume-kafka-integration/</guid><category>Flume</category><category>Kafka</category><category>环境搭建</category></item></channel></rss>

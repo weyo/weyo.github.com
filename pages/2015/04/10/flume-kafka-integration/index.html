@@ -14,7 +14,7 @@
             <meta property="og:type" content="article"/>
             <meta property="og:title" content="Flume-Kafka 集成部署"/>
             <meta property="og:url" content="http://weyo.github.com/pages/2015/04/10/flume-kafka-integration/"/>
-            <meta property="og:description" content="前言 数据采集与数据传输是大数据/分布式计算技术的两项基本需求，对应于这两项需求，开源社区有很多成熟的解决方案，包括 Scribe，Flume，Chukwa，Kafka，各类MQ等等，基于不同的业务场景可以灵活选择。考虑到公司的多数据源、复杂业务场景、高实时性的业务模式与实际技术特点，在分布式计算系统中需要选择轻量级、可定制程度好、扩展性强、易于维护的数据采集与传输子系统。其中，采集单元选用模块化程度极高的 Flume-ng，传输单元选择高吞吐率的 Kafka，将两者结合共同构成分布式计算集群的基础数据输入组件。 0. 准备材料 Flume 安装程序 Kafka 安装程序 Flume-Kafka 插件 系统版本 Flume-ng 1.5.3 Kafka 0.8.2 1. 配置 Flume # 配置 flume agent vi conf ..."/>
+            <meta property="og:description" content="前言 数据采集与数据传输是大数据/分布式计算技术的两项基本需求。对应于这两项需求，开源社区有很多成熟的解决方案，包括 Scribe，Flume，Chukwa，Kafka，各类MQ等等，基于不同的业务场景可以灵活选择。考虑到公司的多数据源、复杂业务场景、高实时性的业务模式与实际技术特点，在分布式计算系统中需要选择轻量级、可定制程度好、扩展性强、易于维护的数据采集与传输子系统。其中，采集单元选用模块化程度极高的 Flume-ng，传输单元选择高吞吐率的 Kafka，将两者结合共同构成分布式计算集群的基础数据输入组件。 0. 材料准备 Flume 安装程序 Kafka 安装程序 Flume-Kafka 插件 系统版本 Flume-ng 1.5.3 Kafka 0.8.2 1. 配置 Flume # 配置 flume agent vi conf ..."/>
 
     <!-- Bootstrap -->
         <link rel="stylesheet" href="http://weyo.github.com/theme/css/bootstrap.min.css" type="text/css"/>
@@ -96,7 +96,7 @@
 <footer class="post-info">
     <span class="label label-default">Date</span>
     <span class="published">
-        <i class="icon-calendar"></i>周五 10 四月 2015
+        <i class="icon-calendar"></i>2015-04-10, 周五
     </span>
 
 
@@ -109,10 +109,11 @@
 	<a href="http://weyo.github.com/tag/huan-jing-da-jian.html">环境搭建</a>
 </footer><!-- /.post-info -->                    </div>
                 </div>
-                <h3>前言</h3>
-<p>数据采集与数据传输是大数据/分布式计算技术的两项基本需求，对应于这两项需求，开源社区有很多成熟的解决方案，包括 Scribe，Flume，Chukwa，Kafka，各类MQ等等，基于不同的业务场景可以灵活选择。考虑到公司的多数据源、复杂业务场景、高实时性的业务模式与实际技术特点，在分布式计算系统中需要选择轻量级、可定制程度好、扩展性强、易于维护的数据采集与传输子系统。其中，采集单元选用模块化程度极高的 Flume-ng，传输单元选择高吞吐率的　Kafka，将两者结合共同构成分布式计算集群的基础数据输入组件。</p>
-<hr />
-<h3>0. 准备材料</h3>
+                <blockquote>
+<h3>前言</h3>
+<p>数据采集与数据传输是大数据/分布式计算技术的两项基本需求。对应于这两项需求，开源社区有很多成熟的解决方案，包括 Scribe，Flume，Chukwa，Kafka，各类MQ等等，基于不同的业务场景可以灵活选择。考虑到公司的多数据源、复杂业务场景、高实时性的业务模式与实际技术特点，在分布式计算系统中需要选择轻量级、可定制程度好、扩展性强、易于维护的数据采集与传输子系统。其中，采集单元选用模块化程度极高的 Flume-ng，传输单元选择高吞吐率的 Kafka，将两者结合共同构成分布式计算集群的基础数据输入组件。</p>
+</blockquote>
+<h3>0. 材料准备</h3>
 <ul>
 <li>Flume 安装程序</li>
 <li>Kafka 安装程序</li>
@@ -131,7 +132,8 @@
 </pre></div>
 
 
-<div class="highlight"><pre><span class="cp"># 本agent的名称为“agent181”</span>
+<div class="highlight"><pre><span class="cp">## 定义 agent</span>
+<span class="cp"># 本agent的名称为“agent181”</span>
 <span class="n">agent181</span><span class="p">.</span><span class="n">sources</span> <span class="o">=</span> <span class="n">src1</span>
 <span class="n">agent181</span><span class="p">.</span><span class="n">channels</span> <span class="o">=</span> <span class="n">ch1</span>
 <span class="n">agent181</span><span class="p">.</span><span class="n">sinks</span> <span class="o">=</span> <span class="n">k1</span>
@@ -163,7 +165,7 @@
 
 <h3>2. 准备 flume-kafka 插件</h3>
 <p><strong>下载插件</strong>（该插件即将集成到1.6版本的flume官方程序中，但在1.5及以下的版本中仍然需要手动配置）
-https://github.com/thilinamb/flume-ng-kafka-sink</p>
+<a href="https://github.com/thilinamb/flume-ng-kafka-sink">https://github.com/thilinamb/flume-ng-kafka-sink</a></p>
 <p><strong>编译</strong>
 <code>mvn clean install</code></p>
 <p>编译完成之后在 <code>dist/target</code> 目录下会生成 <code>flume-kafka-sink-dist-0.5.0-bin.zip</code>，解压缩后，在 lib 目录下有四个依赖jar包：</p>
@@ -187,6 +189,9 @@ https://github.com/thilinamb/flume-ng-kafka-sink</p>
 </pre></div>
 
 
+<blockquote>
+<p>说明：上述 Flume 配置文件中提到的“默认连接到一个名为‘default-flume-topic’的topic”实际上是在<code>flume-ng-kafka-sink</code>项目中定义的，如果需要修改默认名称等属性，可以修改 <code>Constants</code> 与 <code>MessagePreprocessor</code> 接口实现类的 <code>extractTopic</code> 方法。Key 和 Message 的处理也可以根据需要通过 <code>MessagePreprocessor</code> 接口的另外两个方法类似实现。更多配置信息可以参考插件的 Github 页面。</p>
+</blockquote>
 <h3>3. 运行</h3>
 <ul>
 <li>
@@ -210,6 +215,7 @@ https://github.com/thilinamb/flume-ng-kafka-sink</p>
 </li>
 <li>在 Kafka consumer 客户端观察数据接收情况</li>
 </ul>
+<hr />
             </div>
             <!-- /.entry-content -->
     <hr />
@@ -272,13 +278,13 @@ https://github.com/thilinamb/flume-ng-kafka-sink</p>
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.github.com/tag/storm.html">
-                                Storm
+                            <a href="http://weyo.github.com/tag/flume.html">
+                                Flume
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.github.com/tag/flume.html">
-                                Flume
+                            <a href="http://weyo.github.com/tag/storm.html">
+                                Storm
                             </a>
                         </li>
         </ul>
