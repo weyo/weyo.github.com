@@ -5,35 +5,35 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://weyo.github.com/index.html</loc>
-<lastmod>2015-04-24T23:30:06-00:00</lastmod>
+<lastmod>2015-04-25T11:53:21-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://weyo.github.com/archives.html</loc>
-<lastmod>2015-04-24T23:30:06-00:00</lastmod>
+<lastmod>2015-04-25T11:53:21-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://weyo.github.com/tags.html</loc>
-<lastmod>2015-04-24T23:30:06-00:00</lastmod>
+<lastmod>2015-04-25T11:53:21-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://weyo.github.com/categories.html</loc>
-<lastmod>2015-04-24T23:30:06-00:00</lastmod>
+<lastmod>2015-04-25T11:53:21-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://weyo.github.com/pages/about.html</loc>
-<lastmod>2015-04-24T23:30:06-00:00</lastmod>
+<lastmod>2015-04-25T11:53:21-00:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.5</priority>
 </url>
@@ -53,7 +53,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 </url>
 
 <url>
-<loc>http://weyo.github.com/category/fen-bu-shi-ji-suan-da-shu-ju.html</loc>
+<loc>http://weyo.github.com/category/fen-bu-shi-ji-suan.html</loc>
 <lastmod>2015-04-10T00:00:00-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
@@ -61,13 +61,6 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://weyo.github.com/category/linux.html</loc>
-<lastmod>2014-07-04T00:00:00-00:00</lastmod>
-<changefreq>daily</changefreq>
-<priority>0.5</priority>
-</url>
-
-<url>
-<loc>http://weyo.github.com/tag/linux.html</loc>
 <lastmod>2014-07-04T00:00:00-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
@@ -90,6 +83,13 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
 <loc>http://weyo.github.com/tag/kafka.html</loc>
 <lastmod>2015-04-10T00:00:00-00:00</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>http://weyo.github.com/tag/linux.html</loc>
+<lastmod>2014-07-04T00:00:00-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>

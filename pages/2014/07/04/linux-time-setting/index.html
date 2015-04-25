@@ -14,7 +14,7 @@
             <meta property="og:type" content="article"/>
             <meta property="og:title" content="Linux 系统时间配置入门"/>
             <meta property="og:url" content="http://weyo.github.com/pages/2014/07/04/linux-time-setting/"/>
-            <meta property="og:description" content="Linux Time Settings."/>
+            <meta property="og:description" content="Linux 系统时间配置基本分为手动设置与基于 ntp 的配置两种方式。 手动设置系统时间 1. 说明 Linux将时钟分为系统时钟(System Clock)和硬件(Real Time Clock，简称RTC)时钟两种。系统时间是指当前Linux Kernel中的时钟，而硬件时钟则是主板上由电池供电的那个主板硬件时钟，这个时钟可以在BIOS的“Standard BIOS Feture”项中进行设置。Linux并没有默认哪个时钟系统。当Linux启动时，硬件时钟会去读取系统时钟的设置，然后系统时钟就会独立于硬件运作。 2. 设置方法 date 042612492015.28 hwclock –w 说明： 第一步是设置时间，设置完成可以使用date命令查看是否正确，注意：时间设置格式为月日时分年.秒； 第二步是将系统时间写入硬件时钟，这样可以避免重启之后需要重新设置系统时间。 3. 相关操作命令 查看硬件时钟 hwclock --show 设置硬件时钟 ..."/>
 
     <!-- Bootstrap -->
         <link rel="stylesheet" href="http://weyo.github.com/theme/css/bootstrap.min.css" type="text/css"/>
@@ -62,7 +62,7 @@
                              About
                           </a></li>
                         <li >
-                            <a href="http://weyo.github.com/category/fen-bu-shi-ji-suan-da-shu-ju.html">分布式计算, 大数据</a>
+                            <a href="http://weyo.github.com/category/fen-bu-shi-ji-suan.html">分布式计算</a>
                         </li>
                         <li class="active">
                             <a href="http://weyo.github.com/category/linux.html">Linux</a>
@@ -310,11 +310,6 @@ transmit(10.75.80.47)
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.github.com/tag/kafka.html">
-                                Kafka
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
                             <a href="http://weyo.github.com/tag/linux.html">
                                 Linux
                             </a>
@@ -322,6 +317,11 @@ transmit(10.75.80.47)
                         <li class="list-group-item tag-4">
                             <a href="http://weyo.github.com/tag/flume.html">
                                 Flume
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.github.com/tag/kafka.html">
+                                Kafka
                             </a>
                         </li>
         </ul>
@@ -335,7 +335,7 @@ transmit(10.75.80.47)
         <p class="pull-right"><i class="icon-arrow-up"></i> <a href="#">Back to top</a></p>
 
 
-        <p>&copy; 2015 Yohn &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+        <p>&copy; 2015 Weyo &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
             <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
             <a href="http://getbootstrap.com" target="_blank">Bootstrap</a></p>
     </div>

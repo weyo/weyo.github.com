@@ -62,7 +62,7 @@
                              About
                           </a></li>
                         <li >
-                            <a href="http://weyo.github.com/category/fen-bu-shi-ji-suan-da-shu-ju.html">分布式计算, 大数据</a>
+                            <a href="http://weyo.github.com/category/fen-bu-shi-ji-suan.html">分布式计算</a>
                         </li>
                         <li >
                             <a href="http://weyo.github.com/category/linux.html">Linux</a>
@@ -81,14 +81,59 @@
         <div class="col-lg-9">
             <article>
                 <h2><a href="http://weyo.github.com/pages/2015/04/10/flume-kafka-integration/">Flume-Kafka 集成部署</a></h2>
-                <div class="summary"><p>Linux Time Settings.</p>
+                <div class="summary"><hr />
+<blockquote>
+<p>系统版本：
+- Flume-ng 1.5.3
+- Kafka 0.8.2</p>
+</blockquote>
+<h3>1. 配置 Flume</h3>
+<div class="highlight"><pre><span class="cp"># 每个flume分别进行配置</span>
+<span class="n">vi</span> <span class="n">conf</span><span class="o">/</span><span class="n">flume</span><span class="o">-</span><span class="n">conf</span><span class="p">.</span><span class="n">properties</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span class="n">agent181</span><span class="p">.</span><span class="n">sources</span> <span class="o">=</span> <span class="n">src1</span>
+<span class="n">agent181</span><span class="p">.</span><span class="n">channels</span> <span class="o">=</span> <span class="n">ch1</span>
+<span class="n">agent181</span><span class="p">.</span><span class="n">sinks</span> <span class="o">=</span> <span class="n">k1</span>
+
+<span class="cp"># For each one of the sources, the type is defined</span>
+<span class="n">agent181</span><span class="p">.</span><span class="n">sources</span><span class="p">.</span><span class="n">src1</span><span class="p">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">avro</span>
+
+<span class="cp"># The channel can be defined as follows.</span>
+<span class="n">agent181 ...</span></pre></div>
                     <a class="btn btn-default btn-xs" href="http://weyo.github.com/pages/2015/04/10/flume-kafka-integration/">more ...</a>
                 </div>
             </article>
             <hr/>
             <article>
                 <h2><a href="http://weyo.github.com/pages/2014/07/04/linux-time-setting/">Linux 系统时间配置入门</a></h2>
-                <div class="summary"><p>Linux Time Settings.</p>
+                <div class="summary"><hr />
+<blockquote>
+<p>Linux 系统时间配置基本分为手动设置与基于 ntp 的配置两种方式。</p>
+</blockquote>
+<h3>手动设置系统时间</h3>
+<h4>1. 说明</h4>
+<p>Linux将时钟分为系统时钟(System Clock)和硬件(Real Time Clock，简称RTC)时钟两种。系统时间是指当前Linux Kernel中的时钟，而硬件时钟则是主板上由电池供电的那个主板硬件时钟，这个时钟可以在BIOS的“Standard BIOS Feture”项中进行设置。Linux并没有默认哪个时钟系统。当Linux启动时，硬件时钟会去读取系统时钟的设置，然后系统时钟就会独立于硬件运作。</p>
+<h4>2. 设置方法</h4>
+<div class="highlight"><pre><span class="n">date</span> <span class="mf">042612492015.28</span>
+<span class="n">hwclock</span> <span class="err">–</span><span class="n">w</span>
+</pre></div>
+
+
+<p>说明：
+第一步是设置时间，设置完成可以使用date命令查看是否正确，<strong>注意</strong>：时间设置格式为<strong><code>月日时分年.秒</code></strong>；
+第二步是将系统时间写入硬件时钟，这样可以避免重启之后需要重新设置系统时间。</p>
+<h4>3. 相关操作命令</h4>
+<ul>
+<li>查看硬件时钟</li>
+</ul>
+<div class="highlight"><pre><span class="n">hwclock</span> <span class="o">--</span><span class="n">show</span> 
+</pre></div>
+
+
+<ul>
+<li>设置硬件时钟 ...</li></ul>
                     <a class="btn btn-default btn-xs" href="http://weyo.github.com/pages/2014/07/04/linux-time-setting/">more ...</a>
                 </div>
             </article>
@@ -117,11 +162,6 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.github.com/tag/kafka.html">
-                                Kafka
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
                             <a href="http://weyo.github.com/tag/linux.html">
                                 Linux
                             </a>
@@ -129,6 +169,11 @@
                         <li class="list-group-item tag-4">
                             <a href="http://weyo.github.com/tag/flume.html">
                                 Flume
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.github.com/tag/kafka.html">
+                                Kafka
                             </a>
                         </li>
         </ul>
@@ -142,7 +187,7 @@
         <p class="pull-right"><i class="icon-arrow-up"></i> <a href="#">Back to top</a></p>
 
 
-        <p>&copy; 2015 Yohn &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+        <p>&copy; 2015 Weyo &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
             <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
             <a href="http://getbootstrap.com" target="_blank">Bootstrap</a></p>
     </div>
