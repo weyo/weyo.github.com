@@ -14,7 +14,7 @@
             <meta property="og:type" content="article"/>
             <meta property="og:title" content="Flume-Kafka 集成部署"/>
             <meta property="og:url" content="http://weyo.github.com/pages/2015/04/10/flume-kafka-integration/"/>
-            <meta property="og:description" content="系统版本： - Flume-ng 1.5.3 - Kafka 0.8.2 1. 配置 Flume # 每个flume分别进行配置 vi conf/flume-conf.properties agent181.sources = src1 agent181.channels = ch1 agent181.sinks = k1 # For each one of the sources, the type is defined agent181.sources.src1.type = avro # The channel can be defined as follows. agent181 ..."/>
+            <meta property="og:description" content="前言 数据采集与数据传输是大数据/分布式计算技术的两项基本需求，对应于这两项需求，开源社区有很多成熟的解决方案，包括 Scribe，Flume，Chukwa，Kafka，各类MQ等等，基于不同的业务场景可以灵活选择。考虑到公司的多数据源、复杂业务场景、高实时性的业务模式与实际技术特点，在分布式计算系统中需要选择轻量级、可定制程度好、扩展性强、易于维护的数据采集与传输子系统。其中，采集单元选用模块化程度极高的 Flume-ng，传输单元选择高吞吐率的 Kafka，将两者结合共同构成分布式计算集群的基础数据输入组件。 0. 准备材料 Flume 安装程序 Kafka 安装程序 Flume-Kafka 插件 系统版本 Flume-ng 1.5.3 Kafka 0.8.2 1. 配置 Flume # 配置 flume agent vi conf ..."/>
 
     <!-- Bootstrap -->
         <link rel="stylesheet" href="http://weyo.github.com/theme/css/bootstrap.min.css" type="text/css"/>
@@ -109,46 +109,53 @@
 	<a href="http://weyo.github.com/tag/huan-jing-da-jian.html">环境搭建</a>
 </footer><!-- /.post-info -->                    </div>
                 </div>
-                <hr />
+                <h3>前言</h3>
+<p>数据采集与数据传输是大数据/分布式计算技术的两项基本需求，对应于这两项需求，开源社区有很多成熟的解决方案，包括 Scribe，Flume，Chukwa，Kafka，各类MQ等等，基于不同的业务场景可以灵活选择。考虑到公司的多数据源、复杂业务场景、高实时性的业务模式与实际技术特点，在分布式计算系统中需要选择轻量级、可定制程度好、扩展性强、易于维护的数据采集与传输子系统。其中，采集单元选用模块化程度极高的 Flume-ng，传输单元选择高吞吐率的　Kafka，将两者结合共同构成分布式计算集群的基础数据输入组件。</p>
+<hr />
+<h3>0. 准备材料</h3>
+<ul>
+<li>Flume 安装程序</li>
+<li>Kafka 安装程序</li>
+<li>Flume-Kafka 插件</li>
+</ul>
 <blockquote>
-<p>系统版本：
-- Flume-ng 1.5.3
-- Kafka 0.8.2</p>
+<h4>系统版本</h4>
+<ul>
+<li>Flume-ng 1.5.3</li>
+<li>Kafka 0.8.2</li>
+</ul>
 </blockquote>
 <h3>1. 配置 Flume</h3>
-<div class="highlight"><pre><span class="cp"># 每个flume分别进行配置</span>
+<div class="highlight"><pre><span class="cp"># 配置 flume agent</span>
 <span class="n">vi</span> <span class="n">conf</span><span class="o">/</span><span class="n">flume</span><span class="o">-</span><span class="n">conf</span><span class="p">.</span><span class="n">properties</span>
 </pre></div>
 
 
-<div class="highlight"><pre><span class="n">agent181</span><span class="p">.</span><span class="n">sources</span> <span class="o">=</span> <span class="n">src1</span>
+<div class="highlight"><pre><span class="cp"># 本agent的名称为“agent181”</span>
+<span class="n">agent181</span><span class="p">.</span><span class="n">sources</span> <span class="o">=</span> <span class="n">src1</span>
 <span class="n">agent181</span><span class="p">.</span><span class="n">channels</span> <span class="o">=</span> <span class="n">ch1</span>
 <span class="n">agent181</span><span class="p">.</span><span class="n">sinks</span> <span class="o">=</span> <span class="n">k1</span>
 
-<span class="cp"># For each one of the sources, the type is defined</span>
+<span class="cp">## 定义 sources</span>
 <span class="n">agent181</span><span class="p">.</span><span class="n">sources</span><span class="p">.</span><span class="n">src1</span><span class="p">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">avro</span>
-
-<span class="cp"># The channel can be defined as follows.</span>
 <span class="n">agent181</span><span class="p">.</span><span class="n">sources</span><span class="p">.</span><span class="n">src1</span><span class="p">.</span><span class="n">channels</span> <span class="o">=</span> <span class="n">ch1</span>
-<span class="cp"># 本地flume服务器地址</span>
+<span class="cp"># 本地flume服务器地址，需要在hosts中注册</span>
 <span class="n">agent181</span><span class="p">.</span><span class="n">sources</span><span class="p">.</span><span class="n">src1</span><span class="p">.</span><span class="n">bind</span> <span class="o">=</span> <span class="n">hd181</span>
-<span class="cp"># flume绑定端口</span>
+<span class="cp"># source 绑定端口</span>
 <span class="n">agent181</span><span class="p">.</span><span class="n">sources</span><span class="p">.</span><span class="n">src1</span><span class="p">.</span><span class="n">port</span> <span class="o">=</span> <span class="mi">41414</span>
 
-<span class="cp"># Each sink&#39;s type must be defined</span>
+<span class="cp">## 定义 sinks</span>
 <span class="n">agent181</span><span class="p">.</span><span class="n">sinks</span><span class="p">.</span><span class="n">k1</span><span class="p">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">com</span><span class="p">.</span><span class="n">thilinamb</span><span class="p">.</span><span class="n">flume</span><span class="p">.</span><span class="n">sink</span><span class="p">.</span><span class="n">KafkaSink</span>
 <span class="cp"># 需要连接的topic名称</span>
-<span class="cp"># 注意：如果此topic不存在（即在Kafka集群中未创建）则默认连接到一个名为“default-flume-topic”的topic，而Kafka不会自动创建一个topic</span>
+<span class="cp"># 注意：如果此topic不存在（即在Kafka集群中未创建）则默认连接到一个名为“default-flume-topic”的topic</span>
 <span class="n">agent181</span><span class="p">.</span><span class="n">sinks</span><span class="p">.</span><span class="n">k1</span><span class="p">.</span><span class="n">custom</span><span class="o">-</span><span class="n">topic</span> <span class="o">=</span> <span class="n">flumeTopic</span>
-<span class="cp"># 需要连接到的Kafka服务器地址（这里是hd182）</span>
+<span class="cp"># 需要连接到的Kafka服务器地址与端口（这里是hd182）</span>
 <span class="n">agent181</span><span class="p">.</span><span class="n">sinks</span><span class="p">.</span><span class="n">k1</span><span class="p">.</span><span class="n">kafka</span><span class="p">.</span><span class="n">metadata</span><span class="p">.</span><span class="n">broker</span><span class="p">.</span><span class="n">list</span><span class="o">=</span><span class="n">hd182</span><span class="o">:</span><span class="mi">9092</span>
 <span class="n">agent181</span><span class="p">.</span><span class="n">sinks</span><span class="p">.</span><span class="n">k1</span><span class="p">.</span><span class="n">kafka</span><span class="p">.</span><span class="n">serializer</span><span class="p">.</span><span class="n">class</span> <span class="o">=</span> <span class="n">kafka</span><span class="p">.</span><span class="n">serializer</span><span class="p">.</span><span class="n">StringEncoder</span>
 <span class="n">agent181</span><span class="p">.</span><span class="n">sinks</span><span class="p">.</span><span class="n">k1</span><span class="p">.</span><span class="n">kafka</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="n">required</span><span class="p">.</span><span class="n">acks</span> <span class="o">=</span> <span class="mi">1</span>
-
-<span class="cp">#Specify the channel the sink should use</span>
 <span class="n">agent181</span><span class="p">.</span><span class="n">sinks</span><span class="p">.</span><span class="n">k1</span><span class="p">.</span><span class="n">channel</span> <span class="o">=</span> <span class="n">ch1</span>
 
-<span class="cp"># Each channel&#39;s type is defined.</span>
+<span class="cp">## 定义 channels</span>
 <span class="n">agent181</span><span class="p">.</span><span class="n">channels</span><span class="p">.</span><span class="n">ch1</span><span class="p">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">memory</span>
 <span class="n">agent181</span><span class="p">.</span><span class="n">channels</span><span class="p">.</span><span class="n">ch1</span><span class="p">.</span><span class="n">capacity</span> <span class="o">=</span> <span class="mi">1000</span>
 </pre></div>
@@ -182,10 +189,10 @@ https://github.com/thilinamb/flume-ng-kafka-sink</p>
 
 <h3>3. 运行</h3>
 <ul>
-<li>启动 Kafka server（每个 flume agent 对应的 Kafka broker，本例中为 hd182）</li>
-</ul>
-<p><code>bin/kafka-server-start.sh config/server.properties &amp;</code></p>
-<ul>
+<li>
+<p>启动 Kafka server（每个 flume agent 对应的 Kafka broker，本例中为 hd182）
+ <code>bin/kafka-server-start.sh config/server.properties &amp;</code></p>
+</li>
 <li>
 <p>创建 Kafka topic（上面 Flume 配置文件中对应的topic名称）
  <code>bin/kafka-topics.sh --create --zookeeper hd181:2181 --replication 1 --partition 1 --topic flumeTopic</code></p>
@@ -254,19 +261,24 @@ https://github.com/thilinamb/flume-ng-kafka-sink</p>
                                 环境搭建
                             </a>
                         </li>
+                        <li class="list-group-item tag-2">
+                            <a href="http://weyo.github.com/tag/kafka.html">
+                                Kafka
+                            </a>
+                        </li>
                         <li class="list-group-item tag-4">
                             <a href="http://weyo.github.com/tag/linux.html">
                                 Linux
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.github.com/tag/flume.html">
-                                Flume
+                            <a href="http://weyo.github.com/tag/storm.html">
+                                Storm
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.github.com/tag/kafka.html">
-                                Kafka
+                            <a href="http://weyo.github.com/tag/flume.html">
+                                Flume
                             </a>
                         </li>
         </ul>
@@ -280,7 +292,7 @@ https://github.com/thilinamb/flume-ng-kafka-sink</p>
         <p class="pull-right"><i class="icon-arrow-up"></i> <a href="#">Back to top</a></p>
 
 
-        <p>&copy; 2015 Weyo &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+        <p>&copy; 2015 WeYo &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
             <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
             <a href="http://getbootstrap.com" target="_blank">Bootstrap</a></p>
     </div>

@@ -14,7 +14,7 @@
             <meta property="og:type" content="article"/>
             <meta property="og:title" content="Linux 系统时间配置入门"/>
             <meta property="og:url" content="http://weyo.github.com/pages/2014/07/04/linux-time-setting/"/>
-            <meta property="og:description" content="Linux 系统时间配置基本分为手动设置与基于 ntp 的配置两种方式。 手动设置系统时间 1. 说明 Linux将时钟分为系统时钟(System Clock)和硬件(Real Time Clock，简称RTC)时钟两种。系统时间是指当前Linux Kernel中的时钟，而硬件时钟则是主板上由电池供电的那个主板硬件时钟，这个时钟可以在BIOS的“Standard BIOS Feture”项中进行设置。Linux并没有默认哪个时钟系统。当Linux启动时，硬件时钟会去读取系统时钟的设置，然后系统时钟就会独立于硬件运作。 2. 设置方法 date 042612492015.28 hwclock –w 说明： 第一步是设置时间，设置完成可以使用date命令查看是否正确，注意：时间设置格式为月日时分年.秒； 第二步是将系统时间写入硬件时钟，这样可以避免重启之后需要重新设置系统时间。 3. 相关操作命令 查看硬件时钟 hwclock --show 设置硬件时钟 ..."/>
+            <meta property="og:description" content="Linux 系统时间配置可以分为“手动”设置与基于 ntp 的配置两种方式。 手动设置系统时间 1. 说明 Linux将时钟分为系统时钟(System Clock)和硬件(Real Time Clock，简称RTC)时钟两种。系统时间是指当前Linux Kernel中的时钟，而硬件时钟则是主板上由电池供电的那个主板硬件时钟，这个时钟可以在BIOS的“Standard BIOS Feture”项中进行设置。Linux并没有默认哪个时钟系统。当Linux启动时，硬件时钟会去读取系统时钟的设置，然后系统时钟就会独立于硬件运作。 2. 设置方法 date 042612492015.28 hwclock –w 说明： 第一步是设置时间，设置完成可以使用date命令查看是否正确，注意：时间设置格式为月日时分年.秒； 第二步是将系统时间写入硬件时钟，这样可以避免重启之后需要重新设置系统时间。 3. 相关操作命令 查看硬件时钟 hwclock ..."/>
 
     <!-- Bootstrap -->
         <link rel="stylesheet" href="http://weyo.github.com/theme/css/bootstrap.min.css" type="text/css"/>
@@ -107,9 +107,8 @@
 	<a href="http://weyo.github.com/tag/huan-jing-da-jian.html">环境搭建</a>
 </footer><!-- /.post-info -->                    </div>
                 </div>
-                <hr />
-<blockquote>
-<p>Linux 系统时间配置基本分为手动设置与基于 ntp 的配置两种方式。</p>
+                <blockquote>
+<p>Linux 系统时间配置可以分为“手动”设置与基于 ntp 的配置两种方式。</p>
 </blockquote>
 <h3>手动设置系统时间</h3>
 <h4>1. 说明</h4>
@@ -176,8 +175,8 @@
 <p>这样每天5:10自动进行网络校时，并同时更新BIOS的时间。</p>
 <h4>4. 网络时间同步服务器</h4>
 <p>时间服务器分为两种，一种是一级时间服务器，另外一种是二级时间服务器。我们如果是同步自己的服务器的时间，那么选择二级时间服务器，因为一级时间服务器是为二级时间服务器提供时间校对服务器，我们尽量不要增加一级服务器的压力。这种层级的概念和DNS的层级概念是一致的。
-一级时间服务器列表：http://support.ntp.org/bin/view/Servers/StratumOneTimeServers
-二级时间服务器列表：http://support.ntp.org/bin/view/Servers/StratumTwoTimeServers</p>
+一级时间服务器列表： http://support.ntp.org/bin/view/Servers/StratumOneTimeServers
+二级时间服务器列表： http://support.ntp.org/bin/view/Servers/StratumTwoTimeServers</p>
 <blockquote>
 <p><strong>附二级服务器列表</strong></p>
 </blockquote>
@@ -189,10 +188,9 @@
 </pre></div>
 
 
-<h3>问题</h3>
-<ol>
-<li><strong>no server suitable for synchronization found</strong>
- 执行ntpdate命令更新NTP客户端的时间时，如果报以下错误：
+<h3>Q&amp;A</h3>
+<h4>1. <strong>no server suitable for synchronization found</strong></h4>
+<p>执行ntpdate命令更新NTP客户端的时间时，如果报以下错误：
  <code>no server suitable for synchronization found</code>
  则可采用以下步骤检测：
  (1) 在NTP服务端执行以下命令检测NTP服务是否运行
@@ -201,22 +199,21 @@
  <code>ping NTP服务端IP</code>
  (3) 在NTP客户端执行
  <code>ntpdate -d NTP服务端IP</code>
- 如果输出结果如下：<blockquote>
+ 如果输出结果如下：</p>
+<blockquote>
 <p>6 Nov 10:23:16 ntpdate[3521]: ntpdate 4.2.2p1@1.1570-o Tue Nov 18 07:40:49 UTC             2008 (1)
-Looking for host 10.75.80.47 and service ntp
-host found : 10.75.80.47
-transmit(10.75.80.47)
-transmit(10.75.80.47)
-transmit(10.75.80.47)
-transmit(10.75.80.47)
-transmit(10.75.80.47)
-10.75.80.47: <strong>Server dropped: no data</strong>
-……
-……
-6 Nov 10:23:20 ntpdate[3521]: no server suitable for synchronization found</p>
+ Looking for host 10.75.80.47 and service ntp
+ host found : 10.75.80.47
+ transmit(10.75.80.47)
+ transmit(10.75.80.47)
+ transmit(10.75.80.47)
+ transmit(10.75.80.47)
+ transmit(10.75.80.47)
+ 10.75.80.47: <strong>Server dropped: no data</strong>
+ ……
+ ……
+ 6 Nov 10:23:20 ntpdate[3521]: no server suitable for synchronization found</p>
 </blockquote>
-</li>
-</ol>
 <p>如果出现以上情况，请按以下步骤处理：
  a) 检查NTP服务端使用的ntp版本：
  <code>ntpq -c version</code>
@@ -228,26 +225,6 @@ transmit(10.75.80.47)
 <p>b) 检查NTP服务端的防火墙是否开放NTP服务端口：udp 123
  <code>service iptables stop</code>
  执行以上命令关闭NTP服务端的防火墙，然后再进行NTP时间同步</p>
-<ol>
-<li><strong>Server dropped: Strata too high</strong>
- 执行<code>ntpdate serverIP</code>，出现 <em>no server suitable for synchronization found</em> 的错误。
- 使用<code>ntpdate –d serverIP</code>查看，发现有“Server dropped: strata too high”的错误，并且显示“stratum 16”。而正常情况下 stratum 这个值得范围是“0~15”。这是因为NTP server 还没有和其自身或者它的 server 同步上。以下的定义是让 NTP Server 和其自身保持同步，如果在 /ntp.conf 中定义的 server 都不可用时，将使用 local 时间作为ntp服务提供给ntp客户端。
- <code>server 127.127.1.0 fudge
- 127.127.1.0 stratum 8</code>
- 在ntp server上重新启动ntp服务后，ntp server自身或者与其server的同步的需要一个时间段，这个过程可能是5分钟，在这个时间之内在客户端运行ntpdate命令时会产生no server suitable for synchronization found的错误。
- 在ntp server上使用命令：
- <code>watch ntpq -p</code>
- 出现画面：
- ```
- Every 2.0s: ntpq -p                                                                               <br />
-                         Thu Jul 10 02:28:32 2008</li>
-</ol>
-<p>remote           refid      st t when poll reach   delay   offset jitter
- ==============================================================================
- 192.168.30.22   LOCAL(0)         8 u   22   64    1    2.113 179133.   0.001
- LOCAL(0)        LOCAL(0)        10 l   21   64    1    0.000   0.000  0.001
- ```
- 注意LOCAL的这个就是与自身同步的ntp server。注意reach这个值，在启动 ntp server 服务后，这个值就从0开始不断增加，当增加到17的时候，从0到17是5次的变更，每一次是poll的值的秒数，是64秒*5=320秒的时间。如果之后从ntp客户端同步ntp server还失败的话，用 ntpdate –d 来查询详细错误信息，再做判断。</p>
 <hr />
 <blockquote>
 <h3>Reference</h3>
@@ -309,19 +286,24 @@ transmit(10.75.80.47)
                                 环境搭建
                             </a>
                         </li>
+                        <li class="list-group-item tag-2">
+                            <a href="http://weyo.github.com/tag/kafka.html">
+                                Kafka
+                            </a>
+                        </li>
                         <li class="list-group-item tag-4">
                             <a href="http://weyo.github.com/tag/linux.html">
                                 Linux
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.github.com/tag/flume.html">
-                                Flume
+                            <a href="http://weyo.github.com/tag/storm.html">
+                                Storm
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.github.com/tag/kafka.html">
-                                Kafka
+                            <a href="http://weyo.github.com/tag/flume.html">
+                                Flume
                             </a>
                         </li>
         </ul>
@@ -335,7 +317,7 @@ transmit(10.75.80.47)
         <p class="pull-right"><i class="icon-arrow-up"></i> <a href="#">Back to top</a></p>
 
 
-        <p>&copy; 2015 Weyo &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+        <p>&copy; 2015 WeYo &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
             <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
             <a href="http://getbootstrap.com" target="_blank">Bootstrap</a></p>
     </div>

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Let There Be Light!</title><link>http://weyo.github.com/</link><description></description><atom:link href="http://weyo.github.com/feeds/linux.rss.xml" rel="self"></atom:link><lastBuildDate>Fri, 04 Jul 2014 00:00:00 +0800</lastBuildDate><item><title>Linux 系统时间配置入门</title><link>http://weyo.github.com/pages/2014/07/04/linux-time-setting/</link><description>&lt;hr /&gt;
-&lt;blockquote&gt;
-&lt;p&gt;Linux 系统时间配置基本分为手动设置与基于 ntp 的配置两种方式。&lt;/p&gt;
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Let There Be Light!</title><link>http://weyo.github.com/</link><description></description><atom:link href="http://weyo.github.com/feeds/linux.rss.xml" rel="self"></atom:link><lastBuildDate>Fri, 04 Jul 2014 00:00:00 +0800</lastBuildDate><item><title>Linux 系统时间配置入门</title><link>http://weyo.github.com/pages/2014/07/04/linux-time-setting/</link><description>&lt;blockquote&gt;
+&lt;p&gt;Linux 系统时间配置可以分为“手动”设置与基于 ntp 的配置两种方式。&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;h3&gt;手动设置系统时间&lt;/h3&gt;
 &lt;h4&gt;1. 说明&lt;/h4&gt;
@@ -68,8 +67,8 @@
 &lt;p&gt;这样每天5:10自动进行网络校时，并同时更新BIOS的时间。&lt;/p&gt;
 &lt;h4&gt;4. 网络时间同步服务器&lt;/h4&gt;
 &lt;p&gt;时间服务器分为两种，一种是一级时间服务器，另外一种是二级时间服务器。我们如果是同步自己的服务器的时间，那么选择二级时间服务器，因为一级时间服务器是为二级时间服务器提供时间校对服务器，我们尽量不要增加一级服务器的压力。这种层级的概念和DNS的层级概念是一致的。
-一级时间服务器列表：http://support.ntp.org/bin/view/Servers/StratumOneTimeServers
-二级时间服务器列表：http://support.ntp.org/bin/view/Servers/StratumTwoTimeServers&lt;/p&gt;
+一级时间服务器列表： http://support.ntp.org/bin/view/Servers/StratumOneTimeServers
+二级时间服务器列表： http://support.ntp.org/bin/view/Servers/StratumTwoTimeServers&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;&lt;strong&gt;附二级服务器列表&lt;/strong&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
@@ -81,10 +80,9 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;h3&gt;问题&lt;/h3&gt;
-&lt;ol&gt;
-&lt;li&gt;&lt;strong&gt;no server suitable for synchronization found&lt;/strong&gt;
- 执行ntpdate命令更新NTP客户端的时间时，如果报以下错误：
+&lt;h3&gt;Q&amp;amp;A&lt;/h3&gt;
+&lt;h4&gt;1. &lt;strong&gt;no server suitable for synchronization found&lt;/strong&gt;&lt;/h4&gt;
+&lt;p&gt;执行ntpdate命令更新NTP客户端的时间时，如果报以下错误：
  &lt;code&gt;no server suitable for synchronization found&lt;/code&gt;
  则可采用以下步骤检测：
  (1) 在NTP服务端执行以下命令检测NTP服务是否运行
@@ -93,22 +91,21 @@
  &lt;code&gt;ping NTP服务端IP&lt;/code&gt;
  (3) 在NTP客户端执行
  &lt;code&gt;ntpdate -d NTP服务端IP&lt;/code&gt;
- 如果输出结果如下：&lt;blockquote&gt;
+ 如果输出结果如下：&lt;/p&gt;
+&lt;blockquote&gt;
 &lt;p&gt;6 Nov 10:23:16 ntpdate[3521]: ntpdate 4.2.2p1@1.1570-o Tue Nov 18 07:40:49 UTC             2008 (1)
-Looking for host 10.75.80.47 and service ntp
-host found : 10.75.80.47
-transmit(10.75.80.47)
-transmit(10.75.80.47)
-transmit(10.75.80.47)
-transmit(10.75.80.47)
-transmit(10.75.80.47)
-10.75.80.47: &lt;strong&gt;Server dropped: no data&lt;/strong&gt;
-……
-……
-6 Nov 10:23:20 ntpdate[3521]: no server suitable for synchronization found&lt;/p&gt;
+ Looking for host 10.75.80.47 and service ntp
+ host found : 10.75.80.47
+ transmit(10.75.80.47)
+ transmit(10.75.80.47)
+ transmit(10.75.80.47)
+ transmit(10.75.80.47)
+ transmit(10.75.80.47)
+ 10.75.80.47: &lt;strong&gt;Server dropped: no data&lt;/strong&gt;
+ ……
+ ……
+ 6 Nov 10:23:20 ntpdate[3521]: no server suitable for synchronization found&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;/li&gt;
-&lt;/ol&gt;
 &lt;p&gt;如果出现以上情况，请按以下步骤处理：
  a) 检查NTP服务端使用的ntp版本：
  &lt;code&gt;ntpq -c version&lt;/code&gt;
@@ -120,26 +117,6 @@ transmit(10.75.80.47)
 &lt;p&gt;b) 检查NTP服务端的防火墙是否开放NTP服务端口：udp 123
  &lt;code&gt;service iptables stop&lt;/code&gt;
  执行以上命令关闭NTP服务端的防火墙，然后再进行NTP时间同步&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;&lt;strong&gt;Server dropped: Strata too high&lt;/strong&gt;
- 执行&lt;code&gt;ntpdate serverIP&lt;/code&gt;，出现 &lt;em&gt;no server suitable for synchronization found&lt;/em&gt; 的错误。
- 使用&lt;code&gt;ntpdate –d serverIP&lt;/code&gt;查看，发现有“Server dropped: strata too high”的错误，并且显示“stratum 16”。而正常情况下 stratum 这个值得范围是“0~15”。这是因为NTP server 还没有和其自身或者它的 server 同步上。以下的定义是让 NTP Server 和其自身保持同步，如果在 /ntp.conf 中定义的 server 都不可用时，将使用 local 时间作为ntp服务提供给ntp客户端。
- &lt;code&gt;server 127.127.1.0 fudge
- 127.127.1.0 stratum 8&lt;/code&gt;
- 在ntp server上重新启动ntp服务后，ntp server自身或者与其server的同步的需要一个时间段，这个过程可能是5分钟，在这个时间之内在客户端运行ntpdate命令时会产生no server suitable for synchronization found的错误。
- 在ntp server上使用命令：
- &lt;code&gt;watch ntpq -p&lt;/code&gt;
- 出现画面：
- ```
- Every 2.0s: ntpq -p                                                                               &lt;br /&gt;
-                         Thu Jul 10 02:28:32 2008&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;remote           refid      st t when poll reach   delay   offset jitter
- ==============================================================================
- 192.168.30.22   LOCAL(0)         8 u   22   64    1    2.113 179133.   0.001
- LOCAL(0)        LOCAL(0)        10 l   21   64    1    0.000   0.000  0.001
- ```
- 注意LOCAL的这个就是与自身同步的ntp server。注意reach这个值，在启动 ntp server 服务后，这个值就从0开始不断增加，当增加到17的时候，从0到17是5次的变更，每一次是poll的值的秒数，是64秒*5=320秒的时间。如果之后从ntp客户端同步ntp server还失败的话，用 ntpdate –d 来查询详细错误信息，再做判断。&lt;/p&gt;
 &lt;hr /&gt;
 &lt;blockquote&gt;
 &lt;h3&gt;Reference&lt;/h3&gt;
@@ -149,4 +126,4 @@ transmit(10.75.80.47)
 &lt;li&gt;http://bbs.chinaunix.net/thread-4131894-1-1.html&lt;/li&gt;
 &lt;li&gt;http://blog.csdn.net/weidan1121/article/details/3953021&lt;/li&gt;
 &lt;/ol&gt;
-&lt;/blockquote&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Weyo</dc:creator><pubDate>Fri, 04 Jul 2014 00:00:00 +0800</pubDate><guid>tag:weyo.github.com,2014-07-04:pages/2014/07/04/linux-time-setting/</guid><category>Linux</category><category>环境搭建</category></item></channel></rss>
+&lt;/blockquote&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Fri, 04 Jul 2014 00:00:00 +0800</pubDate><guid>tag:weyo.github.com,2014-07-04:pages/2014/07/04/linux-time-setting/</guid><category>Linux</category><category>环境搭建</category></item></channel></rss>

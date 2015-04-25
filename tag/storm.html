@@ -3,7 +3,7 @@
       xmlns:og="http://ogp.me/ns#"
       xmlns:fb="https://www.facebook.com/2008/fbml">
 <head>
-    <title>Let There Be Light! - Flume</title>
+    <title>Let There Be Light! - Storm</title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8">
@@ -80,27 +80,26 @@
     <div class="row">
         <div class="col-lg-9">
             <article>
-                <h2><a href="http://weyo.github.com/pages/2015/04/10/flume-kafka-integration/">Flume-Kafka 集成部署</a></h2>
+                <h2><a href="http://weyo.github.com/pages/2015/04/13/kafka-storm-integration/">Kafka-Storm 集成部署</a></h2>
                 <div class="summary"><h3>前言</h3>
-<p>数据采集与数据传输是大数据/分布式计算技术的两项基本需求，对应于这两项需求，开源社区有很多成熟的解决方案，包括 Scribe，Flume，Chukwa，Kafka，各类MQ等等，基于不同的业务场景可以灵活选择。考虑到公司的多数据源、复杂业务场景、高实时性的业务模式与实际技术特点，在分布式计算系统中需要选择轻量级、可定制程度好、扩展性强、易于维护的数据采集与传输子系统。其中，采集单元选用模块化程度极高的 Flume-ng，传输单元选择高吞吐率的　Kafka，将两者结合共同构成分布式计算集群的基础数据输入组件。</p>
+<p>分布式实时计算的主要组件采用基于流式计算的 Apache Storm，而实时计算的数据源来自基础数据输入组件中的 Kafka，如何将 Kafka 的消息数据传入 Storm 就是本文讨论的内容。</p>
 <hr />
-<h3>0. 准备材料</h3>
+<h3>0. 材料准备</h3>
 <ul>
-<li>Flume 安装程序</li>
-<li>Kafka 安装程序</li>
-<li>Flume-Kafka 插件</li>
+<li>正常稳定运行的 Kafka 集群</li>
+<li>正常稳定运行的 Storm 集群（可以通过 Web UI 查看集群运行状况）</li>
+<li>Maven 3.x</li>
 </ul>
 <blockquote>
 <h4>系统版本</h4>
 <ul>
-<li>Flume-ng 1.5.3</li>
 <li>Kafka 0.8.2</li>
+<li>Storm 0.9.8</li>
 </ul>
 </blockquote>
-<h3>1. 配置 Flume</h3>
-<div class="highlight"><pre><span class="cp"># 配置 flume agent</span>
-<span class="n">vi</span> <span class="n">conf ...</span></pre></div>
-                    <a class="btn btn-default btn-xs" href="http://weyo.github.com/pages/2015/04/10/flume-kafka-integration/">more ...</a>
+<h3>1. Storm Topology 工程</h3>
+<p>Storm 的任务（Job）称为 Topology，为了处理实时计算任务，需要新建一个 Storm Topology 工程。由于 ...</p>
+                    <a class="btn btn-default btn-xs" href="http://weyo.github.com/pages/2015/04/13/kafka-storm-integration/">more ...</a>
                 </div>
             </article>
             <hr/>

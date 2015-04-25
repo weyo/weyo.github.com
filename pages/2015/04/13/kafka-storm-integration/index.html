@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:og="http://ogp.me/ns#"
+      xmlns:fb="https://www.facebook.com/2008/fbml">
+<head>
+    <title>Kafka-Storm 集成部署</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Open Graph tags -->
+
+            <meta property="og:type" content="article"/>
+            <meta property="og:title" content="Kafka-Storm 集成部署"/>
+            <meta property="og:url" content="http://weyo.github.com/pages/2015/04/13/kafka-storm-integration/"/>
+            <meta property="og:description" content="前言 分布式实时计算的主要组件采用基于流式计算的 Apache Storm，而实时计算的数据源来自基础数据输入组件中的 Kafka，如何将 Kafka 的消息数据传入 Storm 就是本文讨论的内容。 0. 材料准备 正常稳定运行的 Kafka 集群 正常稳定运行的 Storm 集群（可以通过 Web UI 查看集群运行状况） Maven 3.x 系统版本 Kafka 0.8.2 Storm 0.9.8 1. Storm Topology 工程 Storm 的任务（Job）称为 Topology，为了处理实时计算任务，需要新建一个 Storm Topology 工程。由于 ..."/>
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="http://weyo.github.com/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="http://weyo.github.com/theme/css/font-awesome.min.css" rel="stylesheet">
+    <link href="http://weyo.github.com/theme/css/pygments.css" rel="stylesheet">
+    <link rel="stylesheet" href="http://weyo.github.com/theme/css/style.css" type="text/css"/>
+    <!-- JavaScript plugins (requires jQuery) -->
+    <script src="http://code.jquery.com/jquery.js"></script>
+
+        <link href="http://weyo.github.com/feeds/all.rss.xml" type="application/atom+xml" rel="alternate"
+              title="Let There Be Light! RSS Feed"/>
+
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46991080-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+
+    </script>
+</head>
+<body>
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="http://weyo.github.com" class="navbar-brand">Let There Be Light!</a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="http://weyo.github.com/pages/about.html">
+                             About
+                          </a></li>
+                        <li class="active">
+                            <a href="http://weyo.github.com/category/fen-bu-shi-ji-suan.html">分布式计算</a>
+                        </li>
+                        <li >
+                            <a href="http://weyo.github.com/category/linux.html">Linux</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="http://weyo.github.com/archives.html"><i class="icon-th-list"></i>Archives</a></li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</nav>
+<!-- /.navbar -->
+<div class="container">
+    <div class="row">
+        <div class="col-lg-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="http://weyo.github.com/pages/2015/04/13/kafka-storm-integration/"
+                       rel="bookmark"
+                       title="Permalink to Kafka-Storm 集成部署">
+                        Kafka-Storm 集成部署
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="icon-calendar"></i>周一 13 四月 2015
+    </span>
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="http://weyo.github.com/tag/kafka.html">Kafka</a>
+        /
+	<a href="http://weyo.github.com/tag/storm.html">Storm</a>
+        /
+	<a href="http://weyo.github.com/tag/huan-jing-da-jian.html">环境搭建</a>
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h3>前言</h3>
+<p>分布式实时计算的主要组件采用基于流式计算的 Apache Storm，而实时计算的数据源来自基础数据输入组件中的 Kafka，如何将 Kafka 的消息数据传入 Storm 就是本文讨论的内容。</p>
+<hr />
+<h3>0. 材料准备</h3>
+<ul>
+<li>正常稳定运行的 Kafka 集群</li>
+<li>正常稳定运行的 Storm 集群（可以通过 Web UI 查看集群运行状况）</li>
+<li>Maven 3.x</li>
+</ul>
+<blockquote>
+<h4>系统版本</h4>
+<ul>
+<li>Kafka 0.8.2</li>
+<li>Storm 0.9.8</li>
+</ul>
+</blockquote>
+<h3>1. Storm Topology 工程</h3>
+<p>Storm 的任务（Job）称为 Topology，为了处理实时计算任务，需要新建一个 Storm Topology 工程。由于 Kafka 的消息传输模式，所谓的 Kafka-Storm 集成部署实际上就是需要实现一个接收 Kafka 消息的 Spout 接口。幸运的是，最新的 Storm 官方版本中已经内置了可靠的 KafkaSpout，不需要再去手工编写，只需要将 KafkaSpout 配置为 Topology 的输入数据源即可。</p>
+<h3>2. Maven 配置</h3>
+<p>本项目工程主要采用 Maven 构建。
+- 需要配置的主要依赖（Maven）</p>
+<div class="highlight"><pre>        <span class="nt">&lt;dependency&gt;</span>
+            <span class="nt">&lt;groupId&gt;</span>org.apache.storm<span class="nt">&lt;/groupId&gt;</span>
+            <span class="nt">&lt;artifactId&gt;</span>storm-kafka<span class="nt">&lt;/artifactId&gt;</span>
+            <span class="nt">&lt;version&gt;</span>0.9.3<span class="nt">&lt;/version&gt;</span>
+            <span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span>
+        <span class="nt">&lt;/dependency&gt;</span>
+        <span class="nt">&lt;dependency&gt;</span>
+            <span class="nt">&lt;groupId&gt;</span>org.apache.storm<span class="nt">&lt;/groupId&gt;</span>
+            <span class="nt">&lt;artifactId&gt;</span>storm-core<span class="nt">&lt;/artifactId&gt;</span>
+            <span class="nt">&lt;version&gt;</span>0.9.3<span class="nt">&lt;/version&gt;</span>
+            <span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span>
+        <span class="nt">&lt;/dependency&gt;</span>
+        <span class="nt">&lt;dependency&gt;</span>
+            <span class="nt">&lt;groupId&gt;</span>org.apache.kafka<span class="nt">&lt;/groupId&gt;</span>
+            <span class="nt">&lt;artifactId&gt;</span>kafka_2.10<span class="nt">&lt;/artifactId&gt;</span>
+            <span class="nt">&lt;version&gt;</span>0.8.2.1<span class="nt">&lt;/version&gt;</span>
+            <span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span>
+        <span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+
+
+<p>注意：这里的依赖的 scope 均为“provided”</p>
+<ul>
+<li>Maven 编译配置</li>
+</ul>
+<div class="highlight"><pre>    <span class="nt">&lt;build&gt;</span>
+        <span class="nt">&lt;finalName&gt;</span>storm-kafka-topology<span class="nt">&lt;/finalName&gt;</span>
+        <span class="nt">&lt;resources&gt;</span>
+            <span class="nt">&lt;resource&gt;</span>
+                <span class="nt">&lt;directory&gt;</span>src/main/resources<span class="nt">&lt;/directory&gt;</span>
+            <span class="nt">&lt;/resource&gt;</span>
+        <span class="nt">&lt;/resources&gt;</span>
+        <span class="nt">&lt;plugins&gt;</span>
+            <span class="nt">&lt;plugin&gt;</span>
+                <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
+                <span class="nt">&lt;artifactId&gt;</span>maven-compiler-plugin<span class="nt">&lt;/artifactId&gt;</span>
+                <span class="nt">&lt;version&gt;</span>3.1<span class="nt">&lt;/version&gt;</span>
+                <span class="nt">&lt;configuration&gt;</span>
+                    <span class="nt">&lt;source&gt;</span>1.7<span class="nt">&lt;/source&gt;</span>
+                    <span class="nt">&lt;target&gt;</span>1.7<span class="nt">&lt;/target&gt;</span>
+                <span class="nt">&lt;/configuration&gt;</span>
+            <span class="nt">&lt;/plugin&gt;</span>
+            <span class="nt">&lt;plugin&gt;</span>
+                <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
+                <span class="nt">&lt;artifactId&gt;</span>maven-shade-plugin<span class="nt">&lt;/artifactId&gt;</span>
+                <span class="nt">&lt;executions&gt;</span>
+                    <span class="nt">&lt;execution&gt;</span>
+                        <span class="nt">&lt;phase&gt;</span>package<span class="nt">&lt;/phase&gt;</span>
+                        <span class="nt">&lt;goals&gt;</span>
+                            <span class="nt">&lt;goal&gt;</span>shade<span class="nt">&lt;/goal&gt;</span>
+                        <span class="nt">&lt;/goals&gt;</span>
+                    <span class="nt">&lt;/execution&gt;</span>
+                <span class="nt">&lt;/executions&gt;</span>
+                <span class="nt">&lt;configuration&gt;</span>
+                    <span class="nt">&lt;finalName&gt;</span>${project.artifactId}-${project.version}-shade<span class="nt">&lt;/finalName&gt;</span>
+                    <span class="nt">&lt;filters&gt;</span>
+                        <span class="nt">&lt;filter&gt;</span>
+                            <span class="nt">&lt;artifact&gt;</span>*:*<span class="nt">&lt;/artifact&gt;</span>
+                            <span class="nt">&lt;excludes&gt;</span>
+                                <span class="nt">&lt;exclude&gt;</span>META-INF/*.SF<span class="nt">&lt;/exclude&gt;</span>
+                                <span class="nt">&lt;exclude&gt;</span>META-INF/*.DSA<span class="nt">&lt;/exclude&gt;</span>
+                                <span class="nt">&lt;exclude&gt;</span>META-INF/*.RSA<span class="nt">&lt;/exclude&gt;</span>
+                            <span class="nt">&lt;/excludes&gt;</span>
+                        <span class="nt">&lt;/filter&gt;</span>
+                    <span class="nt">&lt;/filters&gt;</span>
+                    <span class="nt">&lt;artifactSet&gt;</span>
+                        <span class="nt">&lt;excludes&gt;</span>
+                            <span class="nt">&lt;exclude&gt;</span>log4j:log4j:jar:<span class="nt">&lt;/exclude&gt;</span>
+                        <span class="nt">&lt;/excludes&gt;</span>
+                    <span class="nt">&lt;/artifactSet&gt;</span>
+                    <span class="nt">&lt;transformers&gt;</span>
+                        <span class="nt">&lt;transformer</span>
+                            <span class="na">implementation=</span><span class="s">&quot;org.apache.maven.plugins.shade.resource.ServicesResourceTransformer&quot;</span> <span class="nt">/&gt;</span>
+                        <span class="nt">&lt;transformer</span>
+                            <span class="na">implementation=</span><span class="s">&quot;org.apache.maven.plugins.shade.resource.ManifestResourceTransformer&quot;</span><span class="nt">&gt;</span>
+                            <span class="nt">&lt;mainClass&gt;</span>storm.kafka.example.StormTopology<span class="nt">&lt;/mainClass&gt;</span>
+                        <span class="nt">&lt;/transformer&gt;</span>
+                    <span class="nt">&lt;/transformers&gt;</span>
+                <span class="nt">&lt;/configuration&gt;</span>
+            <span class="nt">&lt;/plugin&gt;</span>
+        <span class="nt">&lt;/plugins&gt;</span>
+    <span class="nt">&lt;/build&gt;</span>
+</pre></div>
+
+
+<h3>3. 实现 Topology</h3>
+<p>以下是 Topology 的一个简单示例（Java 版）。</p>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">StormTopology</span> <span class="o">{</span>
+    <span class="c1">// Topology 关闭命令（通过外部传入消息控制）</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">boolean</span> <span class="n">shutdown</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// 注册 ZooKeeper 主机</span>
+        <span class="n">BrokerHosts</span> <span class="n">brokerHosts</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ZkHosts</span><span class="o">(</span>
+                <span class="s">&quot;hd182:2181,hd185:2181,hd128:2181&quot;</span><span class="o">);</span>
+        <span class="c1">// 所接收 Kafka 的 topic 名称</span>
+        <span class="n">String</span> <span class="n">topic</span> <span class="o">=</span> <span class="s">&quot;flumeTopic&quot;</span><span class="o">;</span>
+        <span class="c1">// ZooKeeper 的注册 node 名称（注意：需要加“/”，否则 ZooKeeper 会无法识别）</span>
+        <span class="n">String</span> <span class="n">zkRoot</span> <span class="o">=</span> <span class="s">&quot;/kafkastorm&quot;</span><span class="o">;</span>
+
+        <span class="c1">// 配置 Spout</span>
+        <span class="n">String</span> <span class="n">spoutId</span> <span class="o">=</span> <span class="s">&quot;myKafka&quot;</span><span class="o">;</span>
+        <span class="n">SpoutConfig</span> <span class="n">spoutConfig</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SpoutConfig</span><span class="o">(</span><span class="n">brokerHosts</span><span class="o">,</span> <span class="n">topic</span><span class="o">,</span> <span class="n">zkRoot</span><span class="o">,</span>
+                <span class="n">spoutId</span><span class="o">);</span>
+        <span class="c1">// 配置 Scheme（可选）</span>
+        <span class="n">spoutConfig</span><span class="o">.</span><span class="na">scheme</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SchemeAsMultiScheme</span><span class="o">(</span><span class="k">new</span> <span class="n">SimpleMessageScheme</span><span class="o">());</span>
+        <span class="n">KafkaSpout</span> <span class="n">kafkaSpout</span> <span class="o">=</span> <span class="k">new</span> <span class="n">KafkaSpout</span><span class="o">(</span><span class="n">spoutConfig</span><span class="o">);</span>
+
+        <span class="n">TopologyBuilder</span> <span class="n">builder</span> <span class="o">=</span> <span class="k">new</span> <span class="n">TopologyBuilder</span><span class="o">();</span>
+        <span class="n">builder</span><span class="o">.</span><span class="na">setSpout</span><span class="o">(</span><span class="s">&quot;kafka-spout&quot;</span><span class="o">,</span> <span class="n">kafkaSpout</span><span class="o">);</span>
+        <span class="n">builder</span><span class="o">.</span><span class="na">setBolt</span><span class="o">(</span><span class="s">&quot;operator&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">OperatorBolt</span><span class="o">())</span>
+                <span class="o">.</span><span class="na">shuffleGrouping</span><span class="o">(</span><span class="s">&quot;kafka-spout&quot;</span><span class="o">);</span>
+
+        <span class="n">Config</span> <span class="n">conf</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Config</span><span class="o">();</span>
+        <span class="n">conf</span><span class="o">.</span><span class="na">setDebug</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+        <span class="n">conf</span><span class="o">.</span><span class="na">setNumWorkers</span><span class="o">(</span><span class="mi">3</span><span class="o">);</span>
+
+        <span class="c1">// 测试环境采用 local mode 模式</span>
+        <span class="n">LocalCluster</span> <span class="n">cluster</span> <span class="o">=</span> <span class="k">new</span> <span class="n">LocalCluster</span><span class="o">();</span>
+        <span class="n">cluster</span><span class="o">.</span><span class="na">submitTopology</span><span class="o">(</span><span class="s">&quot;test&quot;</span><span class="o">,</span> <span class="n">conf</span><span class="o">,</span> <span class="n">builder</span><span class="o">.</span><span class="na">createTopology</span><span class="o">());</span>
+        <span class="k">while</span> <span class="o">(!</span><span class="n">shutdown</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">Utils</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="mi">100</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="n">cluster</span><span class="o">.</span><span class="na">killTopology</span><span class="o">(</span><span class="s">&quot;test&quot;</span><span class="o">);</span>
+        <span class="n">cluster</span><span class="o">.</span><span class="na">shutdown</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>由于一个 KafkaSpout 只能接收一个指定 topic 的消息数据，因此，在实际生产环境 Topology 的实现中需要根据业务需求配置 Spout 的个数。</p>
+<h3>4. 必要的依赖包</h3>
+<p>由于 Topology 工程的依赖均为“provided”的 scope，需要将涉及到的依赖jar包拷贝到 Storm 安装目录的 lib 文件夹下，包括：</p>
+<blockquote>
+<ul>
+<li><strong>kafka_2.10-0.8.2.1.jar</strong></li>
+<li><strong>storm-kafka-0.9.3.jar</strong></li>
+<li><strong>scala-library-2.10.4.jar</strong></li>
+<li><strong>zookeeper-3.4.6.jar</strong></li>
+<li>curator-client-2.6.0.jar</li>
+<li>curator-framework-2.6.0.jar</li>
+<li>curator-recipes-2.6.0.jar</li>
+<li>guava-16.0.1.jar</li>
+<li>metrics-core-2.2.0.jar</li>
+</ul>
+</blockquote>
+<h3>5. 上线运行</h3>
+<p>向 Storm 集群提交任务，观察数据输出结果。另外，还可以在 Storm 的 UI 界面查看 Topology 内部组件运行状态（需要使用 <strong>Cluster</strong> 模式）。</p>
+            </div>
+            <!-- /.entry-content -->
+    <hr />
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'weyo'; // required: replace example with your forum shortname
+            var disqus_identifier = 'kafka-storm-integration';
+            var disqus_url = 'http://weyo.github.com/pages/2015/04/13/kafka-storm-integration/';
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-lg-3 well well-sm" id="sidebar">
+
+<aside>
+    <section>
+        <ul class="list-group list-group-flush">
+                <li class="list-group-item"><h4><i class="icon-home icon-large"></i>Social</h4></li>
+                    <li class="list-group-item"><a href="https://github.com/weyo/"><i
+                            class="icon-Github-sign icon-large"></i>Github
+                    </a></li>
+                    <li class="list-group-item"><a href="https://cn.linkedin.com/in/weiyong"><i
+                            class="icon-LinkedIn-sign icon-large"></i>LinkedIn
+                    </a></li>
+
+
+
+                <li class="list-group-item"><a href="http://weyo.github.com/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
+                        <li class="list-group-item tag-1">
+                            <a href="http://weyo.github.com/tag/huan-jing-da-jian.html">
+                                环境搭建
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-2">
+                            <a href="http://weyo.github.com/tag/kafka.html">
+                                Kafka
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.github.com/tag/linux.html">
+                                Linux
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.github.com/tag/storm.html">
+                                Storm
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.github.com/tag/flume.html">
+                                Flume
+                            </a>
+                        </li>
+        </ul>
+    </section>
+</aside>        </div>
+    </div>
+</div>
+<footer>
+    <div class="container">
+        <hr>
+        <p class="pull-right"><i class="icon-arrow-up"></i> <a href="#">Back to top</a></p>
+
+
+        <p>&copy; 2015 WeYo &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a></p>
+    </div>
+</footer>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="http://weyo.github.com/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="http://weyo.github.com/theme/js/respond.min.js"></script>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'weyo'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+
+
+</body>
+</html>
