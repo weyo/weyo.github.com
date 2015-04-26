@@ -3,7 +3,9 @@
       xmlns:og="http://ogp.me/ns#"
       xmlns:fb="https://www.facebook.com/2008/fbml">
 <head>
-    <title>Linux 系统时间配置入门</title>
+    <title>Linux 系统时间配置入门
+  Posted by WeYo. 转载请注明出处 pages/2014/07/04/linux-time-setting/.
+</title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8">
@@ -14,7 +16,7 @@
             <meta property="og:type" content="article"/>
             <meta property="og:title" content="Linux 系统时间配置入门"/>
             <meta property="og:url" content="http://weyo.github.com/pages/2014/07/04/linux-time-setting/"/>
-            <meta property="og:description" content="本文根据网络资料整理。Linux 系统时间配置大致可以大致分为“手动”设置与基于 ntp 的配置两种方式。 手动设置系统时间 1. 说明 Linux将时钟分为系统时钟(System Clock)和硬件(Real Time Clock，简称RTC)时钟两种。系统时间是指当前Linux Kernel中的时钟，而硬件时钟则是主板上由电池供电的那个主板硬件时钟，这个时钟可以在BIOS的“Standard BIOS Feture”项中进行设置。Linux并没有默认哪个时钟系统。当Linux启动时，硬件时钟会去读取系统时钟的设置，然后系统时钟就会独立于硬件运作。 2. 设置方法 date 042612492015.28 hwclock –w 说明： 第一步是设置时间，设置完成可以使用date命令查看是否正确，注意：时间设置格式为月日时分年.秒； 第二步是将系统时间写入硬件时钟，这样可以避免重启之后需要重新设置系统时间。 3. 相关操作命令 查看硬件时钟 ..."/>
+            <meta property="og:description" content="本文根据网络资料整理，涉及 Linux 系统的“手动”设置与基于 ntp 的配置两种方式。"/>
 
     <!-- Bootstrap -->
         <link rel="stylesheet" href="http://weyo.github.com/theme/css/bootstrap.min.css" type="text/css"/>
@@ -61,11 +63,8 @@
                          <li><a href="http://weyo.github.com/pages/about.html">
                              About
                           </a></li>
-                        <li >
-                            <a href="http://weyo.github.com/category/fen-bu-shi-ji-suan.html">分布式计算</a>
-                        </li>
                         <li class="active">
-                            <a href="http://weyo.github.com/category/linux.html">Linux</a>
+                            <a href="http://weyo.github.com/category/techs.html">Techs</a>
                         </li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
@@ -96,19 +95,18 @@
 <footer class="post-info">
     <span class="label label-default">Date</span>
     <span class="published">
-        <i class="icon-calendar"></i>2014-07-04, 周五
+        <i class="icon-calendar"></i>2014-07-04, 周五  
     </span>
 
 
 
 <span class="label label-default">Tags</span>
 	<a href="http://weyo.github.com/tag/linux.html">Linux</a>
-        /
-	<a href="http://weyo.github.com/tag/huan-jing-da-jian.html">环境搭建</a>
 </footer><!-- /.post-info -->                    </div>
                 </div>
                 <blockquote>
-<p>本文根据网络资料整理。Linux 系统时间配置大致可以大致分为“手动”设置与基于 ntp 的配置两种方式。</p>
+<p>本文根据网络资料整理。
+Linux 系统时间配置大致可以大致分为“手动”设置与基于 ntp 的配置两种方式。</p>
 </blockquote>
 <h3>手动设置系统时间</h3>
 <h4>1. 说明</h4>
@@ -193,6 +191,9 @@
 </pre></div>
 
 
+<blockquote>
+<p>注：除了使用外部时间服务器之外，也可以在局域网中搭建独立的时间同步服务器，其他机器从该时间同步服务器获取同步时间。</p>
+</blockquote>
 <p><br /></p>
 <h3>Q&amp;A</h3>
 <h4>1. <strong>no server suitable for synchronization found</strong></h4>
@@ -284,6 +285,9 @@ a) 检查NTP服务端使用的ntp版本：<br />
                     <li class="list-group-item"><a href="https://cn.linkedin.com/in/weiyong"><i
                             class="icon-LinkedIn-sign icon-large"></i>LinkedIn
                     </a></li>
+                    <li class="list-group-item"><a href="http://www.douban.com/people/onenote/"><i
+                            class="icon-豆瓣-sign icon-large"></i>豆瓣
+                    </a></li>
 
 
 
@@ -293,14 +297,19 @@ a) 检查NTP服务端使用的ntp版本：<br />
                                 环境搭建
                             </a>
                         </li>
+                        <li class="list-group-item tag-1">
+                            <a href="http://weyo.github.com/tag/fen-bu-shi-ji-suan.html">
+                                分布式计算
+                            </a>
+                        </li>
                         <li class="list-group-item tag-2">
                             <a href="http://weyo.github.com/tag/kafka.html">
                                 Kafka
                             </a>
                         </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.github.com/tag/linux.html">
-                                Linux
+                        <li class="list-group-item tag-2">
+                            <a href="http://weyo.github.com/tag/storm.html">
+                                Storm
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -309,8 +318,8 @@ a) 检查NTP服务端使用的ntp版本：<br />
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.github.com/tag/storm.html">
-                                Storm
+                            <a href="http://weyo.github.com/tag/linux.html">
+                                Linux
                             </a>
                         </li>
         </ul>

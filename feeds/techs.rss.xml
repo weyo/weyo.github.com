@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Let There Be Light!</title><link>http://weyo.github.com/</link><description></description><atom:link href="http://weyo.github.com/feeds/all.rss.xml" rel="self"></atom:link><lastBuildDate>Mon, 13 Apr 2015 00:00:00 +0800</lastBuildDate><item><title>Kafka-Storm 集成部署</title><link>http://weyo.github.com/pages/2015/04/13/kafka-storm-integration/</link><description>&lt;h3&gt;前言&lt;/h3&gt;
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Let There Be Light!</title><link>http://weyo.github.com/</link><description></description><atom:link href="http://weyo.github.com/feeds/techs.rss.xml" rel="self"></atom:link><lastBuildDate>Mon, 13 Apr 2015 00:00:00 +0800</lastBuildDate><item><title>Kafka-Storm 集成部署</title><link>http://weyo.github.com/pages/2015/04/13/kafka-storm-integration/</link><description>&lt;h3&gt;前言&lt;/h3&gt;
 &lt;p&gt;分布式实时计算的主要组件采用基于流式计算的 Apache Storm，而实时计算的数据源来自基础数据输入组件中的 Kafka，如何将 Kafka 的消息数据传入 Storm 就是本文讨论的内容。&lt;/p&gt;
 &lt;h3&gt;0. 材料准备&lt;/h3&gt;
 &lt;ul&gt;
