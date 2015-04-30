@@ -355,6 +355,7 @@ supervisor.slots.ports:    - 6700    - 6701    - 6702    - 6703&lt;/li&gt;
 &lt;span class="cp"&gt;# 需要连接的topic名称&lt;/span&gt;
 &lt;span class="cp"&gt;# 注意：如果此topic不存在（即在Kafka集群中未创建）则默认连接到一个名为“default-flume-topic”的topic&lt;/span&gt;
 &lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sinks&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;k1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;custom&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;topic&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;flumeTopic&lt;/span&gt;
+&lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sinks&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;k1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;preprocessor&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;com&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;thilinamb&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;flume&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sink&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;example&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;SimpleMessagePreprocessor&lt;/span&gt;
 &lt;span class="cp"&gt;# 需要连接到的Kafka服务器地址与端口（这里是hd182）&lt;/span&gt;
 &lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sinks&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;k1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;kafka&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;metadata&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;broker&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;list&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;hd182&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;9092&lt;/span&gt;
 &lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sinks&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;k1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;kafka&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;serializer&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;class&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;kafka&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;serializer&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;StringEncoder&lt;/span&gt;
@@ -368,16 +369,15 @@ supervisor.slots.ports:    - 6700    - 6701    - 6702    - 6703&lt;/li&gt;
 
 
 &lt;h3&gt;2. 准备 flume-kafka 插件&lt;/h3&gt;
-&lt;p&gt;&lt;strong&gt;下载插件&lt;/strong&gt;（该插件即将集成到1.6版本的flume官方程序中，但在1.5及以下的版本中仍然需要手动配置）
-&lt;a href="https://github.com/thilinamb/flume-ng-kafka-sink"&gt;https://github.com/thilinamb/flume-ng-kafka-sink&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;编译&lt;/strong&gt;
-&lt;code&gt;mvn clean install&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;下载插件&lt;/strong&gt;（该插件即将集成到1.6版本的flume官方程序中，但在1.5及以下的版本中仍然需要手动配置）：&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://github.com/thilinamb/flume-ng-kafka-sink"&gt;https://github.com/thilinamb/flume-ng-kafka-sink&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;编译&lt;/strong&gt;：&lt;code&gt;mvn clean install&lt;/code&gt; 或者 &lt;code&gt;mvn package&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;编译完成之后在 &lt;code&gt;dist/target&lt;/code&gt; 目录下会生成 &lt;code&gt;flume-kafka-sink-dist-0.5.0-bin.zip&lt;/code&gt;，解压缩后，在 lib 目录下有四个依赖jar包：&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;flume-kafka-sink-impl-0.5.0.jar&lt;/li&gt;
-&lt;li&gt;kafka_2.10-0.8.1.1.jar&lt;/li&gt;
-&lt;li&gt;metrics-core-2.2.0.jar&lt;/li&gt;
-&lt;li&gt;scala-library-2.10.1.jar&lt;/li&gt;
+&lt;li&gt;flume-kafka-sink-impl-x.x.x.jar&lt;/li&gt;
+&lt;li&gt;kafka_x.x.-x.x.x.x.jar&lt;/li&gt;
+&lt;li&gt;metrics-core-x.x.x.jar&lt;/li&gt;
+&lt;li&gt;scala-library-x.x.x.jar&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;&lt;strong&gt;添加依赖包&lt;/strong&gt;
  在Flume的安装目录下建立 &lt;code&gt;plugins.d&lt;/code&gt; 文件夹，再在该文件夹下建立 &lt;code&gt;kafka-sink&lt;/code&gt; 文件夹，然后在kafka-sink文件夹下建立 &lt;code&gt;lib&lt;/code&gt; 与 &lt;code&gt;libext&lt;/code&gt; 两个文件夹，将 flume-kafka-sink-impl-0.5.0.jar 拷贝到 lib 下，其他三个jar包拷贝到 libext 下，整个目录结构如下所示：&lt;/p&gt;
@@ -394,30 +394,37 @@ supervisor.slots.ports:    - 6700    - 6701    - 6702    - 6703&lt;/li&gt;
 
 
 &lt;blockquote&gt;
-&lt;p&gt;说明：上述 Flume 配置文件中提到的“默认连接到一个名为‘default-flume-topic’的topic”实际上是在&lt;code&gt;flume-ng-kafka-sink&lt;/code&gt;项目中定义的，如果需要修改默认名称等属性，可以修改 &lt;code&gt;Constants&lt;/code&gt; 与 &lt;code&gt;MessagePreprocessor&lt;/code&gt; 接口实现类的 &lt;code&gt;extractTopic&lt;/code&gt; 方法。Key 和 Message 的处理也可以根据需要通过 &lt;code&gt;MessagePreprocessor&lt;/code&gt; 接口的另外两个方法类似实现。更多配置信息可以参考插件的 Github 页面。&lt;/p&gt;
+&lt;h4&gt;TIPS&lt;/h4&gt;
+&lt;p&gt;上述 Flume 配置文件中提到的“默认连接到一个名为‘default-flume-topic’的topic”实际上是在&lt;code&gt;flume-ng-kafka-sink&lt;/code&gt;项目中定义的，如果需要修改默认名称等属性，可以修改 &lt;code&gt;Constants&lt;/code&gt; 与 &lt;code&gt;MessagePreprocessor&lt;/code&gt; 接口实现类的 &lt;code&gt;extractTopic&lt;/code&gt; 方法。Key 和 Message 的处理也可以根据需要通过 &lt;code&gt;MessagePreprocessor&lt;/code&gt; 接口的另外两个方法类似实现。由于插件作者写的 &lt;code&gt;SimpleMessagePreprocessor&lt;/code&gt; 中定义了属性名为 &lt;code&gt;custom-topic&lt;/code&gt; 的 topic名称，会对使用者造成一定的混淆，同时额外的 example module 也不便于集成到编译后的插件中，因此，我在原始插件代码的基础上做了一点修改，并更新到 https://github.com/weyo/flume-ng-kafka-sink 项目中，可以直接下载并使用 Maven 编译生成需要的插件。&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;h3&gt;3. 运行&lt;/h3&gt;
 &lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;启动 Kafka server（每个 flume agent 对应的 Kafka broker，本例中为 hd182）
- &lt;code&gt;bin/kafka-server-start.sh config/server.properties &amp;amp;&lt;/code&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;创建 Kafka topic（上面 Flume 配置文件中对应的topic名称）
- &lt;code&gt;bin/kafka-topics.sh --create --zookeeper hd181:2181 --replication 1 --partition 1 --topic flumeTopic&lt;/code&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;启动 Kafka consumer
- &lt;code&gt;bin/kafka-console-consumer.sh --zookeeper hd182:2181 --topic flumeTopic --from-beginning&lt;/code&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;启动 Flume （本例中为 agent181）
- &lt;code&gt;flume-ng agent -c /home/flume/apache-flume-1.5.2-bin/conf/ -f /home/flume/apache-flume-1.5.2-bin/conf/flume-conf.properties -Dflume.root.logger=DEBUG,console -n agent181 -Dflume.monitoring.type=http -Dflume.monitoring.port=34545 &amp;amp;&lt;/code&gt;&lt;/p&gt;
-&lt;/li&gt;
+&lt;li&gt;启动 Kafka server（每个 flume agent 对应的 Kafka broker，本例中为 hd182）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;code&gt;bin/kafka-server-start.sh config/server.properties &amp;amp;&lt;/code&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;创建 Kafka topic（上面 Flume 配置文件中对应的topic名称）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;code&gt;bin/kafka-topics.sh --create --zookeeper hd181:2181 --replication 1 --partition 1 --topic flumeTopic&lt;/code&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;启动 Kafka consumer&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;code&gt;bin/kafka-console-consumer.sh --zookeeper hd182:2181 --topic flumeTopic --from-beginning&lt;/code&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;启动 Flume （本例中为 agent181）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;code&gt;flume-ng agent -c /home/flume/apache-flume-1.5.2-bin/conf/ -f /home/flume/apache-flume-1.5.2-bin/conf/flume-conf.properties -n agent181 &amp;amp;&lt;/code&gt; &lt;/p&gt;
+&lt;blockquote&gt;
+&lt;h4&gt;TIPS&lt;/h4&gt;
+&lt;p&gt;如果需要监控 agent 配置信息，可以添加 &lt;code&gt;-Dflume.monitoring.type=http -Dflume.monitoring.port=34545&lt;/code&gt; 参数，通过 &lt;code&gt;http://agenthost:34545&lt;/code&gt; 访问 agent 配置信息。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;ul&gt;
 &lt;li&gt;
 &lt;p&gt;启动 Flume 数据源发送数据&lt;/p&gt;
 &lt;/li&gt;
-&lt;li&gt;在 Kafka consumer 客户端观察数据接收情况&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;在 Kafka consumer 客户端观察数据接收情况&lt;/p&gt;
+&lt;/li&gt;
 &lt;/ul&gt;
 &lt;hr /&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Fri, 10 Apr 2015 00:00:00 +0800</pubDate><guid>tag:weyo.me,2015-04-10:pages/2015/04/10/flume-kafka-integration/</guid><category>Flume</category><category>Kafka</category><category>环境搭建</category><category>分布式计算</category></item><item><title>Linux 系统时间配置入门</title><link>http://weyo.me/pages/2014/07/04/linux-time-setting/</link><description>&lt;blockquote&gt;
 &lt;p&gt;本文根据网络资料整理。

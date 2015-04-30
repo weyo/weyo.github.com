@@ -101,6 +101,10 @@
     <span class="published">
         <i class="icon-calendar"></i>2015-04-10, 周五  
     </span>
+	<span style="font-size:12px;">&nbsp;&nbsp;</span>
+    <span class="label label-default">By</span>
+    <a href="http://weyo.me/author/weyo.html"><i class="icon-user"></i>WeYo</a>
+	<span style="font-size:12px;">&nbsp;&nbsp;</span>
 
 
 
@@ -147,6 +151,7 @@
 <span class="cp"># 需要连接的topic名称</span>
 <span class="cp"># 注意：如果此topic不存在（即在Kafka集群中未创建）则默认连接到一个名为“default-flume-topic”的topic</span>
 <span class="n">agent181</span><span class="p">.</span><span class="n">sinks</span><span class="p">.</span><span class="n">k1</span><span class="p">.</span><span class="n">custom</span><span class="o">-</span><span class="n">topic</span> <span class="o">=</span> <span class="n">flumeTopic</span>
+<span class="n">agent181</span><span class="p">.</span><span class="n">sinks</span><span class="p">.</span><span class="n">k1</span><span class="p">.</span><span class="n">preprocessor</span> <span class="o">=</span> <span class="n">com</span><span class="p">.</span><span class="n">thilinamb</span><span class="p">.</span><span class="n">flume</span><span class="p">.</span><span class="n">sink</span><span class="p">.</span><span class="n">example</span><span class="p">.</span><span class="n">SimpleMessagePreprocessor</span>
 <span class="cp"># 需要连接到的Kafka服务器地址与端口（这里是hd182）</span>
 <span class="n">agent181</span><span class="p">.</span><span class="n">sinks</span><span class="p">.</span><span class="n">k1</span><span class="p">.</span><span class="n">kafka</span><span class="p">.</span><span class="n">metadata</span><span class="p">.</span><span class="n">broker</span><span class="p">.</span><span class="n">list</span><span class="o">=</span><span class="n">hd182</span><span class="o">:</span><span class="mi">9092</span>
 <span class="n">agent181</span><span class="p">.</span><span class="n">sinks</span><span class="p">.</span><span class="n">k1</span><span class="p">.</span><span class="n">kafka</span><span class="p">.</span><span class="n">serializer</span><span class="p">.</span><span class="n">class</span> <span class="o">=</span> <span class="n">kafka</span><span class="p">.</span><span class="n">serializer</span><span class="p">.</span><span class="n">StringEncoder</span>
@@ -160,16 +165,15 @@
 
 
 <h3>2. 准备 flume-kafka 插件</h3>
-<p><strong>下载插件</strong>（该插件即将集成到1.6版本的flume官方程序中，但在1.5及以下的版本中仍然需要手动配置）
-<a href="https://github.com/thilinamb/flume-ng-kafka-sink">https://github.com/thilinamb/flume-ng-kafka-sink</a></p>
-<p><strong>编译</strong>
-<code>mvn clean install</code></p>
+<p><strong>下载插件</strong>（该插件即将集成到1.6版本的flume官方程序中，但在1.5及以下的版本中仍然需要手动配置）：</p>
+<p><a href="https://github.com/thilinamb/flume-ng-kafka-sink">https://github.com/thilinamb/flume-ng-kafka-sink</a></p>
+<p><strong>编译</strong>：<code>mvn clean install</code> 或者 <code>mvn package</code></p>
 <p>编译完成之后在 <code>dist/target</code> 目录下会生成 <code>flume-kafka-sink-dist-0.5.0-bin.zip</code>，解压缩后，在 lib 目录下有四个依赖jar包：</p>
 <ul>
-<li>flume-kafka-sink-impl-0.5.0.jar</li>
-<li>kafka_2.10-0.8.1.1.jar</li>
-<li>metrics-core-2.2.0.jar</li>
-<li>scala-library-2.10.1.jar</li>
+<li>flume-kafka-sink-impl-x.x.x.jar</li>
+<li>kafka_x.x.-x.x.x.x.jar</li>
+<li>metrics-core-x.x.x.jar</li>
+<li>scala-library-x.x.x.jar</li>
 </ul>
 <p><strong>添加依赖包</strong>
  在Flume的安装目录下建立 <code>plugins.d</code> 文件夹，再在该文件夹下建立 <code>kafka-sink</code> 文件夹，然后在kafka-sink文件夹下建立 <code>lib</code> 与 <code>libext</code> 两个文件夹，将 flume-kafka-sink-impl-0.5.0.jar 拷贝到 lib 下，其他三个jar包拷贝到 libext 下，整个目录结构如下所示：</p>
@@ -186,30 +190,37 @@
 
 
 <blockquote>
-<p>说明：上述 Flume 配置文件中提到的“默认连接到一个名为‘default-flume-topic’的topic”实际上是在<code>flume-ng-kafka-sink</code>项目中定义的，如果需要修改默认名称等属性，可以修改 <code>Constants</code> 与 <code>MessagePreprocessor</code> 接口实现类的 <code>extractTopic</code> 方法。Key 和 Message 的处理也可以根据需要通过 <code>MessagePreprocessor</code> 接口的另外两个方法类似实现。更多配置信息可以参考插件的 Github 页面。</p>
+<h4>TIPS</h4>
+<p>上述 Flume 配置文件中提到的“默认连接到一个名为‘default-flume-topic’的topic”实际上是在<code>flume-ng-kafka-sink</code>项目中定义的，如果需要修改默认名称等属性，可以修改 <code>Constants</code> 与 <code>MessagePreprocessor</code> 接口实现类的 <code>extractTopic</code> 方法。Key 和 Message 的处理也可以根据需要通过 <code>MessagePreprocessor</code> 接口的另外两个方法类似实现。由于插件作者写的 <code>SimpleMessagePreprocessor</code> 中定义了属性名为 <code>custom-topic</code> 的 topic名称，会对使用者造成一定的混淆，同时额外的 example module 也不便于集成到编译后的插件中，因此，我在原始插件代码的基础上做了一点修改，并更新到 https://github.com/weyo/flume-ng-kafka-sink 项目中，可以直接下载并使用 Maven 编译生成需要的插件。</p>
 </blockquote>
 <h3>3. 运行</h3>
 <ul>
-<li>
-<p>启动 Kafka server（每个 flume agent 对应的 Kafka broker，本例中为 hd182）
- <code>bin/kafka-server-start.sh config/server.properties &amp;</code></p>
-</li>
-<li>
-<p>创建 Kafka topic（上面 Flume 配置文件中对应的topic名称）
- <code>bin/kafka-topics.sh --create --zookeeper hd181:2181 --replication 1 --partition 1 --topic flumeTopic</code></p>
-</li>
-<li>
-<p>启动 Kafka consumer
- <code>bin/kafka-console-consumer.sh --zookeeper hd182:2181 --topic flumeTopic --from-beginning</code></p>
-</li>
-<li>
-<p>启动 Flume （本例中为 agent181）
- <code>flume-ng agent -c /home/flume/apache-flume-1.5.2-bin/conf/ -f /home/flume/apache-flume-1.5.2-bin/conf/flume-conf.properties -Dflume.root.logger=DEBUG,console -n agent181 -Dflume.monitoring.type=http -Dflume.monitoring.port=34545 &amp;</code></p>
-</li>
+<li>启动 Kafka server（每个 flume agent 对应的 Kafka broker，本例中为 hd182）</li>
+</ul>
+<p><code>bin/kafka-server-start.sh config/server.properties &amp;</code></p>
+<ul>
+<li>创建 Kafka topic（上面 Flume 配置文件中对应的topic名称）</li>
+</ul>
+<p><code>bin/kafka-topics.sh --create --zookeeper hd181:2181 --replication 1 --partition 1 --topic flumeTopic</code></p>
+<ul>
+<li>启动 Kafka consumer</li>
+</ul>
+<p><code>bin/kafka-console-consumer.sh --zookeeper hd182:2181 --topic flumeTopic --from-beginning</code></p>
+<ul>
+<li>启动 Flume （本例中为 agent181）</li>
+</ul>
+<p><code>flume-ng agent -c /home/flume/apache-flume-1.5.2-bin/conf/ -f /home/flume/apache-flume-1.5.2-bin/conf/flume-conf.properties -n agent181 &amp;</code> </p>
+<blockquote>
+<h4>TIPS</h4>
+<p>如果需要监控 agent 配置信息，可以添加 <code>-Dflume.monitoring.type=http -Dflume.monitoring.port=34545</code> 参数，通过 <code>http://agenthost:34545</code> 访问 agent 配置信息。</p>
+</blockquote>
+<ul>
 <li>
 <p>启动 Flume 数据源发送数据</p>
 </li>
-<li>在 Kafka consumer 客户端观察数据接收情况</li>
+<li>
+<p>在 Kafka consumer 客户端观察数据接收情况</p>
+</li>
 </ul>
 <hr />
             </div>
@@ -277,13 +288,13 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/storm.html">
-                                Storm
+                            <a href="http://weyo.me/tag/kafka.html">
+                                Kafka
                             </a>
                         </li>
                         <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/kafka.html">
-                                Kafka
+                            <a href="http://weyo.me/tag/storm.html">
+                                Storm
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
