@@ -4,7 +4,7 @@
       xmlns:fb="https://www.facebook.com/2008/fbml">
 <head>
     <title>Apache Storm —— 分布式实时计算基础篇
-  Posted by WeYo. 转载请注明出处 pages/2015/04/12/storm-basis/.
+  Posted by WeYo. 转载请注明出处 pages/techs/storm-basis/.
 </title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -16,7 +16,7 @@
 
             <meta property="og:type" content="article"/>
             <meta property="og:title" content="Apache Storm —— 分布式实时计算基础篇"/>
-            <meta property="og:url" content="http://weyo.me/pages/2015/04/12/storm-basis/"/>
+            <meta property="og:url" content="http://weyo.me/pages/techs/storm-basis/"/>
             <meta property="og:description" content="Apache Storm 是分布式计算领域目前最热门的实时计算系统。本文主要涉及 Storm 集群的分布式部署。"/>
 
     <!-- Bootstrap -->
@@ -86,7 +86,7 @@
         <article>
             <header class="page-header">
                 <h1>
-                    <a href="http://weyo.me/pages/2015/04/12/storm-basis/"
+                    <a href="http://weyo.me/pages/techs/storm-basis/"
                        rel="bookmark"
                        title="Permalink to Apache Storm —— 分布式实时计算基础篇">
                         Apache Storm —— 分布式实时计算基础篇
@@ -99,13 +99,17 @@
 <footer class="post-info">
     <span class="label label-default">Date</span>
     <span class="published">
-        <i class="icon-calendar"></i>2015-04-12, 周日  
+        <i class="icon-calendar"></i>2015-04-12
     </span>
 	<span style="font-size:12px;">&nbsp;&nbsp;</span>
-    <span class="label label-default">By</span>
+    <!--     <span class="label label-default">By</span>
     <a href="http://weyo.me/author/weyo.html"><i class="icon-user"></i>WeYo</a>
 	<span style="font-size:12px;">&nbsp;&nbsp;</span>
+ -->
 
+    <span class="label label-default">Category</span>
+    <a href="http://weyo.me/category/techs.html">Techs</a>
+	<span style="font-size:12px;">&nbsp;&nbsp;</span>
 
 
 <span class="label label-default">Tags</span>
@@ -114,11 +118,14 @@
 	<a href="http://weyo.me/tag/huan-jing-da-jian.html">环境搭建</a>
         /
 	<a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">分布式计算</a>
+	
+	<br /><br />Posted by <span style="font-size:14px; color:#4169E1"><a href="http://github.com/weyo"><b>WeYo</b></a></span>. 转载请注明出处：<span style="font-size:14px; color:#4169E1"><a href="http://weyo.me/pages/techs/storm-basis/"><b>http://weyo.me/pages/techs/storm-basis/</b></a></span>
 </footer><!-- /.post-info -->                    </div>
                 </div>
                 <h2>关于 Apache Storm</h2>
-<p><img alt="About Storm" src="http://storm.apache.org/images/topology.png" /><br /></p>
-<p>（翻译自 <a href="http://storm.apache.org/">Storm 官网</a>）Apache Storm 是由 twitter 贡献给 Apache 基金会的开源的分布式实时计算系统。与 Hadoop 的批处理相类似，Storm 可以对大量的数据流进行可靠的实时处理，这一过程也称为“流式处理”，是分布式大数据处理的一个重要方向。Storm 支持多种类型的应用，包括：实时分析、在线机器学习、连续计算、分布式RPC（DRPC）、ETL等。Strom 的一个重要特点就是“<strong>快速</strong>”的数据处理，有 benchmark 显示 Storm 能够达到单个节点每秒百万级 tuple 处理（tuple 是 Storm 的最小数据单元）的速度。快速的数据处理、优秀的可扩展性与容错性、便捷的可操作性与维护性、活跃的社区技术支持，这就是 Storm。<br /></p>
+<p><img src=http://storm.apache.org/images/topology.png width="60%" height="60%"  />  </p>
+<p>（翻译自 <a href="http://storm.apache.org/">Storm 官网</a>）Apache Storm 是 Apache 基金会的开源的分布式实时计算系统。与 Hadoop 的批处理相类似，Storm 可以对大量的数据流进行可靠的实时处理，这一过程也称为“流式处理”，是分布式大数据处理的一个重要方向。Storm 支持多种类型的应用，包括：实时分析、在线机器学习、连续计算、分布式RPC（DRPC）、ETL等。Strom 的一个重要特点就是“<strong>快速</strong>”的数据处理，有 benchmark 显示 Storm 能够达到单个节点每秒百万级 tuple 处理（tuple 是 Storm 的最小数据单元）的速度。快速的数据处理、优秀的可扩展性与容错性、便捷的可操作性与维护性、活跃的社区技术支持，这就是 Storm。<br /></p>
+<hr />
 <h2>Storm 集群组件</h2>
 <p><img alt="此处输入图片的描述" src="http://pic002.cnblogs.com/images/2012/79962/2012113013552970.png" /></p>
 <p>Storm 集群中包含两类节点：主控节点（Master Node）和工作节点（Work Node）。其分别对应的角色如下： </p>
@@ -127,6 +134,7 @@
 <li>每个工作节点（Work Node）上运行一个被称为Supervisor的后台程序。Supervisor负责监听从Nimbus分配给它执行的任务，据此启动或停止执行任务的工作进程。每一个工作进程执行一个Topology的子集；一个运行中的Topology由分布在不同工作节点上的多个工作进程组成。</li>
 </ul>
 <p>Nimbus 和 Supervisor 节点之间所有的协调工作是通过 Zookeeper 集群来实现的。此外，Nimbus 和 Supervisor 进程都是快速失败（fail-fast)和无状态（stateless）的；Storm 集群所有的状态要么在 Zookeeper 集群中，要么存储在本地磁盘上。这意味着你可以用 kill -9 来杀死 Nimbus 和 Supervisor 进程，它们在重启后可以继续工作。这个设计使得Storm集群拥有不可思议的稳定性。</p>
+<hr />
 <h2>Storm 部署步骤</h2>
 <p>搭建一个Storm集群需要依次完成的安装步骤：</p>
 <blockquote>
@@ -138,6 +146,7 @@
 <li>启动Storm各个后台进程。</li>
 </ol>
 </blockquote>
+<hr />
 <h2>storm.yaml 配置</h2>
 <p>Storm发行版本解压目录下有一个conf/storm.yaml文件，用于配置Storm。默认配置在<a href="https://github.com/nathanmarz/storm/blob/master/conf/defaults.yaml">这里</a>可以查看。conf/storm.yaml中的配置选项将覆盖defaults.yaml中的默认配置。以下配置选项是必须在conf/storm.yaml中进行配置的：</p>
 <blockquote>
@@ -206,11 +215,20 @@ supervisor.slots.ports:    - 6700    - 6701    - 6702    - 6703</li>
 </pre></div>
 
 
+<hr />
 <h2>Storm 运行</h2>
-<p>和Zookeeper一样，Storm也是快速失败（fail-fast)的系统，这样Storm才能在任意时刻被停止，并且当进程重启后被正确地恢复执行。这也是为什么Storm不在进程内保存状态的原因，即使Nimbus或Supervisors被重启，运行中的Topologies不会受到影响。以下是启动Storm各个后台进程的方式：
-1. <strong>Nimbus</strong>: 在Storm主控节点上运行 <code>nohup storm nimbus &amp;</code> 启动Nimbus后台程序，并放到后台执行；
-2. <strong>Supervisor</strong>: 在Storm各个工作节点上运行<code>nohup storm supervisor &amp;</code> 启动Supervisor后台程序，并放到后台执行；
-3. <strong>UI</strong>: 在Storm主控节点上运行<code>nohup storm ui &amp;</code> 启动UI后台程序，并放到后台执行，启动后可以通过 <em>http://{nimbus host}:8080</em> 观察集群的worker资源使用情况、Topologies的运行状态等信息。</p>
+<p>和Zookeeper一样，Storm也是快速失败（fail-fast)的系统，这样Storm才能在任意时刻被停止，并且当进程重启后被正确地恢复执行。这也是为什么Storm不在进程内保存状态的原因，即使Nimbus或Supervisors被重启，运行中的Topologies不会受到影响。以下是启动Storm各个后台进程的方式： </p>
+<ol>
+<li>
+<p><strong>Nimbus</strong>: 在Storm主控节点上运行 <code>nohup storm nimbus &amp;</code> 启动Nimbus后台程序，并放到后台执行；</p>
+</li>
+<li>
+<p><strong>Supervisor</strong>: 在Storm各个工作节点上运行<code>nohup storm supervisor &amp;</code> 启动Supervisor后台程序，并放到后台执行；</p>
+</li>
+<li>
+<p><strong>UI</strong>: 在Storm主控节点上运行<code>nohup storm ui &amp;</code> 启动UI后台程序，并放到后台执行，启动后可以通过 <em>http://{nimbus host}:8080</em> 观察集群的worker资源使用情况、Topologies的运行状态等信息。</p>
+</li>
+</ol>
 <blockquote>
 <h4>注意事项：</h4>
 <ul>
@@ -220,6 +238,7 @@ supervisor.slots.ports:    - 6700    - 6701    - 6702    - 6703</li>
 </ul>
 </blockquote>
 <p>至此，Storm集群已经部署、配置完毕，可以向集群提交拓扑运行了。</p>
+<hr />
 <h2>向 Storm 集群提交任务</h2>
 <ol>
 <li>
@@ -233,6 +252,7 @@ supervisor.slots.ports:    - 6700    - 6701    - 6702    - 6703</li>
 其中，{toponame}为Topology提交到Storm集群时指定的Topology任务名称。</p>
 </li>
 </ol>
+<hr />
 <h2>Q &amp; A</h2>
 <h3>1. 运行 storm 命令报错</h3>
 <p>出现语法错误：<br /></p>
@@ -250,19 +270,23 @@ supervisor.slots.ports:    - 6700    - 6701    - 6702    - 6703</li>
  mv python python.bk
  ln -s /usr/local/Python-2.7.8/python python</code></p>
 </blockquote>
+<hr />
 <h3>2. Storm 在 ssh 断开后自动关闭</h3>
 <p>这是由于 Storm 是由默认的 Shell 机制打开运行，在 ssh 或 telnet 断开后终端会将挂断信号发送到控制进程，进而会关闭该 Shell 进程组中的所有进程。因此需要在 Storm 后台启动时使用 <code>nohup</code> 命令和 <code>&amp;</code> 标记可以使进程忽略挂断信号，避免程序的异常退出：</p>
 <p><code>nohup storm nimbus &amp;</code></p>
 <p><code>nohup storm ui &amp;</code></p>
 <p><code>nohup storm supervisor &amp;</code></p>
 <p><code>nohup storm logviewer &amp;</code></p>
+<hr />
 <h3>3. Storm UI 网页无法打开</h3>
 <p>检查 Storm 主机（nimbus 与 ui 所在运行服务器）的防火墙设置，是否存在监控端口屏蔽（ui 的默认端口是 8080）</p>
 <blockquote>
 <p>【注】测试环境下可以不考虑安全问题直接关闭防火墙</p>
 </blockquote>
+<hr />
 <h3>4. Strom UI 网页中没有 topology 信息</h3>
 <p>只有集群（Cluster）模式的 topology 才会在监控页面显示，需要将本地模式（local mode）的 topology 改为集群模式</p>
+<hr />
 <h3>5. Storm UI 网页中无法打开各个端口的 worker.log</h3>
 <p>在需要查看 log 的机器上启动 logviewer 进程：</p>
 <p><code>nohup storm logviewer &amp;</code></p>
@@ -288,7 +312,7 @@ supervisor.slots.ports:    - 6700    - 6701    - 6702    - 6703</li>
             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
             var disqus_shortname = 'weyo'; // required: replace example with your forum shortname
             var disqus_identifier = 'storm-basis';
-            var disqus_url = 'http://weyo.me/pages/2015/04/12/storm-basis/';
+            var disqus_url = 'http://weyo.me/pages/techs/storm-basis/';
 
             /* * * DON'T EDIT BELOW THIS LINE * * */
             (function () {
@@ -315,15 +339,21 @@ supervisor.slots.ports:    - 6700    - 6701    - 6702    - 6703</li>
         <ul class="list-group list-group-flush">
                 <li class="list-group-item"><h4><i class="icon-home icon-large"></i>Social</h4></li>
                     <li class="list-group-item"><a href="https://github.com/weyo/"><i
-                            class="icon-Github-sign icon-large"></i>Github
+                            class="icon-github-sign icon-large"></i>Github
                     </a></li>
                     <li class="list-group-item"><a href="https://cn.linkedin.com/in/weiyong"><i
-                            class="icon-LinkedIn-sign icon-large"></i>LinkedIn
+                            class="icon-linkedin-sign icon-large"></i>LinkedIn
                     </a></li>
-                    <li class="list-group-item"><a href="http://www.douban.com/people/onenote/"><i
-                            class="icon-豆瓣-sign icon-large"></i>豆瓣
+                <li class="list-group-item"><h4><i class="icon-link icon-large"></i>Links</h4></li>
+                    <li class="list-group-item"><a href="http://getpelican.com/"><i
+                            class="icon-Pelican-sign icon-large"></i>Pelican
                     </a></li>
-
+                    <li class="list-group-item"><a href="http://python.org/"><i
+                            class="icon-Python-sign icon-large"></i>Python
+                    </a></li>
+                    <li class="list-group-item"><a href="#"><i
+                            class="icon-WeYo-sign icon-large"></i>WeYo
+                    </a></li>
 
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
@@ -338,13 +368,13 @@ supervisor.slots.ports:    - 6700    - 6701    - 6702    - 6703</li>
                             </a>
                         </li>
                         <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/linux.html">
-                                Linux
+                            <a href="http://weyo.me/tag/kafka.html">
+                                Kafka
                             </a>
                         </li>
                         <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/kafka.html">
-                                Kafka
+                            <a href="http://weyo.me/tag/linux.html">
+                                Linux
                             </a>
                         </li>
                         <li class="list-group-item tag-2">

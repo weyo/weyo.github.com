@@ -4,7 +4,7 @@
       xmlns:fb="https://www.facebook.com/2008/fbml">
 <head>
     <title>Flume-Kafka 集成部署
-  Posted by WeYo. 转载请注明出处 pages/2015/04/10/flume-kafka-integration/.
+  Posted by WeYo. 转载请注明出处 pages/techs/flume-kafka-integration/.
 </title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -16,7 +16,7 @@
 
             <meta property="og:type" content="article"/>
             <meta property="og:title" content="Flume-Kafka 集成部署"/>
-            <meta property="og:url" content="http://weyo.me/pages/2015/04/10/flume-kafka-integration/"/>
+            <meta property="og:url" content="http://weyo.me/pages/techs/flume-kafka-integration/"/>
             <meta property="og:description" content="Flume-ng 与 Kafka 是 Apache 家族的两个热门的数据采集与传输系统，本文主要讨论如何将两者结合构造分布式计算集群的基础数据输入组件。"/>
 
     <!-- Bootstrap -->
@@ -86,7 +86,7 @@
         <article>
             <header class="page-header">
                 <h1>
-                    <a href="http://weyo.me/pages/2015/04/10/flume-kafka-integration/"
+                    <a href="http://weyo.me/pages/techs/flume-kafka-integration/"
                        rel="bookmark"
                        title="Permalink to Flume-Kafka 集成部署">
                         Flume-Kafka 集成部署
@@ -99,13 +99,17 @@
 <footer class="post-info">
     <span class="label label-default">Date</span>
     <span class="published">
-        <i class="icon-calendar"></i>2015-04-10, 周五  
+        <i class="icon-calendar"></i>2015-04-10
     </span>
 	<span style="font-size:12px;">&nbsp;&nbsp;</span>
-    <span class="label label-default">By</span>
+    <!--     <span class="label label-default">By</span>
     <a href="http://weyo.me/author/weyo.html"><i class="icon-user"></i>WeYo</a>
 	<span style="font-size:12px;">&nbsp;&nbsp;</span>
+ -->
 
+    <span class="label label-default">Category</span>
+    <a href="http://weyo.me/category/techs.html">Techs</a>
+	<span style="font-size:12px;">&nbsp;&nbsp;</span>
 
 
 <span class="label label-default">Tags</span>
@@ -116,16 +120,20 @@
 	<a href="http://weyo.me/tag/huan-jing-da-jian.html">环境搭建</a>
         /
 	<a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">分布式计算</a>
+	
+	<br /><br />Posted by <span style="font-size:14px; color:#4169E1"><a href="http://github.com/weyo"><b>WeYo</b></a></span>. 转载请注明出处：<span style="font-size:14px; color:#4169E1"><a href="http://weyo.me/pages/techs/flume-kafka-integration/"><b>http://weyo.me/pages/techs/flume-kafka-integration/</b></a></span>
 </footer><!-- /.post-info -->                    </div>
                 </div>
                 <h3>前言</h3>
 <p>数据采集与数据传输是大数据/分布式计算技术的两项基本需求。对应于这两项需求，开源社区有很多成熟的解决方案，例如 Scribe，Flume，Chukwa，Kafka，各类MQ等等，基于不同的业务场景可以灵活选择。考虑到我们的实际业务模式与技术特点，在分布式计算系统中需要选择轻量级、可定制性好、扩展性强、易于维护的数据采集与传输单元。其中，采集单元选用模块化程度极高的 Flume-ng，传输单元选择高吞吐率的 Kafka，将两者结合共同构成分布式计算集群的基础数据输入组件。</p>
+<hr />
 <h3>0. 材料准备</h3>
 <ul>
 <li>Flume 安装程序（版本：Flume-ng 1.5.3）</li>
 <li>Kafka 安装程序（版本：Kafka 0.8.2）</li>
 <li>Flume-Kafka 插件</li>
 </ul>
+<hr />
 <h3>1. 配置 Flume</h3>
 <div class="highlight"><pre><span class="cp"># 配置 flume agent</span>
 <span class="n">vi</span> <span class="n">conf</span><span class="o">/</span><span class="n">flume</span><span class="o">-</span><span class="n">conf</span><span class="p">.</span><span class="n">properties</span>
@@ -164,8 +172,9 @@
 </pre></div>
 
 
+<hr />
 <h3>2. 准备 flume-kafka 插件</h3>
-<p><strong>下载插件</strong>（该插件即将集成到1.6版本的flume官方程序中，但在1.5及以下的版本中仍然需要手动配置）：</p>
+<p><strong>下载插件</strong>：（该插件即将集成到1.6版本的 Flume 官方程序中，但在1.5及以下的版本中仍然需要手动配置）</p>
 <p><a href="https://github.com/thilinamb/flume-ng-kafka-sink">https://github.com/thilinamb/flume-ng-kafka-sink</a></p>
 <p><strong>编译</strong>：<code>mvn clean install</code> 或者 <code>mvn package</code></p>
 <p>编译完成之后在 <code>dist/target</code> 目录下会生成 <code>flume-kafka-sink-dist-0.5.0-bin.zip</code>，解压缩后，在 lib 目录下有四个依赖jar包：</p>
@@ -175,8 +184,7 @@
 <li>metrics-core-x.x.x.jar</li>
 <li>scala-library-x.x.x.jar</li>
 </ul>
-<p><strong>添加依赖包</strong>
- 在Flume的安装目录下建立 <code>plugins.d</code> 文件夹，再在该文件夹下建立 <code>kafka-sink</code> 文件夹，然后在kafka-sink文件夹下建立 <code>lib</code> 与 <code>libext</code> 两个文件夹，将 flume-kafka-sink-impl-0.5.0.jar 拷贝到 lib 下，其他三个jar包拷贝到 libext 下，整个目录结构如下所示：</p>
+<p><strong>添加依赖包</strong>：在Flume的安装目录下建立 <code>plugins.d</code> 文件夹，再在该文件夹下建立 <code>kafka-sink</code> 文件夹，然后在kafka-sink文件夹下建立 <code>lib</code> 与 <code>libext</code> 两个文件夹，将 flume-kafka-sink-impl-0.5.0.jar 拷贝到 lib 下，其他三个jar包拷贝到 libext 下，整个目录结构如下所示：</p>
 <div class="highlight"><pre><span class="cp">${</span><span class="n">FLUME_HOME</span><span class="cp">}</span>
  |-- plugins.d
         |-- kafka-sink
@@ -191,8 +199,11 @@
 
 <blockquote>
 <h4>TIPS</h4>
-<p>上述 Flume 配置文件中提到的“默认连接到一个名为‘default-flume-topic’的topic”实际上是在<code>flume-ng-kafka-sink</code>项目中定义的，如果需要修改默认名称等属性，可以修改 <code>Constants</code> 与 <code>MessagePreprocessor</code> 接口实现类的 <code>extractTopic</code> 方法。Key 和 Message 的处理也可以根据需要通过 <code>MessagePreprocessor</code> 接口的另外两个方法类似实现。由于插件作者写的 <code>SimpleMessagePreprocessor</code> 中定义了属性名为 <code>custom-topic</code> 的 topic名称，会对使用者造成一定的混淆，同时额外的 example module 也不便于集成到编译后的插件中，因此，我在原始插件代码的基础上做了一点修改，并更新到 https://github.com/weyo/flume-ng-kafka-sink 项目中，可以直接下载并使用 Maven 编译生成需要的插件。</p>
+<ul>
+<li>上述 Flume 配置文件中提到的<strong>"默认连接到一个名为‘default-flume-topic’的topic"</strong>实际上是在<code>flume-ng-kafka-sink</code>项目中定义的，如果需要修改默认名称等属性，可以修改 <code>Constants</code> 与 <code>MessagePreprocessor</code> 接口实现类的 <code>extractTopic</code> 方法。Key 和 Message 的处理也可以根据需要通过 <code>MessagePreprocessor</code> 接口的另外两个方法类似实现。由于插件作者写的 <code>SimpleMessagePreprocessor</code> 中定义了属性名为 <code>custom-topic</code> 的 topic名称，会对使用者造成一定的混淆，同时额外的 example module 也不便于集成到编译后的插件中，因此，我在原始插件代码的基础上做了一点修改，并更新到 <a href="https://github.com/weyo/flume-ng-kafka-sink">weyo/flume-ng-kafka-sink</a> 项目中，可以直接下载并使用 Maven 编译生成需要的插件。</li>
+</ul>
 </blockquote>
+<hr />
 <h3>3. 运行</h3>
 <ul>
 <li>启动 Kafka server（每个 flume agent 对应的 Kafka broker，本例中为 hd182）</li>
@@ -209,10 +220,12 @@
 <ul>
 <li>启动 Flume （本例中为 agent181）</li>
 </ul>
-<p><code>flume-ng agent -c /home/flume/apache-flume-1.5.2-bin/conf/ -f /home/flume/apache-flume-1.5.2-bin/conf/flume-conf.properties -n agent181 &amp;</code> </p>
+<p><code>flume-ng agent -c /home/flume/conf/ -f /home/flume/conf/flume-conf.properties -n agent181 &amp;</code> </p>
 <blockquote>
 <h4>TIPS</h4>
-<p>如果需要监控 agent 配置信息，可以添加 <code>-Dflume.monitoring.type=http -Dflume.monitoring.port=34545</code> 参数，通过 <code>http://agenthost:34545</code> 访问 agent 配置信息。</p>
+<ul>
+<li>如果需要监控 agent 配置信息，可以添加 <code>-Dflume.monitoring.type=http -Dflume.monitoring.port=34545</code> 参数，通过 <code>http://agenthost:34545</code> 访问 agent 配置信息。  </li>
+</ul>
 </blockquote>
 <ul>
 <li>
@@ -233,7 +246,7 @@
             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
             var disqus_shortname = 'weyo'; // required: replace example with your forum shortname
             var disqus_identifier = 'flume-kafka-integration';
-            var disqus_url = 'http://weyo.me/pages/2015/04/10/flume-kafka-integration/';
+            var disqus_url = 'http://weyo.me/pages/techs/flume-kafka-integration/';
 
             /* * * DON'T EDIT BELOW THIS LINE * * */
             (function () {
@@ -260,15 +273,21 @@
         <ul class="list-group list-group-flush">
                 <li class="list-group-item"><h4><i class="icon-home icon-large"></i>Social</h4></li>
                     <li class="list-group-item"><a href="https://github.com/weyo/"><i
-                            class="icon-Github-sign icon-large"></i>Github
+                            class="icon-github-sign icon-large"></i>Github
                     </a></li>
                     <li class="list-group-item"><a href="https://cn.linkedin.com/in/weiyong"><i
-                            class="icon-LinkedIn-sign icon-large"></i>LinkedIn
+                            class="icon-linkedin-sign icon-large"></i>LinkedIn
                     </a></li>
-                    <li class="list-group-item"><a href="http://www.douban.com/people/onenote/"><i
-                            class="icon-豆瓣-sign icon-large"></i>豆瓣
+                <li class="list-group-item"><h4><i class="icon-link icon-large"></i>Links</h4></li>
+                    <li class="list-group-item"><a href="http://getpelican.com/"><i
+                            class="icon-Pelican-sign icon-large"></i>Pelican
                     </a></li>
-
+                    <li class="list-group-item"><a href="http://python.org/"><i
+                            class="icon-Python-sign icon-large"></i>Python
+                    </a></li>
+                    <li class="list-group-item"><a href="#"><i
+                            class="icon-WeYo-sign icon-large"></i>WeYo
+                    </a></li>
 
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
@@ -283,13 +302,13 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/linux.html">
-                                Linux
+                            <a href="http://weyo.me/tag/kafka.html">
+                                Kafka
                             </a>
                         </li>
                         <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/kafka.html">
-                                Kafka
+                            <a href="http://weyo.me/tag/linux.html">
+                                Linux
                             </a>
                         </li>
                         <li class="list-group-item tag-2">

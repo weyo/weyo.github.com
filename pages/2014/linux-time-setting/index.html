@@ -4,7 +4,7 @@
       xmlns:fb="https://www.facebook.com/2008/fbml">
 <head>
     <title>Linux 系统时间配置入门
-  Posted by WeYo. 转载请注明出处 pages/2014/07/04/linux-time-setting/.
+  Posted by WeYo. 转载请注明出处 pages/techs/linux-time-setting/.
 </title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -16,7 +16,7 @@
 
             <meta property="og:type" content="article"/>
             <meta property="og:title" content="Linux 系统时间配置入门"/>
-            <meta property="og:url" content="http://weyo.me/pages/2014/07/04/linux-time-setting/"/>
+            <meta property="og:url" content="http://weyo.me/pages/techs/linux-time-setting/"/>
             <meta property="og:description" content="本文根据网络资料整理，涉及 Linux 系统的“手动”设置与基于 ntp 的配置两种方式。"/>
 
     <!-- Bootstrap -->
@@ -86,7 +86,7 @@
         <article>
             <header class="page-header">
                 <h1>
-                    <a href="http://weyo.me/pages/2014/07/04/linux-time-setting/"
+                    <a href="http://weyo.me/pages/techs/linux-time-setting/"
                        rel="bookmark"
                        title="Permalink to Linux 系统时间配置入门">
                         Linux 系统时间配置入门
@@ -99,26 +99,34 @@
 <footer class="post-info">
     <span class="label label-default">Date</span>
     <span class="published">
-        <i class="icon-calendar"></i>2014-07-04, 周五  
+        <i class="icon-calendar"></i>2014-07-04
     </span>
 	<span style="font-size:12px;">&nbsp;&nbsp;</span>
-    <span class="label label-default">By</span>
+    <!--     <span class="label label-default">By</span>
     <a href="http://weyo.me/author/weyo.html"><i class="icon-user"></i>WeYo</a>
 	<span style="font-size:12px;">&nbsp;&nbsp;</span>
+ -->
 
+    <span class="label label-default">Category</span>
+    <a href="http://weyo.me/category/techs.html">Techs</a>
+	<span style="font-size:12px;">&nbsp;&nbsp;</span>
 
 
 <span class="label label-default">Tags</span>
 	<a href="http://weyo.me/tag/linux.html">Linux</a>
+	
+	<br /><br />Posted by <span style="font-size:14px; color:#4169E1"><a href="http://github.com/weyo"><b>WeYo</b></a></span>. 转载请注明出处：<span style="font-size:14px; color:#4169E1"><a href="http://weyo.me/pages/techs/linux-time-setting/"><b>http://weyo.me/pages/techs/linux-time-setting/</b></a></span>
 </footer><!-- /.post-info -->                    </div>
                 </div>
                 <blockquote>
 <p>本文根据网络资料整理。
 Linux 系统时间配置大致可以大致分为“手动”设置与基于 ntp 的配置两种方式。</p>
 </blockquote>
+<hr />
 <h3>手动设置系统时间</h3>
 <h4>1. 说明</h4>
 <p>Linux将时钟分为系统时钟(System Clock)和硬件(Real Time Clock，简称RTC)时钟两种。系统时间是指当前Linux Kernel中的时钟，而硬件时钟则是主板上由电池供电的那个主板硬件时钟，这个时钟可以在BIOS的“Standard BIOS Feture”项中进行设置。Linux并没有默认哪个时钟系统。当Linux启动时，硬件时钟会去读取系统时钟的设置，然后系统时钟就会独立于硬件运作。</p>
+<hr />
 <h4>2. 设置方法</h4>
 <div class="highlight"><pre><span class="n">date</span> <span class="mf">042612492015.28</span>
 <span class="n">hwclock</span> <span class="err">–</span><span class="n">w</span>
@@ -130,6 +138,7 @@ Linux 系统时间配置大致可以大致分为“手动”设置与基于 ntp 
 第一步是设置时间，设置完成可以使用date命令查看是否正确，<strong>注意</strong>：时间设置格式为<strong><code>月日时分年.秒</code></strong>；<br />
 第二步是将系统时间写入硬件时钟，这样可以避免重启之后需要重新设置系统时间。</p>
 </blockquote>
+<hr />
 <h4>3. 相关操作命令</h4>
 <ul>
 <li>查看硬件时钟</li>
@@ -160,15 +169,18 @@ Linux 系统时间配置大致可以大致分为“手动”设置与基于 ntp 
 </pre></div>
 
 
+<hr />
 <h3>通过 ntpd 服务同步设置时间</h3>
 <h4>1. 说明</h4>
 <p>ntpd 服务是通过网络对系统时间进行同步配置的 Linux 服务，可以确保系统时间的一致性。</p>
+<hr />
 <h4>2. 配置同步时间</h4>
 <div class="highlight"><pre><span class="n">ntpdate</span> <span class="err">$</span><span class="n">ntpserver</span>
 </pre></div>
 
 
 <p>ntpserver 是网络时间服务器地址。</p>
+<hr />
 <h4>3. 配置系统开机时间同步</h4>
 <p>在<code>/etc/rc.local</code>中添加</p>
 <div class="highlight"><pre><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">sbin</span><span class="o">/</span><span class="n">ntpdate</span> <span class="err">$</span><span class="n">ntpserver</span> <span class="o">&gt;&gt;</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">log</span><span class="o">/</span><span class="n">ntpdate</span><span class="p">.</span><span class="n">log</span>
@@ -181,6 +193,7 @@ Linux 系统时间配置大致可以大致分为“手动”设置与基于 ntp 
 
 
 <p>这样每天5:10自动进行网络校时，并同时更新BIOS的时间。</p>
+<hr />
 <h4>4. 网络时间同步服务器</h4>
 <p>时间服务器分为两种，一种是一级时间服务器，另外一种是二级时间服务器。如果是同步自己的服务器的时间，那么选择二级时间服务器，因为一级时间服务器是为二级时间服务器提供时间校对服务器，我们尽量不要增加一级服务器的压力。这种层级的概念和DNS的层级概念是一致的。<br /></p>
 <ul>
@@ -202,7 +215,7 @@ Linux 系统时间配置大致可以大致分为“手动”设置与基于 ntp 
 <blockquote>
 <p>注：除了使用外部时间服务器之外，也可以在局域网中搭建独立的时间同步服务器，其他机器从该时间同步服务器获取同步时间。</p>
 </blockquote>
-<p><br /></p>
+<hr />
 <h3>Q&amp;A</h3>
 <h4>1. <strong>no server suitable for synchronization found</strong></h4>
 <p>执行ntpdate命令更新NTP客户端的时间时，如果报以下错误：<br /> 
@@ -261,7 +274,7 @@ a) 检查NTP服务端使用的ntp版本：<br />
             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
             var disqus_shortname = 'weyo'; // required: replace example with your forum shortname
             var disqus_identifier = 'linux-time-setting';
-            var disqus_url = 'http://weyo.me/pages/2014/07/04/linux-time-setting/';
+            var disqus_url = 'http://weyo.me/pages/techs/linux-time-setting/';
 
             /* * * DON'T EDIT BELOW THIS LINE * * */
             (function () {
@@ -288,15 +301,21 @@ a) 检查NTP服务端使用的ntp版本：<br />
         <ul class="list-group list-group-flush">
                 <li class="list-group-item"><h4><i class="icon-home icon-large"></i>Social</h4></li>
                     <li class="list-group-item"><a href="https://github.com/weyo/"><i
-                            class="icon-Github-sign icon-large"></i>Github
+                            class="icon-github-sign icon-large"></i>Github
                     </a></li>
                     <li class="list-group-item"><a href="https://cn.linkedin.com/in/weiyong"><i
-                            class="icon-LinkedIn-sign icon-large"></i>LinkedIn
+                            class="icon-linkedin-sign icon-large"></i>LinkedIn
                     </a></li>
-                    <li class="list-group-item"><a href="http://www.douban.com/people/onenote/"><i
-                            class="icon-豆瓣-sign icon-large"></i>豆瓣
+                <li class="list-group-item"><h4><i class="icon-link icon-large"></i>Links</h4></li>
+                    <li class="list-group-item"><a href="http://getpelican.com/"><i
+                            class="icon-Pelican-sign icon-large"></i>Pelican
                     </a></li>
-
+                    <li class="list-group-item"><a href="http://python.org/"><i
+                            class="icon-Python-sign icon-large"></i>Python
+                    </a></li>
+                    <li class="list-group-item"><a href="#"><i
+                            class="icon-WeYo-sign icon-large"></i>WeYo
+                    </a></li>
 
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
@@ -311,13 +330,13 @@ a) 检查NTP服务端使用的ntp版本：<br />
                             </a>
                         </li>
                         <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/linux.html">
-                                Linux
+                            <a href="http://weyo.me/tag/kafka.html">
+                                Kafka
                             </a>
                         </li>
                         <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/kafka.html">
-                                Kafka
+                            <a href="http://weyo.me/tag/linux.html">
+                                Linux
                             </a>
                         </li>
                         <li class="list-group-item tag-2">

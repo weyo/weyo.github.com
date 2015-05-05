@@ -4,7 +4,7 @@
       xmlns:fb="https://www.facebook.com/2008/fbml">
 <head>
     <title>Kafka-Storm 集成部署
-  Posted by WeYo. 转载请注明出处 pages/2015/04/13/kafka-storm-integration/.
+  Posted by WeYo. 转载请注明出处 pages/techs/kafka-storm-integration/.
 </title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -16,7 +16,7 @@
 
             <meta property="og:type" content="article"/>
             <meta property="og:title" content="Kafka-Storm 集成部署"/>
-            <meta property="og:url" content="http://weyo.me/pages/2015/04/13/kafka-storm-integration/"/>
+            <meta property="og:url" content="http://weyo.me/pages/techs/kafka-storm-integration/"/>
             <meta property="og:description" content="分布式实时计算的主要组件采用基于流式计算的 Apache Storm，而实时计算的数据源来自基础数据输入组件中的 Kafka，本文主要讨论如何将 Kafka 的消息数据传入 Storm。"/>
 
     <!-- Bootstrap -->
@@ -86,7 +86,7 @@
         <article>
             <header class="page-header">
                 <h1>
-                    <a href="http://weyo.me/pages/2015/04/13/kafka-storm-integration/"
+                    <a href="http://weyo.me/pages/techs/kafka-storm-integration/"
                        rel="bookmark"
                        title="Permalink to Kafka-Storm 集成部署">
                         Kafka-Storm 集成部署
@@ -99,13 +99,17 @@
 <footer class="post-info">
     <span class="label label-default">Date</span>
     <span class="published">
-        <i class="icon-calendar"></i>2015-04-13, 周一  
+        <i class="icon-calendar"></i>2015-04-13
     </span>
 	<span style="font-size:12px;">&nbsp;&nbsp;</span>
-    <span class="label label-default">By</span>
+    <!--     <span class="label label-default">By</span>
     <a href="http://weyo.me/author/weyo.html"><i class="icon-user"></i>WeYo</a>
 	<span style="font-size:12px;">&nbsp;&nbsp;</span>
+ -->
 
+    <span class="label label-default">Category</span>
+    <a href="http://weyo.me/category/techs.html">Techs</a>
+	<span style="font-size:12px;">&nbsp;&nbsp;</span>
 
 
 <span class="label label-default">Tags</span>
@@ -116,18 +120,23 @@
 	<a href="http://weyo.me/tag/huan-jing-da-jian.html">环境搭建</a>
         /
 	<a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">分布式计算</a>
+	
+	<br /><br />Posted by <span style="font-size:14px; color:#4169E1"><a href="http://github.com/weyo"><b>WeYo</b></a></span>. 转载请注明出处：<span style="font-size:14px; color:#4169E1"><a href="http://weyo.me/pages/techs/kafka-storm-integration/"><b>http://weyo.me/pages/techs/kafka-storm-integration/</b></a></span>
 </footer><!-- /.post-info -->                    </div>
                 </div>
                 <h3>前言</h3>
 <p>分布式实时计算的主要组件采用基于流式计算的 Apache Storm，而实时计算的数据源来自基础数据输入组件中的 Kafka，如何将 Kafka 的消息数据传入 Storm 就是本文讨论的内容。</p>
+<hr />
 <h3>0. 材料准备</h3>
 <ul>
 <li>正常稳定运行的 Kafka 集群（版本：Kafka 0.8.2）</li>
 <li>正常稳定运行的 Storm 集群（版本：Storm 0.9.8）</li>
 <li>Maven 3.x</li>
 </ul>
+<hr />
 <h3>1. Storm Topology 工程</h3>
 <p>Storm 的任务（Job）称为 Topology，为了处理实时计算任务，需要新建一个 Storm Topology 工程。由于 Kafka 的消息传输模式，所谓的 Kafka-Storm 集成部署实际上就是需要实现一个接收 Kafka 消息的 Spout 接口。幸运的是，最新的 Storm 官方版本中已经内置了可靠的 KafkaSpout，不需要再去手工编写，只需要将 KafkaSpout 配置为 Topology 的输入数据源即可。</p>
+<hr />
 <h3>2. Maven 配置</h3>
 <p>本项目工程基于 Maven 构建。<br /></p>
 <ul>
@@ -187,7 +196,7 @@
                     <span class="nt">&lt;/execution&gt;</span>
                 <span class="nt">&lt;/executions&gt;</span>
                 <span class="nt">&lt;configuration&gt;</span>
-                    <span class="nt">&lt;finalName&gt;</span>${project.artifactId}-${project.version}-shade<span class="nt">&lt;/finalName&gt;</span>
+                    <span class="nt">&lt;finalName&gt;</span><span class="cp">${</span><span class="n">project</span><span class="o">.</span><span class="n">artifactId</span><span class="cp">}</span>-<span class="cp">${</span><span class="n">project</span><span class="o">.</span><span class="n">version</span><span class="cp">}</span>-shade<span class="nt">&lt;/finalName&gt;</span>
                     <span class="nt">&lt;filters&gt;</span>
                         <span class="nt">&lt;filter&gt;</span>
                             <span class="nt">&lt;artifact&gt;</span>*:*<span class="nt">&lt;/artifact&gt;</span>
@@ -218,9 +227,49 @@
 </pre></div>
 
 
+<hr />
 <h3>3. 实现 Topology</h3>
-<p>以下是 Topology 的一个简单示例（Java 版）。</p>
-<div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">StormTopology</span> <span class="o">{</span>
+<p>以下是 Topology 的一个简单示例（Java 版）。  </p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40</pre></div></td><td class="code"><div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">StormTopology</span> <span class="o">{</span>
     <span class="c1">// Topology 关闭命令（通过外部传入消息控制）</span>
     <span class="kd">public</span> <span class="kd">static</span> <span class="kt">boolean</span> <span class="n">shutdown</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
 
@@ -261,9 +310,10 @@
     <span class="o">}</span>
 <span class="o">}</span>
 </pre></div>
-
+</td></tr></table>
 
 <p>由于一个 KafkaSpout 只能接收一个指定 topic 的消息数据，因此，在实际生产环境 Topology 的实现中需要根据业务需求配置 Spout 的个数。</p>
+<hr />
 <h3>4. 必要的依赖包</h3>
 <p>由于 Topology 工程的依赖均为“provided”的 scope，需要将涉及到的依赖jar包拷贝到 Storm 安装目录的 lib 文件夹下，包括：</p>
 <blockquote>
@@ -276,9 +326,10 @@
 <li>curator-framework-2.6.0.jar</li>
 <li>curator-recipes-2.6.0.jar</li>
 <li>guava-16.0.1.jar</li>
-<li>metrics-core-2.2.0.jar</li>
+<li>metrics-core-2.2.0.jar  </li>
 </ul>
 </blockquote>
+<hr />
 <h3>5. 上线运行</h3>
 <p>向 Storm 集群提交任务，观察数据输出结果。另外，还可以在 Storm 的 UI 界面查看 Topology 内部组件运行状态（需要使用 <strong>Cluster</strong> 模式）。</p>
             </div>
@@ -291,7 +342,7 @@
             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
             var disqus_shortname = 'weyo'; // required: replace example with your forum shortname
             var disqus_identifier = 'kafka-storm-integration';
-            var disqus_url = 'http://weyo.me/pages/2015/04/13/kafka-storm-integration/';
+            var disqus_url = 'http://weyo.me/pages/techs/kafka-storm-integration/';
 
             /* * * DON'T EDIT BELOW THIS LINE * * */
             (function () {
@@ -318,15 +369,21 @@
         <ul class="list-group list-group-flush">
                 <li class="list-group-item"><h4><i class="icon-home icon-large"></i>Social</h4></li>
                     <li class="list-group-item"><a href="https://github.com/weyo/"><i
-                            class="icon-Github-sign icon-large"></i>Github
+                            class="icon-github-sign icon-large"></i>Github
                     </a></li>
                     <li class="list-group-item"><a href="https://cn.linkedin.com/in/weiyong"><i
-                            class="icon-LinkedIn-sign icon-large"></i>LinkedIn
+                            class="icon-linkedin-sign icon-large"></i>LinkedIn
                     </a></li>
-                    <li class="list-group-item"><a href="http://www.douban.com/people/onenote/"><i
-                            class="icon-豆瓣-sign icon-large"></i>豆瓣
+                <li class="list-group-item"><h4><i class="icon-link icon-large"></i>Links</h4></li>
+                    <li class="list-group-item"><a href="http://getpelican.com/"><i
+                            class="icon-Pelican-sign icon-large"></i>Pelican
                     </a></li>
-
+                    <li class="list-group-item"><a href="http://python.org/"><i
+                            class="icon-Python-sign icon-large"></i>Python
+                    </a></li>
+                    <li class="list-group-item"><a href="#"><i
+                            class="icon-WeYo-sign icon-large"></i>WeYo
+                    </a></li>
 
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
@@ -341,13 +398,13 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/linux.html">
-                                Linux
+                            <a href="http://weyo.me/tag/kafka.html">
+                                Kafka
                             </a>
                         </li>
                         <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/kafka.html">
-                                Kafka
+                            <a href="http://weyo.me/tag/linux.html">
+                                Linux
                             </a>
                         </li>
                         <li class="list-group-item tag-2">

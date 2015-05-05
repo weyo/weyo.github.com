@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Let There Be Light!</title><link>http://weyo.me/</link><description></description><atom:link href="http://weyo.me/feeds/techs.rss.xml" rel="self"></atom:link><lastBuildDate>Mon, 13 Apr 2015 00:00:00 +0800</lastBuildDate><item><title>Kafka-Storm 集成部署</title><link>http://weyo.me/pages/2015/04/13/kafka-storm-integration/</link><description>&lt;h3&gt;前言&lt;/h3&gt;
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Let There Be Light!</title><link>http://weyo.me/</link><description></description><atom:link href="http://weyo.me/feeds/techs.rss.xml" rel="self"></atom:link><lastBuildDate>Mon, 13 Apr 2015 00:00:00 +0800</lastBuildDate><item><title>Kafka-Storm 集成部署</title><link>http://weyo.me/pages/techs/kafka-storm-integration/</link><description>&lt;h3&gt;前言&lt;/h3&gt;
 &lt;p&gt;分布式实时计算的主要组件采用基于流式计算的 Apache Storm，而实时计算的数据源来自基础数据输入组件中的 Kafka，如何将 Kafka 的消息数据传入 Storm 就是本文讨论的内容。&lt;/p&gt;
+&lt;hr /&gt;
 &lt;h3&gt;0. 材料准备&lt;/h3&gt;
 &lt;ul&gt;
 &lt;li&gt;正常稳定运行的 Kafka 集群（版本：Kafka 0.8.2）&lt;/li&gt;
 &lt;li&gt;正常稳定运行的 Storm 集群（版本：Storm 0.9.8）&lt;/li&gt;
 &lt;li&gt;Maven 3.x&lt;/li&gt;
 &lt;/ul&gt;
+&lt;hr /&gt;
 &lt;h3&gt;1. Storm Topology 工程&lt;/h3&gt;
 &lt;p&gt;Storm 的任务（Job）称为 Topology，为了处理实时计算任务，需要新建一个 Storm Topology 工程。由于 Kafka 的消息传输模式，所谓的 Kafka-Storm 集成部署实际上就是需要实现一个接收 Kafka 消息的 Spout 接口。幸运的是，最新的 Storm 官方版本中已经内置了可靠的 KafkaSpout，不需要再去手工编写，只需要将 KafkaSpout 配置为 Topology 的输入数据源即可。&lt;/p&gt;
+&lt;hr /&gt;
 &lt;h3&gt;2. Maven 配置&lt;/h3&gt;
 &lt;p&gt;本项目工程基于 Maven 构建。&lt;br /&gt;&lt;/p&gt;
 &lt;ul&gt;
@@ -68,7 +71,7 @@
                     &lt;span class="nt"&gt;&amp;lt;/execution&amp;gt;&lt;/span&gt;
                 &lt;span class="nt"&gt;&amp;lt;/executions&amp;gt;&lt;/span&gt;
                 &lt;span class="nt"&gt;&amp;lt;configuration&amp;gt;&lt;/span&gt;
-                    &lt;span class="nt"&gt;&amp;lt;finalName&amp;gt;&lt;/span&gt;${project.artifactId}-${project.version}-shade&lt;span class="nt"&gt;&amp;lt;/finalName&amp;gt;&lt;/span&gt;
+                    &lt;span class="nt"&gt;&amp;lt;finalName&amp;gt;&lt;/span&gt;&lt;span class="cp"&gt;${&lt;/span&gt;&lt;span class="n"&gt;project&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;artifactId&lt;/span&gt;&lt;span class="cp"&gt;}&lt;/span&gt;-&lt;span class="cp"&gt;${&lt;/span&gt;&lt;span class="n"&gt;project&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;version&lt;/span&gt;&lt;span class="cp"&gt;}&lt;/span&gt;-shade&lt;span class="nt"&gt;&amp;lt;/finalName&amp;gt;&lt;/span&gt;
                     &lt;span class="nt"&gt;&amp;lt;filters&amp;gt;&lt;/span&gt;
                         &lt;span class="nt"&gt;&amp;lt;filter&amp;gt;&lt;/span&gt;
                             &lt;span class="nt"&gt;&amp;lt;artifact&amp;gt;&lt;/span&gt;*:*&lt;span class="nt"&gt;&amp;lt;/artifact&amp;gt;&lt;/span&gt;
@@ -99,9 +102,49 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
+&lt;hr /&gt;
 &lt;h3&gt;3. 实现 Topology&lt;/h3&gt;
-&lt;p&gt;以下是 Topology 的一个简单示例（Java 版）。&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;StormTopology&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+&lt;p&gt;以下是 Topology 的一个简单示例（Java 版）。  &lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt; 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;StormTopology&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
     &lt;span class="c1"&gt;// Topology 关闭命令（通过外部传入消息控制）&lt;/span&gt;
     &lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;static&lt;/span&gt; &lt;span class="kt"&gt;boolean&lt;/span&gt; &lt;span class="n"&gt;shutdown&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;false&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
 
@@ -142,9 +185,10 @@
     &lt;span class="o"&gt;}&lt;/span&gt;
 &lt;span class="o"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
-
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 
 &lt;p&gt;由于一个 KafkaSpout 只能接收一个指定 topic 的消息数据，因此，在实际生产环境 Topology 的实现中需要根据业务需求配置 Spout 的个数。&lt;/p&gt;
+&lt;hr /&gt;
 &lt;h3&gt;4. 必要的依赖包&lt;/h3&gt;
 &lt;p&gt;由于 Topology 工程的依赖均为“provided”的 scope，需要将涉及到的依赖jar包拷贝到 Storm 安装目录的 lib 文件夹下，包括：&lt;/p&gt;
 &lt;blockquote&gt;
@@ -157,13 +201,15 @@
 &lt;li&gt;curator-framework-2.6.0.jar&lt;/li&gt;
 &lt;li&gt;curator-recipes-2.6.0.jar&lt;/li&gt;
 &lt;li&gt;guava-16.0.1.jar&lt;/li&gt;
-&lt;li&gt;metrics-core-2.2.0.jar&lt;/li&gt;
+&lt;li&gt;metrics-core-2.2.0.jar  &lt;/li&gt;
 &lt;/ul&gt;
 &lt;/blockquote&gt;
+&lt;hr /&gt;
 &lt;h3&gt;5. 上线运行&lt;/h3&gt;
-&lt;p&gt;向 Storm 集群提交任务，观察数据输出结果。另外，还可以在 Storm 的 UI 界面查看 Topology 内部组件运行状态（需要使用 &lt;strong&gt;Cluster&lt;/strong&gt; 模式）。&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Mon, 13 Apr 2015 00:00:00 +0800</pubDate><guid>tag:weyo.me,2015-04-13:pages/2015/04/13/kafka-storm-integration/</guid><category>Kafka</category><category>Storm</category><category>环境搭建</category><category>分布式计算</category></item><item><title>Apache Storm —— 分布式实时计算基础篇</title><link>http://weyo.me/pages/2015/04/12/storm-basis/</link><description>&lt;h2&gt;关于 Apache Storm&lt;/h2&gt;
-&lt;p&gt;&lt;img alt="About Storm" src="http://storm.apache.org/images/topology.png" /&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p&gt;（翻译自 &lt;a href="http://storm.apache.org/"&gt;Storm 官网&lt;/a&gt;）Apache Storm 是由 twitter 贡献给 Apache 基金会的开源的分布式实时计算系统。与 Hadoop 的批处理相类似，Storm 可以对大量的数据流进行可靠的实时处理，这一过程也称为“流式处理”，是分布式大数据处理的一个重要方向。Storm 支持多种类型的应用，包括：实时分析、在线机器学习、连续计算、分布式RPC（DRPC）、ETL等。Strom 的一个重要特点就是“&lt;strong&gt;快速&lt;/strong&gt;”的数据处理，有 benchmark 显示 Storm 能够达到单个节点每秒百万级 tuple 处理（tuple 是 Storm 的最小数据单元）的速度。快速的数据处理、优秀的可扩展性与容错性、便捷的可操作性与维护性、活跃的社区技术支持，这就是 Storm。&lt;br /&gt;&lt;/p&gt;
+&lt;p&gt;向 Storm 集群提交任务，观察数据输出结果。另外，还可以在 Storm 的 UI 界面查看 Topology 内部组件运行状态（需要使用 &lt;strong&gt;Cluster&lt;/strong&gt; 模式）。&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Mon, 13 Apr 2015 00:00:00 +0800</pubDate><guid>tag:weyo.me,2015-04-13:pages/techs/kafka-storm-integration/</guid><category>Kafka</category><category>Storm</category><category>环境搭建</category><category>分布式计算</category></item><item><title>Apache Storm —— 分布式实时计算基础篇</title><link>http://weyo.me/pages/techs/storm-basis/</link><description>&lt;h2&gt;关于 Apache Storm&lt;/h2&gt;
+&lt;p&gt;&lt;img src=http://storm.apache.org/images/topology.png width="60%" height="60%"  /&gt;  &lt;/p&gt;
+&lt;p&gt;（翻译自 &lt;a href="http://storm.apache.org/"&gt;Storm 官网&lt;/a&gt;）Apache Storm 是 Apache 基金会的开源的分布式实时计算系统。与 Hadoop 的批处理相类似，Storm 可以对大量的数据流进行可靠的实时处理，这一过程也称为“流式处理”，是分布式大数据处理的一个重要方向。Storm 支持多种类型的应用，包括：实时分析、在线机器学习、连续计算、分布式RPC（DRPC）、ETL等。Strom 的一个重要特点就是“&lt;strong&gt;快速&lt;/strong&gt;”的数据处理，有 benchmark 显示 Storm 能够达到单个节点每秒百万级 tuple 处理（tuple 是 Storm 的最小数据单元）的速度。快速的数据处理、优秀的可扩展性与容错性、便捷的可操作性与维护性、活跃的社区技术支持，这就是 Storm。&lt;br /&gt;&lt;/p&gt;
+&lt;hr /&gt;
 &lt;h2&gt;Storm 集群组件&lt;/h2&gt;
 &lt;p&gt;&lt;img alt="此处输入图片的描述" src="http://pic002.cnblogs.com/images/2012/79962/2012113013552970.png" /&gt;&lt;/p&gt;
 &lt;p&gt;Storm 集群中包含两类节点：主控节点（Master Node）和工作节点（Work Node）。其分别对应的角色如下： &lt;/p&gt;
@@ -172,6 +218,7 @@
 &lt;li&gt;每个工作节点（Work Node）上运行一个被称为Supervisor的后台程序。Supervisor负责监听从Nimbus分配给它执行的任务，据此启动或停止执行任务的工作进程。每一个工作进程执行一个Topology的子集；一个运行中的Topology由分布在不同工作节点上的多个工作进程组成。&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;Nimbus 和 Supervisor 节点之间所有的协调工作是通过 Zookeeper 集群来实现的。此外，Nimbus 和 Supervisor 进程都是快速失败（fail-fast)和无状态（stateless）的；Storm 集群所有的状态要么在 Zookeeper 集群中，要么存储在本地磁盘上。这意味着你可以用 kill -9 来杀死 Nimbus 和 Supervisor 进程，它们在重启后可以继续工作。这个设计使得Storm集群拥有不可思议的稳定性。&lt;/p&gt;
+&lt;hr /&gt;
 &lt;h2&gt;Storm 部署步骤&lt;/h2&gt;
 &lt;p&gt;搭建一个Storm集群需要依次完成的安装步骤：&lt;/p&gt;
 &lt;blockquote&gt;
@@ -183,6 +230,7 @@
 &lt;li&gt;启动Storm各个后台进程。&lt;/li&gt;
 &lt;/ol&gt;
 &lt;/blockquote&gt;
+&lt;hr /&gt;
 &lt;h2&gt;storm.yaml 配置&lt;/h2&gt;
 &lt;p&gt;Storm发行版本解压目录下有一个conf/storm.yaml文件，用于配置Storm。默认配置在&lt;a href="https://github.com/nathanmarz/storm/blob/master/conf/defaults.yaml"&gt;这里&lt;/a&gt;可以查看。conf/storm.yaml中的配置选项将覆盖defaults.yaml中的默认配置。以下配置选项是必须在conf/storm.yaml中进行配置的：&lt;/p&gt;
 &lt;blockquote&gt;
@@ -251,11 +299,20 @@ supervisor.slots.ports:    - 6700    - 6701    - 6702    - 6703&lt;/li&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
+&lt;hr /&gt;
 &lt;h2&gt;Storm 运行&lt;/h2&gt;
-&lt;p&gt;和Zookeeper一样，Storm也是快速失败（fail-fast)的系统，这样Storm才能在任意时刻被停止，并且当进程重启后被正确地恢复执行。这也是为什么Storm不在进程内保存状态的原因，即使Nimbus或Supervisors被重启，运行中的Topologies不会受到影响。以下是启动Storm各个后台进程的方式：
-1. &lt;strong&gt;Nimbus&lt;/strong&gt;: 在Storm主控节点上运行 &lt;code&gt;nohup storm nimbus &amp;amp;&lt;/code&gt; 启动Nimbus后台程序，并放到后台执行；
-2. &lt;strong&gt;Supervisor&lt;/strong&gt;: 在Storm各个工作节点上运行&lt;code&gt;nohup storm supervisor &amp;amp;&lt;/code&gt; 启动Supervisor后台程序，并放到后台执行；
-3. &lt;strong&gt;UI&lt;/strong&gt;: 在Storm主控节点上运行&lt;code&gt;nohup storm ui &amp;amp;&lt;/code&gt; 启动UI后台程序，并放到后台执行，启动后可以通过 &lt;em&gt;http://{nimbus host}:8080&lt;/em&gt; 观察集群的worker资源使用情况、Topologies的运行状态等信息。&lt;/p&gt;
+&lt;p&gt;和Zookeeper一样，Storm也是快速失败（fail-fast)的系统，这样Storm才能在任意时刻被停止，并且当进程重启后被正确地恢复执行。这也是为什么Storm不在进程内保存状态的原因，即使Nimbus或Supervisors被重启，运行中的Topologies不会受到影响。以下是启动Storm各个后台进程的方式： &lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Nimbus&lt;/strong&gt;: 在Storm主控节点上运行 &lt;code&gt;nohup storm nimbus &amp;amp;&lt;/code&gt; 启动Nimbus后台程序，并放到后台执行；&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Supervisor&lt;/strong&gt;: 在Storm各个工作节点上运行&lt;code&gt;nohup storm supervisor &amp;amp;&lt;/code&gt; 启动Supervisor后台程序，并放到后台执行；&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;UI&lt;/strong&gt;: 在Storm主控节点上运行&lt;code&gt;nohup storm ui &amp;amp;&lt;/code&gt; 启动UI后台程序，并放到后台执行，启动后可以通过 &lt;em&gt;http://{nimbus host}:8080&lt;/em&gt; 观察集群的worker资源使用情况、Topologies的运行状态等信息。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
 &lt;blockquote&gt;
 &lt;h4&gt;注意事项：&lt;/h4&gt;
 &lt;ul&gt;
@@ -265,6 +322,7 @@ supervisor.slots.ports:    - 6700    - 6701    - 6702    - 6703&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;至此，Storm集群已经部署、配置完毕，可以向集群提交拓扑运行了。&lt;/p&gt;
+&lt;hr /&gt;
 &lt;h2&gt;向 Storm 集群提交任务&lt;/h2&gt;
 &lt;ol&gt;
 &lt;li&gt;
@@ -278,6 +336,7 @@ supervisor.slots.ports:    - 6700    - 6701    - 6702    - 6703&lt;/li&gt;
 其中，{toponame}为Topology提交到Storm集群时指定的Topology任务名称。&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
+&lt;hr /&gt;
 &lt;h2&gt;Q &amp;amp; A&lt;/h2&gt;
 &lt;h3&gt;1. 运行 storm 命令报错&lt;/h3&gt;
 &lt;p&gt;出现语法错误：&lt;br /&gt;&lt;/p&gt;
@@ -295,19 +354,23 @@ supervisor.slots.ports:    - 6700    - 6701    - 6702    - 6703&lt;/li&gt;
  mv python python.bk
  ln -s /usr/local/Python-2.7.8/python python&lt;/code&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
+&lt;hr /&gt;
 &lt;h3&gt;2. Storm 在 ssh 断开后自动关闭&lt;/h3&gt;
 &lt;p&gt;这是由于 Storm 是由默认的 Shell 机制打开运行，在 ssh 或 telnet 断开后终端会将挂断信号发送到控制进程，进而会关闭该 Shell 进程组中的所有进程。因此需要在 Storm 后台启动时使用 &lt;code&gt;nohup&lt;/code&gt; 命令和 &lt;code&gt;&amp;amp;&lt;/code&gt; 标记可以使进程忽略挂断信号，避免程序的异常退出：&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;nohup storm nimbus &amp;amp;&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;nohup storm ui &amp;amp;&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;nohup storm supervisor &amp;amp;&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;nohup storm logviewer &amp;amp;&lt;/code&gt;&lt;/p&gt;
+&lt;hr /&gt;
 &lt;h3&gt;3. Storm UI 网页无法打开&lt;/h3&gt;
 &lt;p&gt;检查 Storm 主机（nimbus 与 ui 所在运行服务器）的防火墙设置，是否存在监控端口屏蔽（ui 的默认端口是 8080）&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;【注】测试环境下可以不考虑安全问题直接关闭防火墙&lt;/p&gt;
 &lt;/blockquote&gt;
+&lt;hr /&gt;
 &lt;h3&gt;4. Strom UI 网页中没有 topology 信息&lt;/h3&gt;
 &lt;p&gt;只有集群（Cluster）模式的 topology 才会在监控页面显示，需要将本地模式（local mode）的 topology 改为集群模式&lt;/p&gt;
+&lt;hr /&gt;
 &lt;h3&gt;5. Storm UI 网页中无法打开各个端口的 worker.log&lt;/h3&gt;
 &lt;p&gt;在需要查看 log 的机器上启动 logviewer 进程：&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;nohup storm logviewer &amp;amp;&lt;/code&gt;&lt;/p&gt;
@@ -322,14 +385,16 @@ supervisor.slots.ports:    - 6700    - 6701    - 6702    - 6703&lt;/li&gt;
 &lt;li&gt;http://blog.csdn.net/wind19/article/details/4986458&lt;/li&gt;
 &lt;/ol&gt;
 &lt;/blockquote&gt;
-&lt;hr /&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Sun, 12 Apr 2015 00:00:00 +0800</pubDate><guid>tag:weyo.me,2015-04-12:pages/2015/04/12/storm-basis/</guid><category>Storm</category><category>环境搭建</category><category>分布式计算</category></item><item><title>Flume-Kafka 集成部署</title><link>http://weyo.me/pages/2015/04/10/flume-kafka-integration/</link><description>&lt;h3&gt;前言&lt;/h3&gt;
+&lt;hr /&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Sun, 12 Apr 2015 00:00:00 +0800</pubDate><guid>tag:weyo.me,2015-04-12:pages/techs/storm-basis/</guid><category>Storm</category><category>环境搭建</category><category>分布式计算</category></item><item><title>Flume-Kafka 集成部署</title><link>http://weyo.me/pages/techs/flume-kafka-integration/</link><description>&lt;h3&gt;前言&lt;/h3&gt;
 &lt;p&gt;数据采集与数据传输是大数据/分布式计算技术的两项基本需求。对应于这两项需求，开源社区有很多成熟的解决方案，例如 Scribe，Flume，Chukwa，Kafka，各类MQ等等，基于不同的业务场景可以灵活选择。考虑到我们的实际业务模式与技术特点，在分布式计算系统中需要选择轻量级、可定制性好、扩展性强、易于维护的数据采集与传输单元。其中，采集单元选用模块化程度极高的 Flume-ng，传输单元选择高吞吐率的 Kafka，将两者结合共同构成分布式计算集群的基础数据输入组件。&lt;/p&gt;
+&lt;hr /&gt;
 &lt;h3&gt;0. 材料准备&lt;/h3&gt;
 &lt;ul&gt;
 &lt;li&gt;Flume 安装程序（版本：Flume-ng 1.5.3）&lt;/li&gt;
 &lt;li&gt;Kafka 安装程序（版本：Kafka 0.8.2）&lt;/li&gt;
 &lt;li&gt;Flume-Kafka 插件&lt;/li&gt;
 &lt;/ul&gt;
+&lt;hr /&gt;
 &lt;h3&gt;1. 配置 Flume&lt;/h3&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="cp"&gt;# 配置 flume agent&lt;/span&gt;
 &lt;span class="n"&gt;vi&lt;/span&gt; &lt;span class="n"&gt;conf&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;flume&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;conf&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;properties&lt;/span&gt;
@@ -368,8 +433,9 @@ supervisor.slots.ports:    - 6700    - 6701    - 6702    - 6703&lt;/li&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
+&lt;hr /&gt;
 &lt;h3&gt;2. 准备 flume-kafka 插件&lt;/h3&gt;
-&lt;p&gt;&lt;strong&gt;下载插件&lt;/strong&gt;（该插件即将集成到1.6版本的flume官方程序中，但在1.5及以下的版本中仍然需要手动配置）：&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;下载插件&lt;/strong&gt;：（该插件即将集成到1.6版本的 Flume 官方程序中，但在1.5及以下的版本中仍然需要手动配置）&lt;/p&gt;
 &lt;p&gt;&lt;a href="https://github.com/thilinamb/flume-ng-kafka-sink"&gt;https://github.com/thilinamb/flume-ng-kafka-sink&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;编译&lt;/strong&gt;：&lt;code&gt;mvn clean install&lt;/code&gt; 或者 &lt;code&gt;mvn package&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;编译完成之后在 &lt;code&gt;dist/target&lt;/code&gt; 目录下会生成 &lt;code&gt;flume-kafka-sink-dist-0.5.0-bin.zip&lt;/code&gt;，解压缩后，在 lib 目录下有四个依赖jar包：&lt;/p&gt;
@@ -379,8 +445,7 @@ supervisor.slots.ports:    - 6700    - 6701    - 6702    - 6703&lt;/li&gt;
 &lt;li&gt;metrics-core-x.x.x.jar&lt;/li&gt;
 &lt;li&gt;scala-library-x.x.x.jar&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;&lt;strong&gt;添加依赖包&lt;/strong&gt;
- 在Flume的安装目录下建立 &lt;code&gt;plugins.d&lt;/code&gt; 文件夹，再在该文件夹下建立 &lt;code&gt;kafka-sink&lt;/code&gt; 文件夹，然后在kafka-sink文件夹下建立 &lt;code&gt;lib&lt;/code&gt; 与 &lt;code&gt;libext&lt;/code&gt; 两个文件夹，将 flume-kafka-sink-impl-0.5.0.jar 拷贝到 lib 下，其他三个jar包拷贝到 libext 下，整个目录结构如下所示：&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;添加依赖包&lt;/strong&gt;：在Flume的安装目录下建立 &lt;code&gt;plugins.d&lt;/code&gt; 文件夹，再在该文件夹下建立 &lt;code&gt;kafka-sink&lt;/code&gt; 文件夹，然后在kafka-sink文件夹下建立 &lt;code&gt;lib&lt;/code&gt; 与 &lt;code&gt;libext&lt;/code&gt; 两个文件夹，将 flume-kafka-sink-impl-0.5.0.jar 拷贝到 lib 下，其他三个jar包拷贝到 libext 下，整个目录结构如下所示：&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="cp"&gt;${&lt;/span&gt;&lt;span class="n"&gt;FLUME_HOME&lt;/span&gt;&lt;span class="cp"&gt;}&lt;/span&gt;
  |-- plugins.d
         |-- kafka-sink
@@ -395,8 +460,11 @@ supervisor.slots.ports:    - 6700    - 6701    - 6702    - 6703&lt;/li&gt;
 
 &lt;blockquote&gt;
 &lt;h4&gt;TIPS&lt;/h4&gt;
-&lt;p&gt;上述 Flume 配置文件中提到的“默认连接到一个名为‘default-flume-topic’的topic”实际上是在&lt;code&gt;flume-ng-kafka-sink&lt;/code&gt;项目中定义的，如果需要修改默认名称等属性，可以修改 &lt;code&gt;Constants&lt;/code&gt; 与 &lt;code&gt;MessagePreprocessor&lt;/code&gt; 接口实现类的 &lt;code&gt;extractTopic&lt;/code&gt; 方法。Key 和 Message 的处理也可以根据需要通过 &lt;code&gt;MessagePreprocessor&lt;/code&gt; 接口的另外两个方法类似实现。由于插件作者写的 &lt;code&gt;SimpleMessagePreprocessor&lt;/code&gt; 中定义了属性名为 &lt;code&gt;custom-topic&lt;/code&gt; 的 topic名称，会对使用者造成一定的混淆，同时额外的 example module 也不便于集成到编译后的插件中，因此，我在原始插件代码的基础上做了一点修改，并更新到 https://github.com/weyo/flume-ng-kafka-sink 项目中，可以直接下载并使用 Maven 编译生成需要的插件。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;上述 Flume 配置文件中提到的&lt;strong&gt;"默认连接到一个名为‘default-flume-topic’的topic"&lt;/strong&gt;实际上是在&lt;code&gt;flume-ng-kafka-sink&lt;/code&gt;项目中定义的，如果需要修改默认名称等属性，可以修改 &lt;code&gt;Constants&lt;/code&gt; 与 &lt;code&gt;MessagePreprocessor&lt;/code&gt; 接口实现类的 &lt;code&gt;extractTopic&lt;/code&gt; 方法。Key 和 Message 的处理也可以根据需要通过 &lt;code&gt;MessagePreprocessor&lt;/code&gt; 接口的另外两个方法类似实现。由于插件作者写的 &lt;code&gt;SimpleMessagePreprocessor&lt;/code&gt; 中定义了属性名为 &lt;code&gt;custom-topic&lt;/code&gt; 的 topic名称，会对使用者造成一定的混淆，同时额外的 example module 也不便于集成到编译后的插件中，因此，我在原始插件代码的基础上做了一点修改，并更新到 &lt;a href="https://github.com/weyo/flume-ng-kafka-sink"&gt;weyo/flume-ng-kafka-sink&lt;/a&gt; 项目中，可以直接下载并使用 Maven 编译生成需要的插件。&lt;/li&gt;
+&lt;/ul&gt;
 &lt;/blockquote&gt;
+&lt;hr /&gt;
 &lt;h3&gt;3. 运行&lt;/h3&gt;
 &lt;ul&gt;
 &lt;li&gt;启动 Kafka server（每个 flume agent 对应的 Kafka broker，本例中为 hd182）&lt;/li&gt;
@@ -413,10 +481,12 @@ supervisor.slots.ports:    - 6700    - 6701    - 6702    - 6703&lt;/li&gt;
 &lt;ul&gt;
 &lt;li&gt;启动 Flume （本例中为 agent181）&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;&lt;code&gt;flume-ng agent -c /home/flume/apache-flume-1.5.2-bin/conf/ -f /home/flume/apache-flume-1.5.2-bin/conf/flume-conf.properties -n agent181 &amp;amp;&lt;/code&gt; &lt;/p&gt;
+&lt;p&gt;&lt;code&gt;flume-ng agent -c /home/flume/conf/ -f /home/flume/conf/flume-conf.properties -n agent181 &amp;amp;&lt;/code&gt; &lt;/p&gt;
 &lt;blockquote&gt;
 &lt;h4&gt;TIPS&lt;/h4&gt;
-&lt;p&gt;如果需要监控 agent 配置信息，可以添加 &lt;code&gt;-Dflume.monitoring.type=http -Dflume.monitoring.port=34545&lt;/code&gt; 参数，通过 &lt;code&gt;http://agenthost:34545&lt;/code&gt; 访问 agent 配置信息。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;如果需要监控 agent 配置信息，可以添加 &lt;code&gt;-Dflume.monitoring.type=http -Dflume.monitoring.port=34545&lt;/code&gt; 参数，通过 &lt;code&gt;http://agenthost:34545&lt;/code&gt; 访问 agent 配置信息。  &lt;/li&gt;
+&lt;/ul&gt;
 &lt;/blockquote&gt;
 &lt;ul&gt;
 &lt;li&gt;
@@ -426,13 +496,15 @@ supervisor.slots.ports:    - 6700    - 6701    - 6702    - 6703&lt;/li&gt;
 &lt;p&gt;在 Kafka consumer 客户端观察数据接收情况&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-&lt;hr /&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Fri, 10 Apr 2015 00:00:00 +0800</pubDate><guid>tag:weyo.me,2015-04-10:pages/2015/04/10/flume-kafka-integration/</guid><category>Flume</category><category>Kafka</category><category>环境搭建</category><category>分布式计算</category></item><item><title>Linux 系统时间配置入门</title><link>http://weyo.me/pages/2014/07/04/linux-time-setting/</link><description>&lt;blockquote&gt;
+&lt;hr /&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Fri, 10 Apr 2015 00:00:00 +0800</pubDate><guid>tag:weyo.me,2015-04-10:pages/techs/flume-kafka-integration/</guid><category>Flume</category><category>Kafka</category><category>环境搭建</category><category>分布式计算</category></item><item><title>Linux 系统时间配置入门</title><link>http://weyo.me/pages/techs/linux-time-setting/</link><description>&lt;blockquote&gt;
 &lt;p&gt;本文根据网络资料整理。
 Linux 系统时间配置大致可以大致分为“手动”设置与基于 ntp 的配置两种方式。&lt;/p&gt;
 &lt;/blockquote&gt;
+&lt;hr /&gt;
 &lt;h3&gt;手动设置系统时间&lt;/h3&gt;
 &lt;h4&gt;1. 说明&lt;/h4&gt;
 &lt;p&gt;Linux将时钟分为系统时钟(System Clock)和硬件(Real Time Clock，简称RTC)时钟两种。系统时间是指当前Linux Kernel中的时钟，而硬件时钟则是主板上由电池供电的那个主板硬件时钟，这个时钟可以在BIOS的“Standard BIOS Feture”项中进行设置。Linux并没有默认哪个时钟系统。当Linux启动时，硬件时钟会去读取系统时钟的设置，然后系统时钟就会独立于硬件运作。&lt;/p&gt;
+&lt;hr /&gt;
 &lt;h4&gt;2. 设置方法&lt;/h4&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;date&lt;/span&gt; &lt;span class="mf"&gt;042612492015.28&lt;/span&gt;
 &lt;span class="n"&gt;hwclock&lt;/span&gt; &lt;span class="err"&gt;–&lt;/span&gt;&lt;span class="n"&gt;w&lt;/span&gt;
@@ -444,6 +516,7 @@ Linux 系统时间配置大致可以大致分为“手动”设置与基于 ntp 
 第一步是设置时间，设置完成可以使用date命令查看是否正确，&lt;strong&gt;注意&lt;/strong&gt;：时间设置格式为&lt;strong&gt;&lt;code&gt;月日时分年.秒&lt;/code&gt;&lt;/strong&gt;；&lt;br /&gt;
 第二步是将系统时间写入硬件时钟，这样可以避免重启之后需要重新设置系统时间。&lt;/p&gt;
 &lt;/blockquote&gt;
+&lt;hr /&gt;
 &lt;h4&gt;3. 相关操作命令&lt;/h4&gt;
 &lt;ul&gt;
 &lt;li&gt;查看硬件时钟&lt;/li&gt;
@@ -474,15 +547,18 @@ Linux 系统时间配置大致可以大致分为“手动”设置与基于 ntp 
 &lt;/pre&gt;&lt;/div&gt;
 
 
+&lt;hr /&gt;
 &lt;h3&gt;通过 ntpd 服务同步设置时间&lt;/h3&gt;
 &lt;h4&gt;1. 说明&lt;/h4&gt;
 &lt;p&gt;ntpd 服务是通过网络对系统时间进行同步配置的 Linux 服务，可以确保系统时间的一致性。&lt;/p&gt;
+&lt;hr /&gt;
 &lt;h4&gt;2. 配置同步时间&lt;/h4&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;ntpdate&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="n"&gt;ntpserver&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;ntpserver 是网络时间服务器地址。&lt;/p&gt;
+&lt;hr /&gt;
 &lt;h4&gt;3. 配置系统开机时间同步&lt;/h4&gt;
 &lt;p&gt;在&lt;code&gt;/etc/rc.local&lt;/code&gt;中添加&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;usr&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;sbin&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;ntpdate&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="n"&gt;ntpserver&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;var&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;log&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;ntpdate&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;log&lt;/span&gt;
@@ -495,6 +571,7 @@ Linux 系统时间配置大致可以大致分为“手动”设置与基于 ntp 
 
 
 &lt;p&gt;这样每天5:10自动进行网络校时，并同时更新BIOS的时间。&lt;/p&gt;
+&lt;hr /&gt;
 &lt;h4&gt;4. 网络时间同步服务器&lt;/h4&gt;
 &lt;p&gt;时间服务器分为两种，一种是一级时间服务器，另外一种是二级时间服务器。如果是同步自己的服务器的时间，那么选择二级时间服务器，因为一级时间服务器是为二级时间服务器提供时间校对服务器，我们尽量不要增加一级服务器的压力。这种层级的概念和DNS的层级概念是一致的。&lt;br /&gt;&lt;/p&gt;
 &lt;ul&gt;
@@ -516,7 +593,7 @@ Linux 系统时间配置大致可以大致分为“手动”设置与基于 ntp 
 &lt;blockquote&gt;
 &lt;p&gt;注：除了使用外部时间服务器之外，也可以在局域网中搭建独立的时间同步服务器，其他机器从该时间同步服务器获取同步时间。&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;hr /&gt;
 &lt;h3&gt;Q&amp;amp;A&lt;/h3&gt;
 &lt;h4&gt;1. &lt;strong&gt;no server suitable for synchronization found&lt;/strong&gt;&lt;/h4&gt;
 &lt;p&gt;执行ntpdate命令更新NTP客户端的时间时，如果报以下错误：&lt;br /&gt; 
@@ -564,41 +641,25 @@ a) 检查NTP服务端使用的ntp版本：&lt;br /&gt;
 &lt;li&gt;http://bbs.chinaunix.net/thread-4131894-1-1.html&lt;/li&gt;
 &lt;li&gt;http://blog.csdn.net/weidan1121/article/details/3953021&lt;/li&gt;
 &lt;/ol&gt;
-&lt;/blockquote&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Fri, 04 Jul 2014 00:00:00 +0800</pubDate><guid>tag:weyo.me,2014-07-04:pages/2014/07/04/linux-time-setting/</guid><category>Linux</category></item><item><title>Bash Shell 获取进程 PID</title><link>http://weyo.me/pages/2014/05/22/linux-get-pid/</link><description>&lt;blockquote&gt;
+&lt;/blockquote&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Fri, 04 Jul 2014 00:00:00 +0800</pubDate><guid>tag:weyo.me,2014-07-04:pages/techs/linux-time-setting/</guid><category>Linux</category></item><item><title>Bash Shell 获取进程 PID</title><link>http://weyo.me/pages/techs/linux-get-pid/</link><description>&lt;blockquote&gt;
 &lt;h2&gt;导读&lt;/h2&gt;
 &lt;p&gt;Linux 的交互式 Shell 与 Shell 脚本存在一定的差异，主要是由于后者存在一个独立的运行进程，因此在获取进程 pid 上二者也有所区别。&lt;/p&gt;
 &lt;/blockquote&gt;
+&lt;hr /&gt;
 &lt;h2&gt;交互式 Bash Shell 获取进程 pid&lt;/h2&gt;
 &lt;p&gt;在已知进程名(&lt;code&gt;name&lt;/code&gt;)的前提下，交互式 Shell 获取进程 pid 有很多种方法，典型的通过 grep 获取 pid 的方法为（这里添加 &lt;code&gt;-v grep&lt;/code&gt;是为了避免匹配到 grep 进程）：&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;ps&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;ef&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;grep&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;name&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;grep&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;v&lt;/span&gt; &lt;span class="n"&gt;grep&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;awk&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;print&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
+&lt;p&gt;&lt;code&gt;ps -ef | grep "name" | grep -v grep | awk '{print $2}'&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;或者不使用 &lt;code&gt;grep&lt;/code&gt;（这里名称首字母加&lt;code&gt;[]&lt;/code&gt;的目的是为了避免匹配到 awk 自身的进程）：&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;ps&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;ef&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;awk&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="n"&gt;ame&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;print&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
+&lt;p&gt;&lt;code&gt;ps -ef | awk '/[n]ame/{print $2}'&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;如果只使用 x 参数的话则 pid 应该位于第一位：&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;ps&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;awk&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="n"&gt;ame&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;print&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
+&lt;p&gt;&lt;code&gt;ps x | awk '/[n]ame/{print $1}'&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;最简单的方法是使用 &lt;code&gt;pgrep&lt;/code&gt;：&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;pgrep&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;f&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
+&lt;p&gt;&lt;code&gt;pgrep -f name&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;如果需要查找到 pid 之后 kill 掉该进程，还可以使用 &lt;code&gt;pkill&lt;/code&gt;：&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;pkill&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;f&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
+&lt;p&gt;&lt;code&gt;pkill -f name&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;如果是可执行程序的话，可以直接使用 &lt;code&gt;pidof&lt;/code&gt;&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;pidof&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
+&lt;p&gt;&lt;code&gt;pidof name&lt;/code&gt;&lt;/p&gt;
+&lt;hr /&gt;
 &lt;h2&gt;Bash Shell 脚本获取进程 pid&lt;/h2&gt;
 &lt;h4&gt;根据进程名获取进程 pid&lt;/h4&gt;
 &lt;p&gt;在使用 Shell 脚本获取进程 pid 时，如果直接使用上述命令，会出现多个 pid 结果，例如：&lt;/p&gt;
@@ -641,6 +702,7 @@ a) 检查NTP服务端使用的ntp版本：&lt;br /&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 
+&lt;hr /&gt;
 &lt;h4&gt;获取 Shell 脚本自身进程 pid&lt;/h4&gt;
 &lt;p&gt;这里涉及两个指令：
  1. &lt;code&gt;$$&lt;/code&gt; ：当前 Shell 进程的 pid
@@ -654,6 +716,7 @@ a) 检查NTP服务端使用的ntp版本：&lt;br /&gt;
 &lt;blockquote&gt;
 &lt;p&gt;注意，在脚本中执行 &lt;code&gt;$!&lt;/code&gt; 只会显示子 Shell 的后台进程 pid，如果子 Shell 先前没有启动后台进程，则没有输出。&lt;/p&gt;
 &lt;/blockquote&gt;
+&lt;hr /&gt;
 &lt;h2&gt;查看指定进程是否存在&lt;/h2&gt;
 &lt;p&gt;在获取到 pid 之后，还可以根据 pid 查看对应的进程是否存在（运行），这个方法也可以用于 kill 指定的进程。&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;ps&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;p&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="n"&gt;PID&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;dev&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;null&lt;/span&gt;
@@ -661,4 +724,4 @@ a) 检查NTP服务端使用的ntp版本：&lt;br /&gt;
    &lt;span class="n"&gt;echo&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;$PID is running&amp;quot;&lt;/span&gt;
    &lt;span class="err"&gt;#&lt;/span&gt; &lt;span class="n"&gt;Do&lt;/span&gt; &lt;span class="n"&gt;something&lt;/span&gt; &lt;span class="n"&gt;knowing&lt;/span&gt; &lt;span class="n"&gt;the&lt;/span&gt; &lt;span class="n"&gt;pid&lt;/span&gt; &lt;span class="n"&gt;exists&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt; &lt;span class="n"&gt;the&lt;/span&gt; &lt;span class="n"&gt;process&lt;/span&gt; &lt;span class="n"&gt;with&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="n"&gt;PID&lt;/span&gt; &lt;span class="n"&gt;is&lt;/span&gt; &lt;span class="n"&gt;running&lt;/span&gt;
 &lt;span class="n"&gt;fi&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Thu, 22 May 2014 00:00:00 +0800</pubDate><guid>tag:weyo.me,2014-05-22:pages/2014/05/22/linux-get-pid/</guid><category>Linux</category><category>Shell</category></item></channel></rss>
+&lt;/pre&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Thu, 22 May 2014 00:00:00 +0800</pubDate><guid>tag:weyo.me,2014-05-22:pages/techs/linux-get-pid/</guid><category>Linux</category><category>Shell</category></item></channel></rss>
