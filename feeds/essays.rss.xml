@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Let There Be Light!</title><link>http://weyo.me/</link><description></description><atom:link href="http://weyo.me/feeds/essays.rss.xml" rel="self"></atom:link><lastBuildDate>Wed, 13 May 2015 00:00:00 +0800</lastBuildDate><item><title>神秘的三门问题</title><link>http://weyo.me/pages/essays/Monty-Hall-Problem/</link><description>&lt;p&gt;前几天遇到这么一道智力题：
+在一场游戏中，主持人拿出了三个完全一样的密封盒子，其中一个盒子内有奖品，另外两个为空盒子。主持人首先让你挑选一个你认为有奖品的盒子。然后，主持人在剩下的两个盒子中拿走一个必然为空的盒子。现在，主持人问：你愿不愿意用你手中的盒子和主持人手中的盒子交换？你手中的盒子和主持人手中的盒子里面有奖品的概率各有多少？&lt;/p&gt;
+&lt;p&gt;这其实就是大名鼎鼎的&lt;strong&gt;三门问题&lt;/strong&gt;了。&lt;/p&gt;
+&lt;p&gt;&lt;img src=http://images.cnitblog.com/blog/329852/201311/24200658-c442dec3691a4e929938ba98a52d78c5.png width="60%" height="60%"  /&gt;&lt;/p&gt;
+&lt;p&gt;“&lt;a href="http://baike.baidu.com/link?url=YMqqL9eOdMp1PRh7jqKHEexoqjYWS-fd-ZwJ1tyzho9ZCQX5esy4etWvBRLy1KPjiGf0gAXnfPmsgyk9wpAm7q"&gt;三门问题-百度百科&lt;/a&gt;”中对这个问题有详细的描述，这里我就不重复了。随便在网上搜一下“三门问题”、“三个盒子 主持人 奖品”之类的关键词就会发现有很多很多争议的帖子，而且这个问题甚至成了果壳的年经话题。不过，虽然争议的人很多，但是争议的结论无非是两个：
+- 答案一：选择更换盒子，会有更高（2/3）中奖的概率；
+- 答案二：换不换无所谓，都是相等（50%）的中奖概率。&lt;/p&gt;
+&lt;p&gt;对这个问题的第一反应我是倾向于第二个结论的。直觉上来说，去掉一个空盒子，不就变成了两个盒子中选一个，概率当然应该是一半一半。但有时候事情往往是反直觉的，在我准备写模拟程序验证的时候就感觉有点不对劲，当时，我大概写了四五行代码：&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+2
+3
+4
+5
+6&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;while&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="o"&gt;++&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;N&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="kt"&gt;boolean&lt;/span&gt;&lt;span class="o"&gt;[]&lt;/span&gt; &lt;span class="n"&gt;boxes&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;randomBoxes&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+    &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;chosen&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;getRandoBox&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;boxes&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+    &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;removed&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;removeEmptyBox&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;boxes&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+    &lt;span class="o"&gt;...&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;写到这里，忽然发现不管程序接下来会有什么样的操作，第一次选择的盒子中奖概率是永远不会变的，因为在一开始的时候就已经选定了盒子，中奖率自然就是1/3。实际上，这个问题就是一个盒子与两个盒子的概率对比问题，毫无疑问，两个盒子的中奖概率永远是一个盒子的两倍的。&lt;/p&gt;
+&lt;p&gt;到了这里，这个问题似乎可以结束了，因为不仅有可以验证的逻辑解释，更有严格的数学证明（就是条件概率的问题，可以用贝叶斯公式证明，详见百度百科）。但是，那个该死的50%的直觉到底是怎么回事？作为一个强迫症患者是绝对不能接受这样的答案的。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;子曰：有问题就要解决。&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;于是到各大论坛里面找三门问题的帖子，但是翻来覆去只有上面提到的两个答案，不过明显答案一的支持者更多一点。为了验证自己的结论，支持答案一的同学还实际做了实验（扑克牌选择，重复100次），而且不管是仿真还是实际的实验结果都是支持更换之后2/3的概率的，这一点也让答案二的支持者无话可说。不过，坚持答案二的同学同样也有理论支撑：在一个独立重复的选择实验中，概率当然是50%了；因此在空盒子拿走之后，分属于剩下两个盒子的概率都会从1/3增加到1/2。这种解释看上去也是科学的。那么，问题到底出在哪里？&lt;/p&gt;
+&lt;p&gt;在反复翻阅各种帖子之后，突然看到了一个更新颖的实验：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;引用 500 楼 juven201314 的回复:&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;这个我亲自做过实验，也不复杂，大家自己可以试下，结果如下：&lt;br /&gt;
+一直坚持不换：中奖接近1/3&lt;br /&gt;
+一直坚持换：中奖接近2/3&lt;br /&gt;
+随便换或不换：中奖接近1/2&lt;br /&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;怎么会有“随便换或不换”的场景呢？仔细想了想，还真的有这种场景，而且这就是这个问题产生如此大的争议的关键！&lt;/p&gt;
+&lt;p&gt;我们再还原一下现场：如果让你预先（在主持人第二次操作之前）决定好换不换的话，不管你的决定是一定要换还是一定不换，本质上都是选择一个盒子还是选择两个盒子的问题，而且这与主持人知不知道奖品位置&lt;strong&gt;无关&lt;/strong&gt;；但是如果让你在主持人操作之后再做一次选择的话，由于你的选择是一个独立重复事件，会自动产生一次概率分配（即选择换与不换的概率各为50%），所以在选择之后最终概率也变成了50%（=2/3×50% + 1/3×50%）。&lt;/p&gt;
+&lt;p&gt;可以看出，这个问题的结果实际上完全取决于第二次是否做选择，如果做选择，那么胜负的概率结果必然是1/2；如果不做选择，那就是明确的1/3或2/3。这一点相对不大好理解，这也是很多人感到困惑的地方。&lt;/p&gt;
+&lt;p&gt;还有很多坚持换的同学会举100000000个盒子的极端情况的例子，随机选择一个盒子的中奖概率自然是只有1/100000000，拿掉99999998个空盒子之后，先前选择的中奖概率仍然是1/100000000，不会改变，这也是这些同学坚信概率不相等的一个依据。这种做法确实也有一定的道理，但是，换个角度来看，如果每拿掉一个空盒子的时候都做一次选择，或者更极端一点，只在最后空盒子都拿掉之后做一次选择，其中奖概率都是50%，因为每一次选择都是一个独立事件，本来概率很高的盒子的概率被人为的选择拉低了。&lt;/p&gt;
+&lt;p&gt;很多人为2/3还是1/2争论的本质还是在于讨论的场景不同，2/3的同学坚决要换，而1/2的同学在自己心里做了一次选择……所以两群人说的都是对的；但是既然不管换不换是50%，坚持换是2/3，当然还是换好，结果总会≥50%……其实这里我还是混淆概念了 :)&lt;/p&gt;
+&lt;p&gt;很多选择换与不换都一样的同学最终发现结果只有惨兮兮的1/3的概率的原因在于，在知道换与不换结果相同的情况下在心理上就有意无意地排除了更换的选项。尤其是像我这样的懒癌晚期患者，在知道无论换与不换的结果都一样之后都会毅然决然地选择不换（换不换都一样，干嘛要这么多此一举），然而这实际上就会把问题转化成了“选择坚持不换”，结果当然就由1/2变成了惨淡的1/3。&lt;/p&gt;
+&lt;hr /&gt;
+&lt;h2&gt;总结&lt;/h2&gt;
+&lt;p&gt;综上，这个问题的终极答案是：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;“我换”，那么中奖的概率是2/3；&lt;/li&gt;
+&lt;li&gt;“我不换”，那么中奖的概率是1/3；&lt;/li&gt;
+&lt;li&gt;“我选择换”，那么中奖的概率是50%；&lt;/li&gt;
+&lt;li&gt;是的，答案就是坑爹的不确定 :)&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr /&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;致谢&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;感谢 &lt;strong&gt;&lt;a href="http://bbs.csdn.net/topics/350030757?page=11#post-351229731"&gt;Juvan201314&lt;/a&gt;&lt;/strong&gt; 网友启发。&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr /&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Wed, 13 May 2015 00:00:00 +0800</pubDate><guid>tag:weyo.me,2015-05-13:pages/essays/Monty-Hall-Problem/</guid><category>Undefined</category></item></channel></rss>
