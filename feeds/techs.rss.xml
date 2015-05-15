@@ -214,8 +214,12 @@
 &lt;p&gt;&lt;img alt="此处输入图片的描述" src="http://pic002.cnblogs.com/images/2012/79962/2012113013552970.png" /&gt;&lt;/p&gt;
 &lt;p&gt;Storm 集群中包含两类节点：主控节点（Master Node）和工作节点（Work Node）。其分别对应的角色如下： &lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;主控节点（Master Node）上运行一个被称为Nimbus的后台程序，它负责在Storm集群内分发代码，分配任务给工作机器，并且负责监控集群运行状态。Nimbus的作用类似于Hadoop中JobTracker的角色。&lt;/li&gt;
-&lt;li&gt;每个工作节点（Work Node）上运行一个被称为Supervisor的后台程序。Supervisor负责监听从Nimbus分配给它执行的任务，据此启动或停止执行任务的工作进程。每一个工作进程执行一个Topology的子集；一个运行中的Topology由分布在不同工作节点上的多个工作进程组成。&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;主控节点（Master Node）上运行一个被称为Nimbus的后台程序，它负责在Storm集群内分发代码，分配任务给工作机器，并且负责监控集群运行状态。Nimbus的作用类似于Hadoop中JobTracker的角色。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;每个工作节点（Work Node）上运行一个被称为Supervisor的后台程序。Supervisor负责监听从Nimbus分配给它执行的任务，据此启动或停止执行任务的工作进程。每一个工作进程执行一个Topology的子集；一个运行中的Topology由分布在不同工作节点上的多个工作进程组成。&lt;/p&gt;
+&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;Nimbus 和 Supervisor 节点之间所有的协调工作是通过 Zookeeper 集群来实现的。此外，Nimbus 和 Supervisor 进程都是快速失败（fail-fast)和无状态（stateless）的；Storm 集群所有的状态要么在 Zookeeper 集群中，要么存储在本地磁盘上。这意味着你可以用 kill -9 来杀死 Nimbus 和 Supervisor 进程，它们在重启后可以继续工作。这个设计使得Storm集群拥有不可思议的稳定性。&lt;/p&gt;
 &lt;hr /&gt;
@@ -224,77 +228,141 @@
 &lt;blockquote&gt;
 &lt;ol&gt;
 &lt;li&gt;搭建Zookeeper集群；&lt;/li&gt;
-&lt;li&gt;安装Storm依赖库(Java、Python)；&lt;/li&gt;
-&lt;li&gt;下载并解压Storm发布版本；&lt;/li&gt;
-&lt;li&gt;修改storm.yaml配置文件；&lt;/li&gt;
-&lt;li&gt;启动Storm各个后台进程。&lt;/li&gt;
 &lt;/ol&gt;
 &lt;/blockquote&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;安装Storm依赖库(Java、Python)；&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;下载并解压Storm发布版本；&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;修改storm.yaml配置文件；&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;启动Storm各个后台进程。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
 &lt;hr /&gt;
 &lt;h2&gt;storm.yaml 配置&lt;/h2&gt;
 &lt;p&gt;Storm发行版本解压目录下有一个conf/storm.yaml文件，用于配置Storm。默认配置在&lt;a href="https://github.com/nathanmarz/storm/blob/master/conf/defaults.yaml"&gt;这里&lt;/a&gt;可以查看。conf/storm.yaml中的配置选项将覆盖defaults.yaml中的默认配置。以下配置选项是必须在conf/storm.yaml中进行配置的：&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;ol&gt;
-&lt;li&gt;&lt;strong&gt;storm.zookeeper.servers&lt;/strong&gt;: Storm集群使用的Zookeeper集群地址，其格式如下：
-storm.zookeeper.servers:  - "111.222.333.444"  - "555.666.777.888"
-如果Zookeeper集群使用的不是默认端口，那么还需要storm.zookeeper.port选项。&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;storm.local.dir&lt;/strong&gt;: Nimbus和Supervisor进程用于存储少量状态，如jars、confs等的本地磁盘目录，需要提前创建该目录并给以足够的访问权限。然后在storm.yaml中配置该目录，如：
-storm.local.dir: "/home/admin/storm/workdir"&lt;/li&gt;
-&lt;li&gt;java.library.path: Storm使用的本地库加载路径，默认为"/usr/local/lib:/opt/local/lib:/usr/lib"，一般不需要配置。&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;nimbus.host&lt;/strong&gt;: Storm集群Nimbus机器地址，各个Supervisor工作节点需要知道哪个机器是Nimbus，以便下载Topologies的jars、confs等文件，如：
-nimbus.host: "111.222.333.444"&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;supervisor.slots.ports&lt;/strong&gt;: 对于每个Supervisor工作节点，需要配置该工作节点可以运行的worker数量。每个worker占用一个单独的端口用于接收消息，该配置选项即用于定义哪些端口是可被worker使用的。默认情况下，每个节点上可运行4个workers，分别在6700、6701、6702和6703端口，如：
-supervisor.slots.ports:    - 6700    - 6701    - 6702    - 6703&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;&lt;em&gt;JVM options&lt;/em&gt;&lt;/strong&gt;: 用于配置Storm使用JVM参数&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;storm.zookeeper.servers&lt;/strong&gt;: Storm集群使用的Zookeeper集群地址，其格式如下：&lt;/li&gt;
 &lt;/ol&gt;
 &lt;/blockquote&gt;
+&lt;p&gt;storm.zookeeper.servers:  - "111.222.333.444"  - "555.666.777.888"&lt;/p&gt;
+&lt;p&gt;如果Zookeeper集群使用的不是默认端口，那么还需要storm.zookeeper.port选项。&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;storm.local.dir&lt;/strong&gt;: Nimbus和Supervisor进程用于存储少量状态，如jars、confs等的本地磁盘目录，需要提前创建该目录并给以足够的访问权限。然后在storm.yaml中配置该目录，如：&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;storm.local.dir: "/home/admin/storm/workdir"&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;java.library.path: Storm使用的本地库加载路径，默认为"/usr/local/lib:/opt/local/lib:/usr/lib"，一般不需要配置。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;nimbus.host&lt;/strong&gt;: Storm集群Nimbus机器地址，各个Supervisor工作节点需要知道哪个机器是Nimbus，以便下载Topologies的jars、confs等文件，如：&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;nimbus.host: "111.222.333.444"&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;supervisor.slots.ports&lt;/strong&gt;: 对于每个Supervisor工作节点，需要配置该工作节点可以运行的worker数量。每个worker占用一个单独的端口用于接收消息，该配置选项即用于定义哪些端口是可被worker使用的。默认情况下，每个节点上可运行4个workers，分别在6700、6701、6702和6703端口，如：&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;supervisor.slots.ports:    - 6700    - 6701    - 6702    - 6703&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;&lt;em&gt;JVM options&lt;/em&gt;&lt;/strong&gt;: 用于配置Storm使用JVM参数&lt;/li&gt;
+&lt;/ol&gt;
 &lt;h4&gt;&lt;strong&gt;[注意]&lt;/strong&gt;&lt;/h4&gt;
 &lt;blockquote&gt;
 &lt;p&gt;yaml 文件的配置使用&lt;code&gt;“-”&lt;/code&gt;来表示数据的层次结构，配置项的&lt;code&gt;:&lt;/code&gt;后必须有空格，否则该配置项无法识别&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;集群配置示例如下：&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="cp"&gt;########### These MUST be filled in for a storm configuration&lt;/span&gt;
+
 &lt;span class="cp"&gt;# storm.zookeeper.servers:&lt;/span&gt;
+
 &lt;span class="cp"&gt;#     - &amp;quot;server1&amp;quot;&lt;/span&gt;
+
 &lt;span class="cp"&gt;#     - &amp;quot;server2&amp;quot;&lt;/span&gt;
+
  &lt;span class="n"&gt;storm&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;zookeeper&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;servers&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+
     &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;192.168.9.182&amp;quot;&lt;/span&gt;
+
     &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;192.168.9.185&amp;quot;&lt;/span&gt;
+
     &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;192.168.91.128&amp;quot;&lt;/span&gt;
+
 &lt;span class="cp"&gt;#&lt;/span&gt;
+
  &lt;span class="n"&gt;storm&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;zookeeper&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;2181&lt;/span&gt;
+
 &lt;span class="cp"&gt;# storm&amp;#39;s work directory&lt;/span&gt;
+
  &lt;span class="n"&gt;storm&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;local&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dir&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;/home/storm/workdir&amp;quot;&lt;/span&gt;
+
 &lt;span class="cp"&gt;#&lt;/span&gt;
+
 &lt;span class="cp"&gt;# nimbus.host: &amp;quot;nimbus&amp;quot;&lt;/span&gt;
+
  &lt;span class="n"&gt;nimbus&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;192.168.9.185&amp;quot;&lt;/span&gt;
+
 &lt;span class="cp"&gt;# &lt;/span&gt;
+
 &lt;span class="cp"&gt;# supervisor&amp;#39;s work ports&lt;/span&gt;
+
  &lt;span class="n"&gt;supervisor&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;slots&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;ports&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+
     &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;6700&lt;/span&gt;
+
     &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;6701&lt;/span&gt;
+
     &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;6702&lt;/span&gt;
+
     &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;6703&lt;/span&gt;
 
+
+
 &lt;span class="cp"&gt;# #### Netty transport configuration&lt;/span&gt;
+
 &lt;span class="cp"&gt;# transmission protocol&lt;/span&gt;
+
  &lt;span class="n"&gt;storm&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;messaging&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;transport&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;backtype.storm.messaging.netty.Context&amp;quot;&lt;/span&gt;
+
 &lt;span class="cp"&gt;# server&amp;#39;s work threads number&lt;/span&gt;
+
  &lt;span class="n"&gt;storm&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;messaging&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;netty&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;server_worker_threads&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+
 &lt;span class="cp"&gt;# client&amp;#39;s work threads number&lt;/span&gt;
+
  &lt;span class="n"&gt;storm&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;messaging&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;netty&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;client_worker_threads&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+
 &lt;span class="cp"&gt;# buffer size&lt;/span&gt;
+
  &lt;span class="n"&gt;storm&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;messaging&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;netty&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;buffer_size&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;5242880&lt;/span&gt;
+
 &lt;span class="cp"&gt;# max retry times&lt;/span&gt;
+
  &lt;span class="n"&gt;storm&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;messaging&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;netty&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_retries&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;100&lt;/span&gt;
+
 &lt;span class="cp"&gt;# max waiting time(ms)&lt;/span&gt;
+
  &lt;span class="n"&gt;storm&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;messaging&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;netty&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_wait_ms&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;1000&lt;/span&gt;
+
 &lt;span class="cp"&gt;# min waiting time(ms)&lt;/span&gt;
+
  &lt;span class="n"&gt;storm&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;messaging&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;netty&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;min_wait_ms&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;100&lt;/span&gt;
 
+
+
 &lt;span class="cp"&gt;## JVM parameters can be configured here&lt;/span&gt;
+
  &lt;span class="n"&gt;nimbus&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;childopts&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;-Xloggc:/home/enjoyor/storm/apache-storm-0.9.3/logs/nimbusGC.log -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps&amp;quot;&lt;/span&gt;
+
  &lt;span class="n"&gt;supervisor&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;childopts&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;-Xloggc:/home/enjoyor/storm/apache-storm-0.9.3/logs/nimbusGC.log -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps&amp;quot;&lt;/span&gt;
+
  &lt;span class="n"&gt;worker&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;childopts&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;-Xloggc:/home/enjoyor/storm/apache-storm-0.9.3/logs/nimbusGC.log -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps&amp;quot;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
@@ -315,45 +383,54 @@ supervisor.slots.ports:    - 6700    - 6701    - 6702    - 6703&lt;/li&gt;
 &lt;/ol&gt;
 &lt;blockquote&gt;
 &lt;h4&gt;注意事项：&lt;/h4&gt;
-&lt;ul&gt;
-&lt;li&gt;Storm后台进程被启动后，将在Storm安装部署目录下的logs/子目录下生成各个进程的日志文件。&lt;/li&gt;
-&lt;li&gt;经测试，Storm UI必须和Storm Nimbus 部署在同一台机器上，否则UI无法正常工作，因为UI进程会检查本机是否存在Nimbus链接。&lt;/li&gt;
-&lt;li&gt;为了方便使用，可以将bin/storm加入到系统环境变量中。&lt;/li&gt;
-&lt;/ul&gt;
 &lt;/blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Storm后台进程被启动后，将在Storm安装部署目录下的logs/子目录下生成各个进程的日志文件。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;经测试，Storm UI必须和Storm Nimbus 部署在同一台机器上，否则UI无法正常工作，因为UI进程会检查本机是否存在Nimbus链接。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;为了方便使用，可以将bin/storm加入到系统环境变量中。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
 &lt;p&gt;至此，Storm集群已经部署、配置完毕，可以向集群提交拓扑运行了。&lt;/p&gt;
 &lt;hr /&gt;
 &lt;h2&gt;向 Storm 集群提交任务&lt;/h2&gt;
 &lt;ol&gt;
-&lt;li&gt;
-&lt;p&gt;启动Storm Topology：
- &lt;code&gt;storm jar allmycode.jar org.me.MyTopology arg1 arg2 arg3&lt;/code&gt;
-其中，allmycode.jar是包含Topology实现代码的jar包，org.me.MyTopology的main方法是Topology的入口，arg1、arg2和arg3为org.me.MyTopology执行时需要传入的参数。&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;停止Storm Topology：
-&lt;code&gt;storm kill {toponame}&lt;/code&gt;
-其中，{toponame}为Topology提交到Storm集群时指定的Topology任务名称。&lt;/p&gt;
-&lt;/li&gt;
+&lt;li&gt;启动Storm Topology：&lt;/li&gt;
 &lt;/ol&gt;
+&lt;p&gt;&lt;code&gt;storm jar allmycode.jar org.me.MyTopology arg1 arg2 arg3&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;其中，allmycode.jar是包含Topology实现代码的jar包，org.me.MyTopology的main方法是Topology的入口，arg1、arg2和arg3为org.me.MyTopology执行时需要传入的参数。&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;停止Storm Topology：&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;code&gt;storm kill {toponame}&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;其中，{toponame}为Topology提交到Storm集群时指定的Topology任务名称。&lt;/p&gt;
 &lt;hr /&gt;
 &lt;h2&gt;Q &amp;amp; A&lt;/h2&gt;
 &lt;h3&gt;1. 运行 storm 命令报错&lt;/h3&gt;
 &lt;p&gt;出现语法错误：&lt;br /&gt;&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;File&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;/home/storm/apache-storm-0.9.3/bin/storm&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt; &lt;span class="mi"&gt;61&lt;/span&gt;
+
    &lt;span class="n"&gt;normclasspath&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;cygpath&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;sys&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;platform&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;cygwin&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt; &lt;span class="k"&gt;else&lt;/span&gt; &lt;span class="n"&gt;identity&lt;/span&gt;
+
                             &lt;span class="o"&gt;^&lt;/span&gt;
+
 &lt;span class="nl"&gt;SyntaxError:&lt;/span&gt; &lt;span class="n"&gt;invalid&lt;/span&gt; &lt;span class="n"&gt;syntax&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;这是由于系统中安装的低版本 Python 部分语法不支持，需要重新安装高版本 Python（如2.7.x）。&lt;/p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;注意：部分系统Python默认安装位置不是 &lt;code&gt;/usr/bin/python&lt;/code&gt;，必须在 Python 安装完成之后将安装版本Python关联到该位置。参考操作方法：
- &lt;code&gt;cd /usr/bin
- mv python python.bk
- ln -s /usr/local/Python-2.7.8/python python&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;注意：部分系统Python默认安装位置不是 &lt;code&gt;/usr/bin/python&lt;/code&gt;，必须在 Python 安装完成之后将安装版本Python关联到该位置。参考操作方法：&lt;/p&gt;
 &lt;/blockquote&gt;
+&lt;p&gt;```&lt;/p&gt;
+&lt;p&gt;cd /usr/bin&lt;/p&gt;
+&lt;p&gt;mv python python.bk&lt;/p&gt;
+&lt;p&gt;ln -s /usr/local/Python-2.7.8/python python&lt;/p&gt;
+&lt;p&gt;```&lt;/p&gt;
 &lt;hr /&gt;
 &lt;h3&gt;2. Storm 在 ssh 断开后自动关闭&lt;/h3&gt;
 &lt;p&gt;这是由于 Storm 是由默认的 Shell 机制打开运行，在 ssh 或 telnet 断开后终端会将挂断信号发送到控制进程，进而会关闭该 Shell 进程组中的所有进程。因此需要在 Storm 后台启动时使用 &lt;code&gt;nohup&lt;/code&gt; 命令和 &lt;code&gt;&amp;amp;&lt;/code&gt; 标记可以使进程忽略挂断信号，避免程序的异常退出：&lt;/p&gt;
@@ -377,14 +454,24 @@ supervisor.slots.ports:    - 6700    - 6701    - 6702    - 6703&lt;/li&gt;
 &lt;hr /&gt;
 &lt;blockquote&gt;
 &lt;h2&gt;Reference&lt;/h2&gt;
-&lt;ol&gt;
-&lt;li&gt;https://github.com/nathanmarz/storm/wiki/Tutorial&lt;/li&gt;
-&lt;li&gt;https://github.com/nathanmarz/storm/wiki/Setting-up-a-Storm-cluster&lt;/li&gt;
-&lt;li&gt;http://www.cnblogs.com/panfeng412/archive/2012/11/30/how-to-install-and-deploy-storm-cluster.html&lt;/li&gt;
-&lt;li&gt;http://blog.csdn.net/tonylee0329/article/details/42738729&lt;/li&gt;
-&lt;li&gt;http://blog.csdn.net/wind19/article/details/4986458&lt;/li&gt;
-&lt;/ol&gt;
 &lt;/blockquote&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;https://github.com/nathanmarz/storm/wiki/Tutorial&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;https://github.com/nathanmarz/storm/wiki/Setting-up-a-Storm-cluster&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;http://www.cnblogs.com/panfeng412/archive/2012/11/30/how-to-install-and-deploy-storm-cluster.html&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;http://blog.csdn.net/tonylee0329/article/details/42738729&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;http://blog.csdn.net/wind19/article/details/4986458&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
 &lt;hr /&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Sun, 12 Apr 2015 00:00:00 +0800</pubDate><guid>tag:weyo.me,2015-04-12:pages/techs/storm-basis/</guid><category>Storm</category><category>环境搭建</category><category>分布式计算</category></item><item><title>Flume-Kafka 集成部署</title><link>http://weyo.me/pages/techs/flume-kafka-integration/</link><description>&lt;h3&gt;前言&lt;/h3&gt;
 &lt;p&gt;数据采集与数据传输是大数据/分布式计算技术的两项基本需求。对应于这两项需求，开源社区有很多成熟的解决方案，例如 Scribe，Flume，Chukwa，Kafka，各类MQ等等，基于不同的业务场景可以灵活选择。考虑到我们的实际业务模式与技术特点，在分布式计算系统中需要选择轻量级、可定制性好、扩展性强、易于维护的数据采集与传输单元。其中，采集单元选用模块化程度极高的 Flume-ng，传输单元选择高吞吐率的 Kafka，将两者结合共同构成分布式计算集群的基础数据输入组件。&lt;/p&gt;
 &lt;hr /&gt;
