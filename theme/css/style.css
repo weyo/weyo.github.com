@@ -39,12 +39,12 @@ i {
 }
 
 a {
-    color: #07c;
+    color: inherit;
 }
 
-a:hover,a:focus {
-    color:#30a7fc;
-	text-decoration:underline
+a:hover, a:focus {
+    color:inherit;
+    text-decoration:underline;
 }
 
 .pull-right a {
@@ -52,12 +52,14 @@ a:hover,a:focus {
 }
 
 .entry-content a {
+    color:#07c;
     text-decoration: none;
     border-bottom: 1px dotted;
 }
 
-.entry-content a:hover {
-    text-decoration: none;
+.entry-content a:hover, a:focus {
+    color:#30a7fc;
+	text-decoration:underline
     border-bottom: 1px solid;
 }
 
@@ -72,7 +74,7 @@ a:hover,a:focus {
 }
 
 .highlight pre {
-    background-color: #f5f5f5;
+    background-color: #F8F8F8;
     color: #777;
 }
 
