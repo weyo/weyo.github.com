@@ -376,7 +376,7 @@
 
 <p>为了使得 <code>InterMediateBolt</code> 能够获取下游 Bolt 的各个 taskId，这里在 <code>InterMediateBolt</code> 的构造器中传入了下游 Bolt 的 <code>componentId</code> 参数，根据 <code>componentId</code> 就可以在初始化阶段从 <code>TopologyContext</code> 中获取到所需要的 taskId。</p>
 <blockquote>
-<p><span style="font-family:微软雅黑; color:#A52A2A">[注意] 这里的 <code>InterMediateBolt</code> 的 <code>parallelism_hint</code> 必须<strong>设置为 1</strong>，这是为了保证上游 Bolt 的所有的 executor 都能够统一将信号发送到 <code>InterMediateBolt</code> 的唯一一个 task。由于 <code>InterMediateBolt</code> 只处理单一的信号消息，数据的吞吐量极小，并行度为 1 并不会降低集群的处理性能。</span></p>
+<p><span style="font-family:微软雅黑; color:#A52A2A"><strong>[注意]</strong> 这里的 <code>InterMediateBolt</code> 的 <code>parallelism_hint</code> 必须<strong>设置为 1</strong>，这是为了保证上游 Bolt 的所有的 executor 都能够统一将信号发送到 <code>InterMediateBolt</code> 的唯一一个 task。由于 <code>InterMediateBolt</code> 只处理单一的信号消息，数据的吞吐量极小，并行度为 1 并不会降低集群的处理性能。</span></p>
 </blockquote>
 <hr />
             </div>
@@ -432,13 +432,13 @@
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
                         <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
-                                分布式计算
+                            <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
+                                实时计算
                             </a>
                         </li>
                         <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
-                                实时计算
+                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
+                                分布式计算
                             </a>
                         </li>
                         <li class="list-group-item tag-1">
@@ -462,23 +462,23 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/flume.html">
-                                Flume
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
                             <a href="http://weyo.me/tag/undefined.html">
                                 Undefined
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/shell.html">
-                                Shell
+                            <a href="http://weyo.me/tag/flume.html">
+                                Flume
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
                             <a href="http://weyo.me/tag/zookeeper.html">
                                 ZooKeeper
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/shell.html">
+                                Shell
                             </a>
                         </li>
         </ul>

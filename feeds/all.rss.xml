@@ -250,7 +250,7 @@
 
 &lt;p&gt;为了使得 &lt;code&gt;InterMediateBolt&lt;/code&gt; 能够获取下游 Bolt 的各个 taskId，这里在 &lt;code&gt;InterMediateBolt&lt;/code&gt; 的构造器中传入了下游 Bolt 的 &lt;code&gt;componentId&lt;/code&gt; 参数，根据 &lt;code&gt;componentId&lt;/code&gt; 就可以在初始化阶段从 &lt;code&gt;TopologyContext&lt;/code&gt; 中获取到所需要的 taskId。&lt;/p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;&lt;span style="font-family:微软雅黑; color:#A52A2A"&gt;[注意] 这里的 &lt;code&gt;InterMediateBolt&lt;/code&gt; 的 &lt;code&gt;parallelism_hint&lt;/code&gt; 必须&lt;strong&gt;设置为 1&lt;/strong&gt;，这是为了保证上游 Bolt 的所有的 executor 都能够统一将信号发送到 &lt;code&gt;InterMediateBolt&lt;/code&gt; 的唯一一个 task。由于 &lt;code&gt;InterMediateBolt&lt;/code&gt; 只处理单一的信号消息，数据的吞吐量极小，并行度为 1 并不会降低集群的处理性能。&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span style="font-family:微软雅黑; color:#A52A2A"&gt;&lt;strong&gt;[注意]&lt;/strong&gt; 这里的 &lt;code&gt;InterMediateBolt&lt;/code&gt; 的 &lt;code&gt;parallelism_hint&lt;/code&gt; 必须&lt;strong&gt;设置为 1&lt;/strong&gt;，这是为了保证上游 Bolt 的所有的 executor 都能够统一将信号发送到 &lt;code&gt;InterMediateBolt&lt;/code&gt; 的唯一一个 task。由于 &lt;code&gt;InterMediateBolt&lt;/code&gt; 只处理单一的信号消息，数据的吞吐量极小，并行度为 1 并不会降低集群的处理性能。&lt;/span&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;hr /&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Fri, 22 May 2015 00:00:00 +0800</pubDate><guid>tag:weyo.me,2015-05-22:pages/techs/storm-continuous-batch-process/</guid><category>Storm</category><category>分布式计算</category><category>实时计算</category></item><item><title>神秘的三门问题</title><link>http://weyo.me/pages/essays/monty-hall-problem/</link><description>&lt;p&gt;前几天遇到这么一道智力题：
 在一场游戏中，主持人拿出了三个完全一样的密封盒子，其中一个盒子内有奖品，另外两个为空盒子。主持人首先让你挑选一个你认为有奖品的盒子。然后，主持人在剩下的两个盒子中拿走一个必然为空的盒子。现在，主持人问：你愿不愿意用你手中的盒子和主持人手中的盒子交换？你手中的盒子和主持人手中的盒子里面有奖品的概率各有多少？&lt;/p&gt;
