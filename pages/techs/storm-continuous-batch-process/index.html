@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:og="http://ogp.me/ns#"
+      xmlns:fb="https://www.facebook.com/2008/fbml">
+<head>
+    <title>Strom 连续多级批处理实践 —— 分布式实时计算应用篇(三)
+  Posted by WeYo. 转载请注明出处 pages/techs/storm-continuous-batch-process/.
+</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel = "Shortcut Icon" href=https://raw.githubusercontent.com/weyo/weyo.github.com/master/images/photos/avatar.png>
+
+    <!-- Open Graph tags -->
+
+            <meta property="og:type" content="article"/>
+            <meta property="og:title" content="Strom 连续多级批处理实践 —— 分布式实时计算应用篇(三)"/>
+            <meta property="og:url" content="http://weyo.me/pages/techs/storm-continuous-batch-process/"/>
+            <meta property="og:description" content="结合 Storm 在 ZooKeeper 中的目录结构分析 Storm 系统的运行逻辑。"/>
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="http://weyo.me/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="http://weyo.me/theme/css/font-awesome.min.css" rel="stylesheet">
+    <link href="http://weyo.me/theme/css/pygments.css" rel="stylesheet">
+    <link rel="stylesheet" href="http://weyo.me/theme/css/style.css" type="text/css"/>
+    <!-- JavaScript plugins (requires jQuery) -->
+    <script src="http://code.jquery.com/jquery.js"></script>
+
+        <link href="http://weyo.me/feeds/all.rss.xml" type="application/atom+xml" rel="alternate"
+              title="Let There Be Light! RSS Feed"/>
+
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46991080-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+
+    </script>
+</head>
+<body>
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="http://weyo.me" class="navbar-brand">Let There Be Light!</a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="http://weyo.me/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="http://weyo.me/pages/gallery.html">
+                             Gallery
+                          </a></li>
+                        <li >
+                            <a href="http://weyo.me/category/essays.html">Essays</a>
+                        </li>
+                        <li class="active">
+                            <a href="http://weyo.me/category/techs.html">Techs</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="http://weyo.me/archives.html"><i class="icon-th-list"></i>Archives</a></li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</nav>
+<!-- /.navbar -->
+<div class="container">
+    <div class="row">
+        <div class="col-lg-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="http://weyo.me/pages/techs/storm-continuous-batch-process/"
+                       rel="bookmark"
+                       title="Permalink to Strom 连续多级批处理实践 —— 分布式实时计算应用篇(三)">
+                        Strom 连续多级批处理实践 —— 分布式实时计算应用篇(三)
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="icon-calendar"></i>2015-05-22
+    </span>
+	<span style="font-size:12px;">&nbsp;&nbsp;</span>
+    <!--     <span class="label label-default">By</span>
+    <a href="http://weyo.me/author/weyo.html"><i class="icon-user"></i>WeYo</a>
+	<span style="font-size:12px;">&nbsp;&nbsp;</span>
+ -->
+
+    <span class="label label-default">Category</span>
+    <a href="http://weyo.me/category/techs.html">Techs</a>
+	<span style="font-size:12px;">&nbsp;&nbsp;</span>
+
+
+<span class="label label-default">Tags</span>
+	<a href="http://weyo.me/tag/storm.html">Storm</a>
+        /
+	<a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">分布式计算</a>
+        /
+	<a href="http://weyo.me/tag/shi-shi-ji-suan.html">实时计算</a>
+	
+	<br /><br />Posted by <span style="font-size:14px; color:#4169E1"><a href="http://github.com/weyo"><b>WeYo</b></a></span>. 转载请注明出处：<span style="font-size:14px; color:#4169E1"><a href="http://weyo.me/pages/techs/storm-continuous-batch-process/"><b>http://weyo.me/pages/techs/storm-continuous-batch-process/</b></a></span>
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h2>业务场景</h2>
+<p>最近在开发过程中遇到了一个比较复杂的场景，需要实现如下的业务逻辑：</p>
+<ul>
+<li>
+<p>有多个连续的 Bolt，例如 <code>BoltA--&gt;BoltB--&gt;BoltC--&gt;BoltD...</code>，每一级 Bolt 均按照 <code>fieldGrouping</code> 的方式进行处理；</p>
+</li>
+<li>
+<p>BoltA 对数据流进行定时处理，BoltA 处理后数据发送到 BoltB；</p>
+</li>
+<li>
+<p>BlotA 一批数据发送完成之后发送 <code>“发送完成”</code> 信号给 BoltB；</p>
+</li>
+<li>
+<p>BoltB 接收 BoltA 所发送的数据并存储在内存(Map)中，当收到 BoltA 发送的 <code>“发送完成”</code> 信号后，开始处理内存中的数据，并将结果依次发送到 BoltC，同样，在内存中数据处理完成之后发送 <code>“发送完成”</code> 信号给 BoltC；</p>
+</li>
+<li>
+<p>BoltC, BoltD, ... 采用与 BoltB 相同的批处理方式。</p>
+</li>
+</ul>
+<hr />
+<h2>技术难点</h2>
+<p>这个场景看上去挺简单，只需要分别实现定时处理和批处理的逻辑就可以了，实际上有很多坑：</p>
+<ul>
+<li>
+<p>由于每一级 Bolt 的数据处理算法逻辑较复杂，不能直接使用 Trident；</p>
+</li>
+<li>
+<p>在生产环境中集群的并发度 &gt;&gt; 1，每一个 Bolt 都有多个工作线程，并且分布在不同的 worker 节点上，无法确保 <code>“发送完成”</code> 信号能够恰好发送到下一级 Bolt 的所有的 task 上；</p>
+</li>
+<li>
+<p>同理，由于集群的分布式，每一级 Bolt 的缓存数据同样分布在不同的 worker 上，而且由于算法需要，每一级 Bolt 实际处理的域均有所不同，不能简单使用 fieldGrouping 方式进行汇总处理；而且也不能使用 allGrouping 的方式，否则会造成数据的重复处理；</p>
+</li>
+<li>
+<p>可以使用 globalGrouping 的方式依次汇总每一级 Bolt 的数据流，但是这样就严重浪费了 Strom 的并发性能。</p>
+</li>
+</ul>
+<hr />
+<h2>设计实现</h2>
+<p>这个问题着实困扰了我好几天的时间，期间尝试了多种方式均告失败：</p>
+<ol>
+<li>
+<p>直接串联 BoltA 与 BoltB，但是 BoltA 的 <code>“发送完成”</code> 信号始终无法保证发送到 BoltB 的所有 executor(task) 上；</p>
+</li>
+<li>
+<p>在两个连续 Bolt 中间设计一个中介 Bolt，用于接收数据并发送信号，结果发现这是与 1 相同的方式；</p>
+</li>
+<li>
+<p>听说 DRPC 的组件 <code>CoordinatedBolt</code> 具有批处理的功能，使用 CoordinatedBolt 来包装 Bolt，结果与普通的串联 Bolt 相同；</p>
+</li>
+</ol>
+<p>这样的结果确实够打击人的，唯一的收获是了解到新版的 Storm 支持通过 <code>tick tuple</code> 来实现定时功能，这样 BoltA 的定时处理问题就能解决了（比我一开始时设计的 <code>TimingSpout</code> 效果要好得多，虽然还是达不到普通的 Java 程序时间控制的精确程度，但总是聊胜于无）。</p>
+<p>郁闷了好一段时间之后，决定还是从那个号称能够实现完全批处理功能的 <code>CoordinatedBolt</code> 入手。在了解了 <code>CoordinatedBolt</code> 的实现原理后 (<a href="http://xumingming.sinaapp.com/811/twitter-storm-code-analysis-coordinated-bolt/">Twitter Storm源代码分析之CoordinatedBolt</a>)，隐隐约约感觉到这应该是一个设计方向。于是尝试在 BoltA 中同时使用 <code>emit</code> 与 <code>emitDirect</code> 来发送消息，其中，前者仍然发送普通数据，而后者用于发送信号，但是实际运行时发现 Storm 并不支持在同一个 Bolt 中同时采用普通的 <code>emit</code> 与 <code>emitDirect</code> 两种数据传输方式，topology 无法运行，这次尝试再告失败。</p>
+<blockquote>
+<p><em>Let there be light: and there was light.</em></p>
+</blockquote>
+<p>既然在同一个 Bolt 中同时发送两种数据无法成功，那么分成两个 Bolt 分别发送可不可行呢？</p>
+<hr />
+<h2>解决方案</h2>
+<blockquote>
+<p><em>Yes, it works.</em></p>
+</blockquote>
+<p>在两级 Bolt 中加入一个并联（不是之前的串联方式）的中介 Bolt —— <code>InterMediateBolt</code>，这个 Bolt 只负责发送 <code>“发送完成”</code> 信号，结构如下：</p>
+<div class="highlight"><pre><span class="n">BoltA</span><span class="o">-------------------&gt;</span><span class="n">BoltB</span>
+  <span class="o">|</span>                        <span class="err">↑</span>
+  <span class="err">└</span><span class="o">---&gt;</span><span class="n">InterMediateBolt</span><span class="o">----</span><span class="err">┘</span>
+</pre></div>
+
+
+<p><code>InterMediateBolt</code> 的代码如下</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40</pre></div></td><td class="code"><div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">InterMediateBolt</span> <span class="kd">extends</span> <span class="n">BaseRichBolt</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">_countOutTasks</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">targetComponents</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="n">OutputCollector</span> <span class="n">_collector</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="nf">InterMediateBolt</span><span class="o">(</span><span class="n">String</span><span class="o">...</span> <span class="n">targetComponentIds</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">_countOutTasks</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;();</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">targetComponents</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;();</span>
+        <span class="k">for</span> <span class="o">(</span><span class="n">String</span> <span class="n">id</span> <span class="o">:</span> <span class="n">targetComponentIds</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">targetComponents</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">id</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">prepare</span><span class="o">(</span><span class="nd">@SuppressWarnings</span><span class="o">(</span><span class="s">&quot;rawtypes&quot;</span><span class="o">)</span> <span class="n">Map</span> <span class="n">stormConf</span><span class="o">,</span>
+            <span class="n">TopologyContext</span> <span class="n">context</span><span class="o">,</span> <span class="n">OutputCollector</span> <span class="n">collector</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">for</span> <span class="o">(</span><span class="n">String</span> <span class="n">component</span> <span class="o">:</span> <span class="k">this</span><span class="o">.</span><span class="na">targetComponents</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">for</span> <span class="o">(</span><span class="n">Integer</span> <span class="n">task</span> <span class="o">:</span> <span class="n">context</span><span class="o">.</span><span class="na">getComponentTasks</span><span class="o">(</span><span class="n">component</span><span class="o">))</span> <span class="o">{</span>
+                <span class="n">_countOutTasks</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">task</span><span class="o">);</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">_collector</span> <span class="o">=</span> <span class="n">collector</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">execute</span><span class="o">(</span><span class="n">Tuple</span> <span class="n">input</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kt">boolean</span> <span class="n">signal</span> <span class="o">=</span> <span class="n">input</span><span class="o">.</span><span class="na">getBoolean</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;InterMediateBolt received: ++++++++&quot;</span> <span class="o">+</span> <span class="n">signal</span><span class="o">);</span>
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">task</span> <span class="o">:</span> <span class="n">_countOutTasks</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">_collector</span><span class="o">.</span><span class="na">emitDirect</span><span class="o">(</span><span class="n">task</span><span class="o">,</span> <span class="n">input</span><span class="o">,</span> <span class="k">new</span> <span class="n">Values</span><span class="o">(</span><span class="kc">true</span><span class="o">));</span>
+        <span class="o">}</span>
+        <span class="c1">// 信号消息需要确保能够发送成功</span>
+        <span class="n">_collector</span><span class="o">.</span><span class="na">ack</span><span class="o">(</span><span class="n">input</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">declareOutputFields</span><span class="o">(</span><span class="n">OutputFieldsDeclarer</span> <span class="n">declarer</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">declarer</span><span class="o">.</span><span class="na">declare</span><span class="o">(</span><span class="k">new</span> <span class="n">Fields</span><span class="o">(</span><span class="s">&quot;signal&quot;</span><span class="o">));</span>
+    <span class="o">}</span>   
+<span class="o">}</span>
+</pre></div>
+</td></tr></table>
+
+<p>这时上游的 Bolt 需要发送两个数据流（这里以 word-count 为例，代码中省略了根据 tick tuple 判断定时的逻辑）：</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24</pre></div></td><td class="code"><div class="highlight"><pre><span class="kd">public</span> <span class="kt">void</span> <span class="nf">execute</span><span class="o">(</span><span class="n">Tuple</span> <span class="n">input</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">String</span> <span class="n">word</span> <span class="o">=</span> <span class="n">input</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
+    <span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">words</span><span class="o">.</span><span class="na">containsKey</span><span class="o">(</span><span class="n">word</span><span class="o">))</span> <span class="o">{</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="n">words</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">word</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="n">words</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">word</span><span class="o">,</span> <span class="o">++</span><span class="n">count</span><span class="o">);</span>
+
+    <span class="kt">int</span> <span class="n">totalCount</span> <span class="o">=</span> <span class="n">wordsCount</span><span class="o">.</span><span class="na">incrementAndGet</span><span class="o">();</span>
+    <span class="c1">// 达到指定条件时批量发送缓存数据</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">totalCount</span> <span class="o">&gt;=</span> <span class="mi">50</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">Iterator</span><span class="o">&lt;</span><span class="n">Entry</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Integer</span><span class="o">&gt;&gt;</span> <span class="n">it</span> <span class="o">=</span> <span class="n">words</span><span class="o">.</span><span class="na">entrySet</span><span class="o">()</span>
+                <span class="o">.</span><span class="na">iterator</span><span class="o">();</span>
+        <span class="k">while</span> <span class="o">(</span><span class="n">it</span><span class="o">.</span><span class="na">hasNext</span><span class="o">())</span> <span class="o">{</span>
+            <span class="n">Entry</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Integer</span><span class="o">&gt;</span> <span class="n">entry</span> <span class="o">=</span> <span class="n">it</span><span class="o">.</span><span class="na">next</span><span class="o">();</span>
+            <span class="n">_collector</span><span class="o">.</span><span class="na">emit</span><span class="o">(</span><span class="s">&quot;stream1&quot;</span><span class="o">,</span> <span class="n">input</span><span class="o">,</span> <span class="k">new</span> <span class="n">Values</span><span class="o">(</span><span class="kc">false</span><span class="o">,</span> <span class="n">entry</span><span class="o">.</span><span class="na">getKey</span><span class="o">(),</span>
+                    <span class="n">entry</span><span class="o">.</span><span class="na">getValue</span><span class="o">()));</span>
+        <span class="o">}</span>
+        <span class="c1">// 缓存数据发送结束后发送“发送完成”信号</span>
+        <span class="n">_collector</span><span class="o">.</span><span class="na">emit</span><span class="o">(</span><span class="s">&quot;stream2&quot;</span><span class="o">,</span> <span class="n">input</span><span class="o">,</span> <span class="k">new</span> <span class="n">Values</span><span class="o">(</span><span class="kc">true</span><span class="o">));</span>
+        <span class="n">words</span><span class="o">.</span><span class="na">clear</span><span class="o">();</span>
+        <span class="n">wordsCount</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</td></tr></table>
+
+<p>其中，<code>stream1</code> 仍是普通的数据流，<code>stream2</code> 则是信号数据流。</p>
+<p>这样，下游的 Bolt 就可以很容易根据信号对数据流进行处理了：</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13</pre></div></td><td class="code"><div class="highlight"><pre><span class="kd">public</span> <span class="kt">void</span> <span class="nf">execute</span><span class="o">(</span><span class="n">Tuple</span> <span class="n">input</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kt">boolean</span> <span class="n">signal</span> <span class="o">=</span> <span class="n">input</span><span class="o">.</span><span class="na">getBoolean</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">signal</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Handle-task-&quot;</span> <span class="o">+</span> <span class="n">taskId</span>
+                <span class="o">+</span> <span class="s">&quot;: received ***signal***&quot;</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+        <span class="n">String</span> <span class="n">word</span> <span class="o">=</span> <span class="n">input</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+        <span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="n">input</span><span class="o">.</span><span class="na">getInteger</span><span class="o">(</span><span class="mi">2</span><span class="o">);</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Handle-task-&quot;</span> <span class="o">+</span> <span class="n">taskId</span> <span class="o">+</span> <span class="s">&quot;: received &quot;</span>
+                <span class="o">+</span> <span class="n">word</span> <span class="o">+</span> <span class="s">&quot;-&quot;</span> <span class="o">+</span> <span class="n">count</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="n">_collector</span><span class="o">.</span><span class="na">ack</span><span class="o">(</span><span class="n">input</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+</td></tr></table>
+
+<p>在 topology 中可以这样定义各个 Bolt：</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7</pre></div></td><td class="code"><div class="highlight"><pre><span class="n">builder</span><span class="o">.</span><span class="na">setBolt</span><span class="o">(</span><span class="s">&quot;boltA&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">BoltA</span><span class="o">(),</span> <span class="mi">3</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">fieldsGrouping</span><span class="o">(</span><span class="s">&quot;words&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">Fields</span><span class="o">(</span><span class="s">&quot;word&quot;</span><span class="o">));</span>
+<span class="n">builder</span><span class="o">.</span><span class="na">setBolt</span><span class="o">(</span><span class="s">&quot;intermediate&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">InterMediateBolt</span><span class="o">(</span><span class="s">&quot;boltB&quot;</span><span class="o">),</span> <span class="mi">1</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">shuffleGrouping</span><span class="o">(</span><span class="s">&quot;boltA&quot;</span><span class="o">,</span> <span class="s">&quot;stream2&quot;</span><span class="o">);</span>
+<span class="n">builder</span><span class="o">.</span><span class="na">setBolt</span><span class="o">(</span><span class="s">&quot;boltB&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">HandleBolt</span><span class="o">(),</span> <span class="mi">5</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">fieldsGrouping</span><span class="o">(</span><span class="s">&quot;boltA&quot;</span><span class="o">,</span> <span class="s">&quot;stream1&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">Fields</span><span class="o">(</span><span class="s">&quot;word&quot;</span><span class="o">))</span>
+        <span class="o">.</span><span class="na">directGrouping</span><span class="o">(</span><span class="s">&quot;intermediate&quot;</span><span class="o">);</span>
+</pre></div>
+</td></tr></table>
+
+<p>为了使得 <code>InterMediateBolt</code> 能够获取下游 Bolt 的各个 taskId，这里在 <code>InterMediateBolt</code> 的构造器中传入了下游 Bolt 的 <code>componentId</code> 参数，根据 <code>componentId</code> 就可以在初始化阶段从 <code>TopologyContext</code> 中获取到所需要的 taskId。</p>
+<blockquote>
+<p><span style="font-family:微软雅黑; color:#A52A2A">[注意] 这里的 <code>InterMediateBolt</code> 的 <code>parallelism_hint</code> 必须<strong>设置为 1</strong>，这是为了保证上游 Bolt 的所有的 executor 都能够统一将信号发送到 <code>InterMediateBolt</code> 的唯一一个 task。由于 <code>InterMediateBolt</code> 只处理单一的信号消息，数据的吞吐量极小，并行度为 1 并不会降低集群的处理性能。</span></p>
+</blockquote>
+<hr />
+            </div>
+            <!-- /.entry-content -->
+    <hr />
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'weyo'; // required: replace example with your forum shortname
+            var disqus_identifier = 'storm-continuous-batch-process';
+            var disqus_url = 'http://weyo.me/pages/techs/storm-continuous-batch-process/';
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-lg-3 well well-sm" id="sidebar">
+
+<aside>
+    <section>
+        <ul class="list-group list-group-flush">
+                <li class="list-group-item"><h4><i class="icon-home icon-large"></i>Social</h4></li>
+                    <li class="list-group-item"><a href="https://github.com/weyo/"><i
+                            class="icon-github-sign icon-large"></i>Github
+                    </a></li>
+                    <li class="list-group-item"><a href="https://cn.linkedin.com/in/weiyong"><i
+                            class="icon-linkedin-sign icon-large"></i>LinkedIn
+                    </a></li>
+                <li class="list-group-item"><h4><i class="icon-link icon-large"></i>Links</h4></li>
+                    <li class="list-group-item"><a href="http://getpelican.com/"><i
+                            class="icon-Pelican-sign icon-large"></i>Pelican
+                    </a></li>
+                    <li class="list-group-item"><a href="#"><i
+                            class="icon-WeYo-sign icon-large"></i>WeYo
+                    </a></li>
+
+
+                <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
+                        <li class="list-group-item tag-1">
+                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
+                                分布式计算
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-1">
+                            <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
+                                实时计算
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-1">
+                            <a href="http://weyo.me/tag/storm.html">
+                                Storm
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-2">
+                            <a href="http://weyo.me/tag/kafka.html">
+                                Kafka
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-2">
+                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
+                                环境搭建
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-2">
+                            <a href="http://weyo.me/tag/linux.html">
+                                Linux
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/flume.html">
+                                Flume
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/undefined.html">
+                                Undefined
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/shell.html">
+                                Shell
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/zookeeper.html">
+                                ZooKeeper
+                            </a>
+                        </li>
+        </ul>
+    </section>
+</aside>        </div>
+    </div>
+</div>
+<footer>
+    <div class="container">
+        <hr>
+        <p class="pull-right"><i class="icon-arrow-up"></i> <a href="#">Back to top</a></p>
+
+
+        <p>&copy; 2015 WeYo &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a></p>
+    </div>
+</footer>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="http://weyo.me/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="http://weyo.me/theme/js/respond.min.js"></script>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'weyo'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+
+
+</body>
+</html>
