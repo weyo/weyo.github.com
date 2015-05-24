@@ -43,8 +43,8 @@ a {
 }
 
 a:hover, a:focus {
-    color:inherit;
-    text-decoration:underline;
+    color: inherit;
+    text-decoration: underline;
 }
 
 .pull-right a {
@@ -52,14 +52,14 @@ a:hover, a:focus {
 }
 
 .entry-content a {
-    color:#07c;
+    color: #07c;
     text-decoration: none;
     border-bottom: 1px dotted;
 }
 
 .entry-content a:hover, a:focus {
-    color:#30a7fc;
-	text-decoration:underline
+    color: #30a7fc;
+    text-decoration: underline;
     border-bottom: 1px solid;
 }
 
