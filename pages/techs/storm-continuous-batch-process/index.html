@@ -28,7 +28,7 @@
     <script src="http://code.jquery.com/jquery.js"></script>
 
         <link href="http://weyo.me/feeds/all.rss.xml" type="application/atom+xml" rel="alternate"
-              title="Let There Be Light! RSS Feed"/>
+              title="Let There Be Light RSS Feed"/>
 
     <script type="text/javascript">
 
@@ -57,7 +57,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a href="http://weyo.me" class="navbar-brand">Let There Be Light!</a>
+            <a href="http://weyo.me" class="navbar-brand">Let There Be Light</a>
         </div>
         <div class="collapse navbar-collapse navbar-ex1-collapse">
             <ul class="nav navbar-nav">
@@ -238,17 +238,27 @@
 37
 38
 39
-40</pre></div></td><td class="code"><div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">InterMediateBolt</span> <span class="kd">extends</span> <span class="n">BaseRichBolt</span> <span class="o">{</span>
+40
+41
+42
+43
+44
+45
+46
+47</pre></div></td><td class="code"><div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">InterMediateBolt</span> <span class="kd">extends</span> <span class="n">BaseRichBolt</span> <span class="o">{</span>
     <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">_countOutTasks</span><span class="o">;</span>
     <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">targetComponents</span><span class="o">;</span>
     <span class="kd">private</span> <span class="n">OutputCollector</span> <span class="n">_collector</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">sourceNumber</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
 
-    <span class="kd">public</span> <span class="nf">InterMediateBolt</span><span class="o">(</span><span class="n">String</span><span class="o">...</span> <span class="n">targetComponentIds</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="nf">InterMediateBolt</span><span class="o">(</span><span class="kt">int</span> <span class="n">number</span><span class="o">,</span> <span class="n">String</span><span class="o">...</span> <span class="n">targetComponentIds</span><span class="o">)</span> <span class="o">{</span>
         <span class="k">this</span><span class="o">.</span><span class="na">_countOutTasks</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;();</span>
         <span class="k">this</span><span class="o">.</span><span class="na">targetComponents</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;();</span>
         <span class="k">for</span> <span class="o">(</span><span class="n">String</span> <span class="n">id</span> <span class="o">:</span> <span class="n">targetComponentIds</span><span class="o">)</span> <span class="o">{</span>
             <span class="k">this</span><span class="o">.</span><span class="na">targetComponents</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">id</span><span class="o">);</span>
         <span class="o">}</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">sourceNumber</span> <span class="o">=</span> <span class="n">number</span><span class="o">;</span>
     <span class="o">}</span>
 
     <span class="nd">@Override</span>
@@ -265,12 +275,16 @@
     <span class="nd">@Override</span>
     <span class="kd">public</span> <span class="kt">void</span> <span class="nf">execute</span><span class="o">(</span><span class="n">Tuple</span> <span class="n">input</span><span class="o">)</span> <span class="o">{</span>
         <span class="kt">boolean</span> <span class="n">signal</span> <span class="o">=</span> <span class="n">input</span><span class="o">.</span><span class="na">getBoolean</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
-        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;InterMediateBolt received: ++++++++&quot;</span> <span class="o">+</span> <span class="n">signal</span><span class="o">);</span>
-        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">task</span> <span class="o">:</span> <span class="n">_countOutTasks</span><span class="o">)</span> <span class="o">{</span>
-            <span class="n">_collector</span><span class="o">.</span><span class="na">emitDirect</span><span class="o">(</span><span class="n">task</span><span class="o">,</span> <span class="n">input</span><span class="o">,</span> <span class="k">new</span> <span class="n">Values</span><span class="o">(</span><span class="kc">true</span><span class="o">));</span>
+        <span class="k">if</span> <span class="o">(++</span><span class="n">count</span> <span class="o">==</span> <span class="n">sourceNumber</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;InterMediateBolt received: ++++++++&quot;</span> <span class="o">+</span> <span class="n">signal</span><span class="o">);</span>
+            <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">task</span> <span class="o">:</span> <span class="n">_countOutTasks</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">_collector</span><span class="o">.</span><span class="na">emitDirect</span><span class="o">(</span><span class="n">task</span><span class="o">,</span> <span class="n">input</span><span class="o">,</span> <span class="k">new</span> <span class="n">Values</span><span class="o">(</span><span class="kc">true</span><span class="o">));</span>
+            <span class="o">}</span>
+            <span class="c1">// 信号消息需要确保能够发送成功</span>
+            <span class="n">_collector</span><span class="o">.</span><span class="na">ack</span><span class="o">(</span><span class="n">input</span><span class="o">);</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
         <span class="o">}</span>
-        <span class="c1">// 信号消息需要确保能够发送成功</span>
-        <span class="n">_collector</span><span class="o">.</span><span class="na">ack</span><span class="o">(</span><span class="n">input</span><span class="o">);</span>
+
     <span class="o">}</span>
 
     <span class="nd">@Override</span>
@@ -304,9 +318,7 @@
 19
 20
 21
-22
-23
-24</pre></div></td><td class="code"><div class="highlight"><pre><span class="kd">public</span> <span class="kt">void</span> <span class="nf">execute</span><span class="o">(</span><span class="n">Tuple</span> <span class="n">input</span><span class="o">)</span> <span class="o">{</span>
+22</pre></div></td><td class="code"><div class="highlight"><pre><span class="kd">public</span> <span class="kt">void</span> <span class="nf">execute</span><span class="o">(</span><span class="n">Tuple</span> <span class="n">input</span><span class="o">)</span> <span class="o">{</span>
     <span class="n">String</span> <span class="n">word</span> <span class="o">=</span> <span class="n">input</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
     <span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
     <span class="k">if</span> <span class="o">(</span><span class="n">words</span><span class="o">.</span><span class="na">containsKey</span><span class="o">(</span><span class="n">word</span><span class="o">))</span> <span class="o">{</span>
@@ -314,9 +326,8 @@
     <span class="o">}</span>
     <span class="n">words</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">word</span><span class="o">,</span> <span class="o">++</span><span class="n">count</span><span class="o">);</span>
 
-    <span class="kt">int</span> <span class="n">totalCount</span> <span class="o">=</span> <span class="n">wordsCount</span><span class="o">.</span><span class="na">incrementAndGet</span><span class="o">();</span>
     <span class="c1">// 达到指定条件时批量发送缓存数据</span>
-    <span class="k">if</span> <span class="o">(</span><span class="n">totalCount</span> <span class="o">&gt;=</span> <span class="mi">50</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">condition</span><span class="o">)</span> <span class="o">{</span>
         <span class="n">Iterator</span><span class="o">&lt;</span><span class="n">Entry</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Integer</span><span class="o">&gt;&gt;</span> <span class="n">it</span> <span class="o">=</span> <span class="n">words</span><span class="o">.</span><span class="na">entrySet</span><span class="o">()</span>
                 <span class="o">.</span><span class="na">iterator</span><span class="o">();</span>
         <span class="k">while</span> <span class="o">(</span><span class="n">it</span><span class="o">.</span><span class="na">hasNext</span><span class="o">())</span> <span class="o">{</span>
@@ -327,7 +338,6 @@
         <span class="c1">// 缓存数据发送结束后发送“发送完成”信号</span>
         <span class="n">_collector</span><span class="o">.</span><span class="na">emit</span><span class="o">(</span><span class="s">&quot;stream2&quot;</span><span class="o">,</span> <span class="n">input</span><span class="o">,</span> <span class="k">new</span> <span class="n">Values</span><span class="o">(</span><span class="kc">true</span><span class="o">));</span>
         <span class="n">words</span><span class="o">.</span><span class="na">clear</span><span class="o">();</span>
-        <span class="n">wordsCount</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
     <span class="o">}</span>
 <span class="o">}</span>
 </pre></div>
@@ -366,26 +376,46 @@
 
 <p><br />
 在 topology 中可以这样定义各个 Bolt：</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
-2
-3
-4
-5
-6
-7</pre></div></td><td class="code"><div class="highlight"><pre><span class="n">builder</span><span class="o">.</span><span class="na">setBolt</span><span class="o">(</span><span class="s">&quot;boltA&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">BoltA</span><span class="o">(),</span> <span class="mi">3</span><span class="o">)</span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13</pre></div></td><td class="code"><div class="highlight"><pre><span class="kt">int</span> <span class="n">an</span> <span class="o">=</span> <span class="mi">3</span><span class="o">;</span>
+<span class="kt">int</span> <span class="n">bn</span> <span class="o">=</span> <span class="mi">5</span><span class="o">;</span>
+<span class="n">String</span> <span class="n">boltA</span> <span class="o">=</span> <span class="s">&quot;boltA&quot;</span><span class="o">;</span>
+<span class="n">String</span> <span class="n">boltB</span> <span class="o">=</span> <span class="s">&quot;boltB&quot;</span><span class="o">;</span>
+<span class="n">String</span> <span class="n">intermediate</span> <span class="o">=</span> <span class="s">&quot;intermediate&quot;</span><span class="o">;</span>
+
+<span class="n">builder</span><span class="o">.</span><span class="na">setBolt</span><span class="o">(</span><span class="n">boltA</span><span class="o">,</span> <span class="k">new</span> <span class="n">BoltA</span><span class="o">(),</span> <span class="n">an</span><span class="o">)</span>
         <span class="o">.</span><span class="na">fieldsGrouping</span><span class="o">(</span><span class="s">&quot;words&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">Fields</span><span class="o">(</span><span class="s">&quot;word&quot;</span><span class="o">));</span>
-<span class="n">builder</span><span class="o">.</span><span class="na">setBolt</span><span class="o">(</span><span class="s">&quot;intermediate&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">InterMediateBolt</span><span class="o">(</span><span class="s">&quot;boltB&quot;</span><span class="o">),</span> <span class="mi">1</span><span class="o">)</span>
+<span class="n">builder</span><span class="o">.</span><span class="na">setBolt</span><span class="o">(</span><span class="n">intermediate</span><span class="o">,</span> <span class="k">new</span> <span class="n">InterMediateBolt</span><span class="o">(</span><span class="n">an</span><span class="o">,</span> <span class="n">boltB</span><span class="o">),</span> <span class="mi">1</span><span class="o">)</span>
         <span class="o">.</span><span class="na">shuffleGrouping</span><span class="o">(</span><span class="s">&quot;boltA&quot;</span><span class="o">,</span> <span class="s">&quot;stream2&quot;</span><span class="o">);</span>
-<span class="n">builder</span><span class="o">.</span><span class="na">setBolt</span><span class="o">(</span><span class="s">&quot;boltB&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">HandleBolt</span><span class="o">(),</span> <span class="mi">5</span><span class="o">)</span>
-        <span class="o">.</span><span class="na">fieldsGrouping</span><span class="o">(</span><span class="s">&quot;boltA&quot;</span><span class="o">,</span> <span class="s">&quot;stream1&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">Fields</span><span class="o">(</span><span class="s">&quot;word&quot;</span><span class="o">))</span>
-        <span class="o">.</span><span class="na">directGrouping</span><span class="o">(</span><span class="s">&quot;intermediate&quot;</span><span class="o">);</span>
+<span class="n">builder</span><span class="o">.</span><span class="na">setBolt</span><span class="o">(</span><span class="n">boltB</span><span class="o">,</span> <span class="k">new</span> <span class="n">HandleBolt</span><span class="o">(),</span> <span class="n">bn</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">fieldsGrouping</span><span class="o">(</span><span class="n">boltA</span><span class="o">,</span> <span class="s">&quot;stream1&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">Fields</span><span class="o">(</span><span class="s">&quot;word&quot;</span><span class="o">))</span>
+        <span class="o">.</span><span class="na">directGrouping</span><span class="o">(</span><span class="n">intermediate</span><span class="o">);</span>
 </pre></div>
 </td></tr></table>
 
+<h2>说明</h2>
+<ol>
+<li>
 <p>为了使得 <code>InterMediateBolt</code> 能够获取下游 Bolt 的各个 taskId，这里在 <code>InterMediateBolt</code> 的构造器中传入了下游 Bolt 的 <code>componentId</code> 参数，根据 <code>componentId</code> 就可以在初始化阶段从 <code>TopologyContext</code> 中获取到所需要的 taskId。</p>
+</li>
+<li>
+<p>在 <code>InterMediateBolt</code> 的构造器中传入了上游 Bolt 的并发度（parallelism_hint）参数，是为了确保上游任务处理结果的一致性，使得下游任务必须在上游所有任务全部完成之后才能开始进行。</p>
+</li>
+</ol>
 <p><br /></p>
 <blockquote>
-<p><span style="font-family:微软雅黑; color:#0000CD"><strong>[注意]</strong> 这里的 <code>InterMediateBolt</code> 的 <code>parallelism_hint</code> 必须 <strong>设置为 1</strong>，这是为了保证上游 Bolt 的所有的 executor 都能够统一将信号发送到 <code>InterMediateBolt</code> 的唯一一个 task。由于 <code>InterMediateBolt</code> 只处理单一的信号消息，数据的吞吐量极小，并行度为 1 并不会降低集群的处理性能。</span></p>
+<p><span style="font-family:微软雅黑; color:#A52A2A"><strong>[注意]</strong> 这里的 <code>InterMediateBolt</code> 的 <code>parallelism_hint</code> 必须 <strong>设置为 1</strong>，这是为了保证上游 Bolt 的所有的 executor 都能够统一将信号发送到 <code>InterMediateBolt</code> 的唯一一个 task。由于 <code>InterMediateBolt</code> 只处理单一的信号消息，数据的吞吐量极小，并行度为 1 并不会降低集群的处理性能。</span></p>
 </blockquote>
 <hr />
             </div>
@@ -441,6 +471,11 @@
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
                         <li class="list-group-item tag-1">
+                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
+                                分布式计算
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-1">
                             <a href="http://weyo.me/tag/storm.html">
                                 Storm
                             </a>
@@ -450,24 +485,19 @@
                                 实时计算
                             </a>
                         </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
-                                分布式计算
+                        <li class="list-group-item tag-2">
+                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
+                                环境搭建
                             </a>
                         </li>
-                        <li class="list-group-item tag-2">
+                        <li class="list-group-item tag-3">
                             <a href="http://weyo.me/tag/linux.html">
                                 Linux
                             </a>
                         </li>
-                        <li class="list-group-item tag-2">
+                        <li class="list-group-item tag-3">
                             <a href="http://weyo.me/tag/kafka.html">
                                 Kafka
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
-                                环境搭建
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -476,13 +506,18 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/undefined.html">
+                                Undefined
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
                             <a href="http://weyo.me/tag/shell.html">
                                 Shell
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/undefined.html">
-                                Undefined
+                            <a href="http://weyo.me/tag/rpc.html">
+                                RPC
                             </a>
                         </li>
                         <li class="list-group-item tag-4">

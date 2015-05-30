@@ -3,8 +3,8 @@
       xmlns:og="http://ogp.me/ns#"
       xmlns:fb="https://www.facebook.com/2008/fbml">
 <head>
-    <title>Best Practices of Storm —— 分布式实时计算应用篇(二)
-  Posted by WeYo. 转载请注明出处 pages/techs/storm-best-practices/.
+    <title>通过 IDE 向Storm 集群远程提交 topology
+  Posted by WeYo. 转载请注明出处 pages/techs/storm-topology-remote-submission/.
 </title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -15,9 +15,9 @@
     <!-- Open Graph tags -->
 
             <meta property="og:type" content="article"/>
-            <meta property="og:title" content="Best Practices of Storm —— 分布式实时计算应用篇(二)"/>
-            <meta property="og:url" content="http://weyo.me/pages/techs/storm-best-practices/"/>
-            <meta property="og:description" content="[Updating] Storm 学习与应用最佳实践。"/>
+            <meta property="og:title" content="通过 IDE 向Storm 集群远程提交 topology"/>
+            <meta property="og:url" content="http://weyo.me/pages/techs/storm-topology-remote-submission/"/>
+            <meta property="og:description" content="[搬运] Submitting a topology to Remote Storm Cluster"/>
 
     <!-- Bootstrap -->
         <link rel="stylesheet" href="http://weyo.me/theme/css/bootstrap.min.css" type="text/css"/>
@@ -89,10 +89,10 @@
         <article>
             <header class="page-header">
                 <h1>
-                    <a href="http://weyo.me/pages/techs/storm-best-practices/"
+                    <a href="http://weyo.me/pages/techs/storm-topology-remote-submission/"
                        rel="bookmark"
-                       title="Permalink to Best Practices of Storm —— 分布式实时计算应用篇(二)">
-                        Best Practices of Storm —— 分布式实时计算应用篇(二)
+                       title="Permalink to 通过 IDE 向Storm 集群远程提交 topology">
+                        通过 IDE 向Storm 集群远程提交 topology
                     </a>
                 </h1>
             </header>
@@ -102,7 +102,7 @@
 <footer class="post-info">
     <span class="label label-default">Date</span>
     <span class="published">
-        <i class="icon-calendar"></i>2015-04-25
+        <i class="icon-calendar"></i>2015-05-19
     </span>
 	<span style="font-size:12px;">&nbsp;&nbsp;</span>
     <!--     <span class="label label-default">By</span>
@@ -117,69 +117,77 @@
 
 <span class="label label-default">Tags</span>
 	<a href="http://weyo.me/tag/storm.html">Storm</a>
-        /
-	<a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">分布式计算</a>
-        /
-	<a href="http://weyo.me/tag/shi-shi-ji-suan.html">实时计算</a>
 	
-	<br /><br />Posted by <span style="font-weight:bold;"><a href="http://github.com/weyo">WeYo</a></span>. 转载请注明出处：<a href="http://weyo.me/pages/techs/storm-best-practices/">http://weyo.me/pages/techs/storm-best-practices/</a>
+	<br /><br />Posted by <span style="font-weight:bold;"><a href="http://github.com/weyo">WeYo</a></span>. 转载请注明出处：<a href="http://weyo.me/pages/techs/storm-topology-remote-submission/">http://weyo.me/pages/techs/storm-topology-remote-submission/</a>
 </footer><!-- /.post-info -->                    </div>
                 </div>
-                <h1>Storm 学习曲线</h1>
-<p>目前业界 Storm 的学习资料大多比较零散，系统性的资料不多，新手（从零开始，完全没有分布式计算经验积累的新人）往往很容易会被各种概念迷惑，加上 Storm 社区非常活跃，各个发行版之间的变化较大，而网上的很多帖子、博客还是几年前的资料，并不完全兼容当前版本的特性，导致新手阶段的学习异常痛苦。笔者按照个人的经验总结了一些基本的学习路径，希望能够对新同学有所帮助。由于笔者也才入门不久，以下内容还存在不少问题，欢迎大家批评指正。</p>
+                <blockquote>
+<p>身为一个懒癌晚期患者，虽然 Storm 只需要一条命令的任务提交方式已经够简单了，但还是一直想要有种更简(tou)单(lan)的方式，比如要是在 Windows 下写完代码之后可以直接提交任务而不需要手动把 jar 包拷到服务器上再提交那定是极好的了。谷歌了一下终于在墙外找到了解决方法: <a href="http://nishutayaltech.blogspot.in/2014/06/submitting-topology-to-remote-storm.html">Submitting a topology to Remote Storm Cluster</a></p>
+</blockquote>
+<h2>Storm 集群配置</h2>
+<ul>
+<li>nimbus: "hd124"</li>
+<li>nimbus.port: 6627</li>
+</ul>
+<h2>提交 Topology</h2>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19</pre></div></td><td class="code"><div class="highlight"><pre><span class="n">Config</span> <span class="n">conf</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Config</span><span class="o">();</span>
+<span class="n">conf</span><span class="o">.</span><span class="na">setNumWorkers</span><span class="o">(</span><span class="mi">2</span><span class="o">);</span>
+<span class="n">conf</span><span class="o">.</span><span class="na">setDebug</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+<span class="c1">// ...</span>
+<span class="c1">// topology 其他配置信息等</span>
+
+<span class="c1">// 读取本地 Storm 配置文件</span>
+<span class="n">Map</span> <span class="n">stormConf</span> <span class="o">=</span> <span class="n">Utils</span><span class="o">.</span><span class="na">readStormConfig</span><span class="o">();</span>
+<span class="n">stormConf</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;nimbus.host&quot;</span><span class="o">,</span> <span class="s">&quot;hd124&quot;</span><span class="o">);</span>
+<span class="n">stormConf</span><span class="o">.</span><span class="na">putAll</span><span class="o">(</span><span class="n">conf</span><span class="o">);</span>
+
+<span class="n">Nimbus</span><span class="o">.</span><span class="na">Client</span> <span class="n">client</span> <span class="o">=</span> <span class="n">NimbusClient</span><span class="o">.</span><span class="na">getConfiguredClient</span><span class="o">(</span><span class="n">stormConf</span><span class="o">).</span><span class="na">getClient</span><span class="o">();</span>
+<span class="n">String</span> <span class="n">inputJar</span> <span class="o">=</span> <span class="s">&quot;E:\\workspace\\storm-demo\\target\\storm-demo-0.0.5-SNAPSHOT-shade.jar&quot;</span><span class="o">;</span>
+<span class="n">NimbusClient</span> <span class="n">nimbus</span> <span class="o">=</span> <span class="k">new</span> <span class="n">NimbusClient</span><span class="o">(</span><span class="n">stormConf</span><span class="o">,</span> <span class="s">&quot;hd124&quot;</span><span class="o">,</span> <span class="mi">6627</span><span class="o">);</span>
+
+<span class="c1">// 使用 StormSubmitter 提交 jar 包</span>
+<span class="n">String</span> <span class="n">uploadedJarLocation</span> <span class="o">=</span> <span class="n">StormSubmitter</span><span class="o">.</span><span class="na">submitJar</span><span class="o">(</span><span class="n">stormConf</span><span class="o">,</span> <span class="n">inputJar</span><span class="o">);</span>
+<span class="n">String</span> <span class="n">jsonConf</span> <span class="o">=</span> <span class="n">JSONValue</span><span class="o">.</span><span class="na">toJSONString</span><span class="o">(</span><span class="n">stormConf</span><span class="o">);</span>
+<span class="n">nimbus</span><span class="o">.</span><span class="na">getClient</span><span class="o">().</span><span class="na">submitTopology</span><span class="o">(</span><span class="s">&quot;remotetopology&quot;</span><span class="o">,</span> <span class="n">uploadedJarLocation</span><span class="o">,</span> <span class="n">jsonConf</span><span class="o">,</span> <span class="n">builder</span><span class="o">.</span><span class="na">createTopology</span><span class="o">());</span>
+</pre></div>
+</td></tr></table>
+
+<h2>说明</h2>
 <ol>
-<li>Storm 集群组件 —— nimbus/supervisor;</li>
-<li>Storm topology 组件 —— spout/bolt;</li>
-<li>Storm 的并发模型 —— worker/executor/task;</li>
-<li>Storm 高级模型 —— Trident;</li>
-<li>Storm 的分布式RPC —— DRPC;</li>
-<li>Storm 的消息可靠性保障 —— ack 机制;</li>
-<li>Storm 的集群协调 —— Storm 与 ZooKeeper;</li>
-<li>Storm 的消息传输机制（worker内部/worker之间）;</li>
-<li>Storm 实时计算的平滑窗口;</li>
-<li>大规模数据流的 partition 与 join；</li>
-<li>TBC...</li>
+<li>
+<p>第8行会读取 Storm 的本地配置文件，如果不指定的话，<code>Utils.readStormConfig()</code> 会读取 Storm 依赖 jar 包的默认配置文件，如 <code>"\maven\repository\org\apache\storm\storm-core\0.9.3\storm-core-0.9.3.jar\defaults.yaml"</code>，如果集群配置与默认配置有较大不同，还需要修改对应配置信息。</p>
+</li>
+<li>
+<p>这段代码需要在 Topology 已经完成打包之后运行，因为需要在程序中指定待提交的 jar 包。可以在 IDE 中安装 Maven 插件，Topology 开发完成之后直接打包，然后再切换到这段提交代码中执行提交任务。</p>
+</li>
+<li>
+<p>任务提交完成之后可以在 Storm UI 中查看提交结果。</p>
+</li>
 </ol>
 <hr />
-<h3>几点说明</h3>
-<ul>
-<li>1~3 是 Storm 的基础，是必须掌握的内容；</li>
-<li>如果需要使用简单的封装模型快速开发，需要先了解 4；</li>
-<li>如果有 RPC 应用开发需求，需要了解 5；</li>
-<li>如果实时计算应用对消息可靠性要求较高，必须熟悉 6，进一步可以了解 7, 8的相关内容；</li>
-<li>9 及后续内容是目前实时计算的技术难点，尚未有较完美的解决方案，可以根据需要深入钻研。</li>
-</ul>
-<hr />
-<h1>Storm 最佳实践</h1>
-<h2>Good Use of Storm+Trident</h2>
-<p>摘自 Storm 官方 <a href="http://storm.apache.org/documentation/FAQ.html">FAQ</a></p>
-<blockquote>
-<ul>
-<li>number of workers a multiple of number of machines; parallelism a multiple of number of workers; number of kafka partitions a multiple of number of spout parallelism</li>
-<li>Use one worker per topology per machine</li>
-<li>Start with fewer, larger aggregators, one per machine with workers on it</li>
-<li>Use the isolation scheduler</li>
-<li>Use one acker per worker -- 0.9 makes that the default, but earlier versions do not.</li>
-<li>enable GC logging; you should see very few major GCs if things are in reasonable shape.</li>
-<li>set the trident batch millis to about 50% of your typical end-to-end latency.</li>
-<li>Start with a max spout pending that is for sure too small -- one for trident, or the number of executors for storm -- and increase it until you stop seeing changes in the flow. You'll probably end up with something near 2<em>(throughput in recs/sec)</em>(end-to-end latency) (2x the Little's law capacity).</li>
-</ul>
-</blockquote>
-<p>翻译说明：</p>
-<ul>
-<li>worker 的数量最好是服务器数量的倍数；topology 的总并发度(parallelism)最好是 worker 数量的倍数；Kafka 的分区数(partitions)最好是 Spout (特指 <code>KafkaSpout</code>)的并发度的倍数</li>
-<li>每个机器(supervisor)上最好只部署一个worker</li>
-<li>应该在一开始使用较少的大聚合器，并且最好在每个有 worker 进程的机器上分配一个</li>
-<li>使用独立的调度器(scheduler)</li>
-<li>每个 worker 上只配置使用一个 acker —— 这是 0.9.x 版本的默认特性，但在早起版本中有所不同；</li>
-<li>在配置文件中开启 GC 日志记录；如果一切正常，日志中的 major GC 应该会非常少；</li>
-<li>将 trident 的 batch interval 配置为大约50%的端到端平均时延大小的千分之一</li>
-<li>开始时设置一个很小的 <code>TOPOLOGY_MAX_SPOUT_PENDING</code>（对于 trident 可以设置为1，对于一般的 topology 可以设置为 executor 的数量），然后逐渐增大，直到数据流不再发生变化。这时你可能会发现结果大约等于 <code>“2 × 吞吐率(每秒收到的消息数) × 端到端时延”</code> （最小的额定容量的2倍）。</li>
-</ul>
-<hr />
-<blockquote>
-<p><em>Updating...</em></p>
-</blockquote>
+<h1>Reference</h1>
+<ol>
+<li><a href="http://stackoverflow.com/questions/15781176/how-to-submit-a-topology-in-storm-production-cluster-using-ide">http://stackoverflow.com/questions/15781176/how-to-submit-a-topology-in-storm-production-cluster-using-ide</a></li>
+<li><a href="http://nishutayaltech.blogspot.in/2014/06/submitting-topology-to-remote-storm.html">http://nishutayaltech.blogspot.in/2014/06/submitting-topology-to-remote-storm.html</a></li>
+</ol>
 <hr />
             </div>
             <!-- /.entry-content -->
@@ -190,8 +198,8 @@
         <script type="text/javascript">
             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
             var disqus_shortname = 'weyo'; // required: replace example with your forum shortname
-            var disqus_identifier = 'storm-best-practices';
-            var disqus_url = 'http://weyo.me/pages/techs/storm-best-practices/';
+            var disqus_identifier = 'storm-topology-remote-submission';
+            var disqus_url = 'http://weyo.me/pages/techs/storm-topology-remote-submission/';
 
             /* * * DON'T EDIT BELOW THIS LINE * * */
             (function () {

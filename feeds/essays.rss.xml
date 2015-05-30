@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Let There Be Light!</title><link>http://weyo.me/</link><description></description><atom:link href="http://weyo.me/feeds/essays.rss.xml" rel="self"></atom:link><lastBuildDate>Wed, 13 May 2015 00:00:00 +0800</lastBuildDate><item><title>神秘的三门问题</title><link>http://weyo.me/pages/essays/monty-hall-problem/</link><description>&lt;p&gt;前几天遇到这么一道智力题：
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Let There Be Light</title><link>http://weyo.me/</link><description></description><atom:link href="http://weyo.me/feeds/essays.rss.xml" rel="self"></atom:link><lastBuildDate>Wed, 13 May 2015 00:00:00 +0800</lastBuildDate><item><title>神秘的三门问题</title><link>http://weyo.me/pages/essays/monty-hall-problem/</link><description>&lt;p&gt;前几天遇到这么一道智力题：
 在一场游戏中，主持人拿出了三个完全一样的密封盒子，其中一个盒子内有奖品，另外两个为空盒子。主持人首先让你挑选一个你认为有奖品的盒子。然后，主持人在剩下的两个盒子中拿走一个必然为空的盒子。现在，主持人问：你愿不愿意用你手中的盒子和主持人手中的盒子交换？你手中的盒子和主持人手中的盒子里面有奖品的概率各有多少？&lt;/p&gt;
 &lt;p&gt;这其实就是大名鼎鼎的 &lt;strong&gt;三门问题&lt;/strong&gt; 了。&lt;/p&gt;
 &lt;p&gt;&lt;img src=http://images.cnitblog.com/blog/329852/201311/24200658-c442dec3691a4e929938ba98a52d78c5.png width="60%" height="60%"  /&gt;&lt;/p&gt;
