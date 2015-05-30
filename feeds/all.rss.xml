@@ -93,8 +93,14 @@
 &lt;hr /&gt;
 &lt;h1&gt;Client 端&lt;/h1&gt;
 &lt;p&gt;在 DRPC server 启动完成、DPRC Topology 提交到 Storm 集群运行之后，就可以启动 DRPC 客户端。&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="err"&gt;#&lt;/span&gt;&lt;span class="o"&gt;!&lt;/span&gt;&lt;span class="n"&gt;java&lt;/span&gt;
-&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;DRPCClientDemo&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+2
+3
+4
+5
+6
+7
+8&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;DRPCClientDemo&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
 
     &lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;static&lt;/span&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;main&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;[]&lt;/span&gt; &lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="kd"&gt;throws&lt;/span&gt; &lt;span class="n"&gt;TException&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;DRPCExecutionException&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
         &lt;span class="n"&gt;DRPCClient&lt;/span&gt; &lt;span class="n"&gt;client&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;DRPCClient&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;hd181&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;3772&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
@@ -103,7 +109,7 @@
     &lt;span class="o"&gt;}&lt;/span&gt;
 &lt;span class="o"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
-
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 
 &lt;blockquote&gt;
 &lt;h3&gt;说明&lt;/h3&gt;
@@ -447,8 +453,8 @@
 &lt;blockquote&gt;
 &lt;p&gt;&lt;span style="font-family:微软雅黑; color:#A52A2A"&gt;&lt;strong&gt;[注意]&lt;/strong&gt; 这里的 &lt;code&gt;InterMediateBolt&lt;/code&gt; 的 &lt;code&gt;parallelism_hint&lt;/code&gt; 必须 &lt;strong&gt;设置为 1&lt;/strong&gt;，这是为了保证上游 Bolt 的所有的 executor 都能够统一将信号发送到 &lt;code&gt;InterMediateBolt&lt;/code&gt; 的唯一一个 task。由于 &lt;code&gt;InterMediateBolt&lt;/code&gt; 只处理单一的信号消息，数据的吞吐量极小，并行度为 1 并不会降低集群的处理性能。&lt;/span&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;hr /&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Fri, 22 May 2015 00:00:00 +0800</pubDate><guid>tag:weyo.me,2015-05-22:pages/techs/storm-continuous-batch-process/</guid><category>Storm</category><category>分布式计算</category><category>实时计算</category></item><item><title>通过 IDE 向Storm 集群远程提交 topology</title><link>http://weyo.me/pages/techs/storm-topology-remote-submission/</link><description>&lt;blockquote&gt;
-&lt;p&gt;身为一个懒癌晚期患者，虽然 Storm 只需要一条命令的任务提交方式已经够简单了，但还是一直想要有种更简(tou)单(lan)的方式，比如要是在 Windows 下写完代码之后可以直接提交任务而不需要手动把 jar 包拷到服务器上再提交那定是极好的了。谷歌了一下终于在墙外找到了解决方法: &lt;a href="http://nishutayaltech.blogspot.in/2014/06/submitting-topology-to-remote-storm.html"&gt;Submitting a topology to Remote Storm Cluster&lt;/a&gt;&lt;/p&gt;
+&lt;hr /&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Fri, 22 May 2015 00:00:00 +0800</pubDate><guid>tag:weyo.me,2015-05-22:pages/techs/storm-continuous-batch-process/</guid><category>Storm</category><category>分布式计算</category><category>实时计算</category></item><item><title>通过 IDE 向 Storm 集群远程提交 topology</title><link>http://weyo.me/pages/techs/storm-topology-remote-submission/</link><description>&lt;blockquote&gt;
+&lt;p&gt;作为一个懒癌晚期患者，虽然 Storm 只需要一条命令的任务提交方式已经够简单了，但还是一直想要有种更简(tou)单(lan)的方式，比如要是在 Windows 下写完代码之后可以直接提交任务而不需要手动把 jar 包拷到服务器上再提交那定是极好的了。谷歌了一下终于在墙外找到了解决方法: &lt;a href="http://nishutayaltech.blogspot.in/2014/06/submitting-topology-to-remote-storm.html"&gt;Submitting a topology to Remote Storm Cluster&lt;/a&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;h2&gt;Storm 集群配置&lt;/h2&gt;
 &lt;ul&gt;
