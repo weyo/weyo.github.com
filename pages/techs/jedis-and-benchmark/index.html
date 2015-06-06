@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:og="http://ogp.me/ns#"
+      xmlns:fb="https://www.facebook.com/2008/fbml">
+<head>
+    <title>Jedis & Benchmark
+   - Let There Be Light
+</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel = "Shortcut Icon" href=https://raw.githubusercontent.com/weyo/weyo.github.com/master/images/photos/avatar.png>
+
+    <!-- Open Graph tags -->
+
+            <meta property="og:type" content="article"/>
+            <meta property="og:title" content="Jedis & Benchmark"/>
+            <meta property="og:url" content="http://weyo.me/pages/techs/jedis-and-benchmark/"/>
+            <meta property="og:description" content="Jedis 客户端的使用与 Benchmark 测试。"/>
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="http://weyo.me/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="http://weyo.me/theme/css/font-awesome.min.css" rel="stylesheet">
+    <link href="http://weyo.me/theme/css/pygments.css" rel="stylesheet">
+    <link rel="stylesheet" href="http://weyo.me/theme/css/style.css" type="text/css"/>
+    <!-- JavaScript plugins (requires jQuery) -->
+    <script src="http://code.jquery.com/jquery.js"></script>
+
+        <link href="http://weyo.me/feeds/all.rss.xml" type="application/atom+xml" rel="alternate"
+              title="Let There Be Light RSS Feed"/>
+
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46991080-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+
+    </script>
+</head>
+<body>
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="http://weyo.me" class="navbar-brand">Let There Be Light</a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="http://weyo.me/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="http://weyo.me/pages/gallery.html">
+                             Gallery
+                          </a></li>
+                        <li >
+                            <a href="http://weyo.me/category/essays.html">Essays</a>
+                        </li>
+                        <li class="active">
+                            <a href="http://weyo.me/category/techs.html">Techs</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="http://weyo.me/archives.html"><i class="icon-th-list"></i>Archives</a></li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</nav>
+<!-- /.navbar -->
+<div class="container">
+    <div class="row">
+        <div class="col-lg-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="http://weyo.me/pages/techs/jedis-and-benchmark/"
+                       rel="bookmark"
+                       title="Permalink to Jedis & Benchmark">
+                        Jedis & Benchmark
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="icon-calendar"></i>2015-06-03
+    </span>
+	<span style="font-size:12px;">&nbsp;&nbsp;</span>
+    <!--     <span class="label label-default">By</span>
+    <a href="http://weyo.me/author/weyo.html"><i class="icon-user"></i>WeYo</a>
+	<span style="font-size:12px;">&nbsp;&nbsp;</span>
+ -->
+
+    <span class="label label-default">Category</span>
+    <a href="http://weyo.me/category/techs.html">Techs</a>
+	<span style="font-size:12px;">&nbsp;&nbsp;</span>
+
+
+<span class="label label-default">Tags</span>
+	<a href="http://weyo.me/tag/redis.html">Redis</a>
+        /
+	<a href="http://weyo.me/tag/jedis.html">Jedis</a>
+        /
+	<a href="http://weyo.me/tag/benchmark.html">Benchmark</a>
+	
+	<br /><br />Posted by <span style="font-weight:bold;"><a href="http://github.com/weyo">WeYo</a></span>. 转载请注明出处：<a href="http://weyo.me/pages/techs/jedis-and-benchmark/">http://weyo.me/pages/techs/jedis-and-benchmark/</a>
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h1>Jedis</h1>
+<p><a href="https://github.com/xetorthio/jedis">Jedis</a> 是 <a href="http://redis.io/">Redis</a> 官方推荐的 Java 客户端，目前已经更新到 2.7 版本，支持 Redis 2.8.x ~ 3.0.x。</p>
+<p>Jedis 的 Maven 依赖包如下：</p>
+<div class="highlight"><pre><span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>redis.clients<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>jedis<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>2.7.2<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;type&gt;</span>jar<span class="nt">&lt;/type&gt;</span>
+    <span class="nt">&lt;scope&gt;</span>compile<span class="nt">&lt;/scope&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+
+
+<h2>单条数据处理模式</h2>
+<p>此模式下 Jedis 的每一个操作都会被当作一个独立的 “Request-Response” 模型进行执行，这种模式的使用非常简单：</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7</pre></div></td><td class="code"><div class="highlight"><pre><span class="n">JedisPool</span> <span class="n">pool</span> <span class="o">=</span> <span class="k">new</span> <span class="n">JedisPool</span><span class="o">(</span><span class="s">&quot;redis.host&quot;</span><span class="o">);</span>
+<span class="n">Jedis</span> <span class="n">jedis</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="na">getResource</span><span class="o">();</span>
+<span class="n">jedis</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="s">&quot;poop&quot;</span><span class="o">,</span> <span class="s">&quot;poobar&quot;</span><span class="o">);</span>
+<span class="n">String</span> <span class="n">poobar</span> <span class="o">=</span> <span class="n">jedis</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;poop&quot;</span><span class="o">);</span>
+
+<span class="n">jedis</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+<span class="n">pool</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+</pre></div>
+</td></tr></table>
+
+<h2>批量数据处理模式</h2>
+<p>批量数据处理模式主要是指通过 <code>Pipeline</code>(管道) 缓冲数据，将多个 command，依次发送给 server 的一种批处理模式（注意，这里的批处理与事务是不同的概念，批处理并不能保证请求的成功性）。在 server 处理 command 期间，客户端无法获得单个 command 的响应数据，只有在 server 处理完成、关闭 Pipeline 请求之后才可以依次获取每个 command 的响应结果，也就是说每次获取结果之前关闭 Pipeline 请求的过程是必不可少的。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9</pre></div></td><td class="code"><div class="highlight"><pre><span class="n">JedisPool</span> <span class="n">pool</span> <span class="o">=</span> <span class="k">new</span> <span class="n">JedisPool</span><span class="o">(</span><span class="s">&quot;redis.host&quot;</span><span class="o">);</span>
+<span class="n">Jedis</span> <span class="n">jedis</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="na">getResource</span><span class="o">();</span>
+<span class="n">Pipeline</span> <span class="n">pipeline</span> <span class="o">=</span> <span class="n">jedis</span><span class="o">.</span><span class="na">pipelined</span><span class="o">();</span>
+<span class="n">Response</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">response</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;poop&quot;</span><span class="o">);</span>
+<span class="n">pipeline</span><span class="o">.</span><span class="na">sync</span><span class="o">();</span>
+<span class="n">String</span> <span class="n">poobar</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="na">get</span><span class="o">();</span>
+
+<span class="n">jedis</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+<span class="n">pool</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+</pre></div>
+</td></tr></table>
+
+<p>由于 Pipeline 实际上减少了客户端与服务端之间反复的连接时间，使得数据处理的效率大大提高。笔者在一开始使用 Jedis 时发现效率极低，基本上一秒钟只能处理几千条数据，而且不论怎么优化 Redis，这个结果都没有明显的提高。为此笔者纠结了很长一段时间不得其解，直到最近了解到 Pipeline 这个利器之后才豁然开朗。下面的 Benchmark 测试结果就直接显示了两种方式的性能差异。</p>
+<hr />
+<h1>Benchmark</h1>
+<blockquote>
+<h2>基本信息</h2>
+<ul>
+<li>单点 Redis 服务器，性能一般</li>
+<li>不开启 DB save</li>
+<li>单线程客户端</li>
+<li>由于几次试验测试结果相似，就选取一次的测试结果作为最终结果，没有使用多次测试选取均值的方式，可能与真实性能稍微有些出入</li>
+<li>单条数据处理指的是直接使用 <code>Jedis</code> 接口操作，批量处理指的是使用 <code>Pipeline</code> 接口操作</li>
+<li>网络访问指的是客户端与服务器位于同一网段的不同机器上，本机访问指的是直接在服务器机器上执行操作</li>
+<li>简单起见，读写的 key 设置为字符串 "Jedis:i"(i 为循环的次数)，value 与 key 相同</li>
+</ul>
+</blockquote>
+<hr />
+<h2>网络访问</h2>
+<h3>单条数据处理</h3>
+<ul>
+<li>百万级数据写（key-String, value-String）</li>
+</ul>
+<p><strong>结果</strong>  452,730,121,946 纳秒 约等于 453 秒</p>
+<ul>
+<li>百万级数据读</li>
+</ul>
+<p><strong>结果</strong> 508,386,552,562 纳秒 约等于 508 秒</p>
+<ul>
+<li>百万级数据删除</li>
+</ul>
+<p><strong>结果</strong> 508,714,438,156 纳秒 约等于 509 秒</p>
+<h3>批量数据处理</h3>
+<ul>
+<li>百万级数据写（key-String, value-String）</li>
+</ul>
+<p><strong>结果</strong>  6,151,898,431 纳秒 约等于 6 秒</p>
+<ul>
+<li>百万级数据读</li>
+</ul>
+<p><strong>结果</strong> 3,519,384,281 纳秒 约等于 3 秒</p>
+<ul>
+<li>百万级数据删除</li>
+</ul>
+<p><strong>结果</strong> 5,186,055,510 纳秒 约等于 5 秒</p>
+<h2>本机访问</h2>
+<h3>单条数据处理</h3>
+<blockquote>
+<p>说明：为了减少测试时间，这里只测试了1W条数据的读写</p>
+</blockquote>
+<ul>
+<li>万级数据写（key-String, value-String）</li>
+</ul>
+<p><strong>结果</strong>  1,199,071,735 纳秒 约等于 1 秒</p>
+<p>对比：网络访问单条数据处理模式万级数据写时间约等于 5 秒</p>
+<ul>
+<li>万级数据读</li>
+</ul>
+<p><strong>结果</strong> 1,111,957,283 纳秒 约等于 1 秒</p>
+<ul>
+<li>万级数据删除</li>
+</ul>
+<p><strong>结果</strong> 1,121,649,753 纳秒 约等于 1 秒</p>
+<h3>批量数据处理</h3>
+<ul>
+<li>万级数据写（key-String, value-String）</li>
+</ul>
+<p><strong>结果</strong>  352,212,255 纳秒 约等于 0.35 秒</p>
+<ul>
+<li>万级数据读</li>
+</ul>
+<p><strong>结果</strong> 344,821,892 纳秒 约等于 0.34 秒</p>
+<ul>
+<li>万级数据删除</li>
+</ul>
+<p><strong>结果</strong> 341,540,726 纳秒 约等于 0.7 秒</p>
+<ul>
+<li>十万级数据写（key-String, value-String）</li>
+</ul>
+<p><strong>结果</strong>  827,447,969 纳秒 约等于 0.8 秒</p>
+<ul>
+<li>十万级数据读</li>
+</ul>
+<p><strong>结果</strong> 718,332,980 纳秒 约等于 0.7 秒</p>
+<ul>
+<li>十万级数据删除</li>
+</ul>
+<p><strong>结果</strong> 758,594,043 纳秒 约等于 0.7 秒</p>
+<ul>
+<li>百万级数据写（key-String, value-String）</li>
+</ul>
+<p><strong>结果</strong>  6,105,554,458 纳秒 约等于 6 秒</p>
+<ul>
+<li>百万级数据读</li>
+</ul>
+<p><strong>结果</strong> 4,034,674,889 纳秒 约等于 4 秒</p>
+<ul>
+<li>百万级数据删除</li>
+</ul>
+<p><strong>结果</strong> 4,921,311,797 纳秒 约等于 5 秒</p>
+<p>上面的结果可以看出 Pipeline 的读写方式比普通的读写方式提高了近百倍的效率，差距还是相当明显的。</p>
+<h2>多线程</h2>
+<p>在一个客户端上开启 100 个线程写 10000 条数据，吞吐率约为 190,222 res/s。</p>
+<p>在继续增加线程到 1000 个时报错：</p>
+<div class="highlight"><pre><span class="n">Exception</span> <span class="n">in</span> <span class="kr">thread</span> <span class="s">&quot;main&quot;</span> <span class="n">java</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">concurrent</span><span class="p">.</span><span class="n">ExecutionException</span><span class="o">:</span> <span class="n">redis</span><span class="p">.</span><span class="n">clients</span><span class="p">.</span><span class="n">jedis</span><span class="p">.</span><span class="n">exceptions</span><span class="p">.</span><span class="n">JedisConnectionException</span><span class="o">:</span> <span class="n">Could</span> <span class="n">not</span> <span class="n">get</span> <span class="n">a</span> <span class="n">resource</span> <span class="n">from</span> <span class="n">the</span> <span class="n">pool</span>
+    <span class="n">at</span> <span class="n">java</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">concurrent</span><span class="p">.</span><span class="n">FutureTask</span><span class="p">.</span><span class="n">report</span><span class="p">(</span><span class="n">FutureTask</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">122</span><span class="p">)</span>
+    <span class="n">at</span> <span class="n">java</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">concurrent</span><span class="p">.</span><span class="n">FutureTask</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">FutureTask</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">188</span><span class="p">)</span>
+    <span class="n">at</span> <span class="n">com</span><span class="p">.</span><span class="n">enjoyor</span><span class="p">.</span><span class="n">jedis</span><span class="p">.</span><span class="n">benchmark</span><span class="p">.</span><span class="n">Benchmark</span><span class="p">.</span><span class="n">main</span><span class="p">(</span><span class="n">Benchmark</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">97</span><span class="p">)</span>
+<span class="n">Caused</span> <span class="n">by</span><span class="o">:</span> <span class="n">redis</span><span class="p">.</span><span class="n">clients</span><span class="p">.</span><span class="n">jedis</span><span class="p">.</span><span class="n">exceptions</span><span class="p">.</span><span class="n">JedisConnectionException</span><span class="o">:</span> <span class="n">Could</span> <span class="n">not</span> <span class="n">get</span> <span class="n">a</span> <span class="n">resource</span> <span class="n">from</span> <span class="n">the</span> <span class="n">pool</span>
+    <span class="n">at</span> <span class="n">redis</span><span class="p">.</span><span class="n">clients</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">Pool</span><span class="p">.</span><span class="n">getResource</span><span class="p">(</span><span class="n">Pool</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">50</span><span class="p">)</span>
+    <span class="n">at</span> <span class="n">redis</span><span class="p">.</span><span class="n">clients</span><span class="p">.</span><span class="n">jedis</span><span class="p">.</span><span class="n">JedisPool</span><span class="p">.</span><span class="n">getResource</span><span class="p">(</span><span class="n">JedisPool</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">86</span><span class="p">)</span>
+    <span class="n">at</span> <span class="n">com</span><span class="p">.</span><span class="n">enjoyor</span><span class="p">.</span><span class="n">jedis</span><span class="p">.</span><span class="n">benchmark</span><span class="p">.</span><span class="n">Benchmark</span><span class="err">$</span><span class="n">Ctest</span><span class="p">.</span><span class="n">call</span><span class="p">(</span><span class="n">Benchmark</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">57</span><span class="p">)</span>
+    <span class="n">at</span> <span class="n">com</span><span class="p">.</span><span class="n">enjoyor</span><span class="p">.</span><span class="n">jedis</span><span class="p">.</span><span class="n">benchmark</span><span class="p">.</span><span class="n">Benchmark</span><span class="err">$</span><span class="n">Ctest</span><span class="p">.</span><span class="n">call</span><span class="p">(</span><span class="n">Benchmark</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">at</span> <span class="n">java</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">concurrent</span><span class="p">.</span><span class="n">FutureTask</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">FutureTask</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">262</span><span class="p">)</span>
+    <span class="n">at</span> <span class="n">java</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">concurrent</span><span class="p">.</span><span class="n">ThreadPoolExecutor</span><span class="p">.</span><span class="n">runWorker</span><span class="p">(</span><span class="n">ThreadPoolExecutor</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">1145</span><span class="p">)</span>
+    <span class="n">at</span> <span class="n">java</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">concurrent</span><span class="p">.</span><span class="n">ThreadPoolExecutor</span><span class="err">$</span><span class="n">Worker</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">ThreadPoolExecutor</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">615</span><span class="p">)</span>
+    <span class="n">at</span> <span class="n">java</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">Thread</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">Thread</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">744</span><span class="p">)</span>
+</pre></div>
+
+
+<p>这是 Redis 的连接数限制的原因，需要修改 maxclients 来增大连接数。</p>
+<hr />
+<h2>Redis-benchmark</h2>
+<p>Redis 自带了一个 benchmark 工具，这里就使用这个官方的 redis-benchmark 工具进行对比验证。</p>
+<h3>万级数据</h3>
+<div class="highlight"><pre><span class="p">[</span><span class="n">root</span><span class="err">@</span><span class="n">hd124</span><span class="p">]</span><span class="err">$</span><span class="o">&gt;</span><span class="n">src</span><span class="o">/</span><span class="n">redis</span><span class="o">-</span><span class="n">benchmark</span> <span class="o">-</span><span class="n">n</span> <span class="mi">10000</span>
+<span class="o">======</span> <span class="n">PING_INLINE</span> <span class="o">======</span>
+  <span class="mi">10000</span> <span class="n">requests</span> <span class="n">completed</span> <span class="n">in</span> <span class="mf">0.13</span> <span class="n">seconds</span>
+  <span class="mi">50</span> <span class="n">parallel</span> <span class="n">clients</span>
+  <span class="mi">3</span> <span class="n">bytes</span> <span class="n">payload</span>
+  <span class="n">keep</span> <span class="n">alive</span><span class="o">:</span> <span class="mi">1</span>
+
+<span class="mf">99.01</span><span class="o">%</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="n">milliseconds</span>
+<span class="mf">99.51</span><span class="o">%</span> <span class="o">&lt;=</span> <span class="mi">5</span> <span class="n">milliseconds</span>
+<span class="mf">99.79</span><span class="o">%</span> <span class="o">&lt;=</span> <span class="mi">6</span> <span class="n">milliseconds</span>
+<span class="mf">100.00</span><span class="o">%</span> <span class="o">&lt;=</span> <span class="mi">6</span> <span class="n">milliseconds</span>
+<span class="mf">75187.97</span> <span class="n">requests</span> <span class="n">per</span> <span class="n">second</span>
+
+<span class="o">======</span> <span class="n">PING_BULK</span> <span class="o">======</span>
+  <span class="mi">10000</span> <span class="n">requests</span> <span class="n">completed</span> <span class="n">in</span> <span class="mf">0.13</span> <span class="n">seconds</span>
+  <span class="mi">50</span> <span class="n">parallel</span> <span class="n">clients</span>
+  <span class="mi">3</span> <span class="n">bytes</span> <span class="n">payload</span>
+  <span class="n">keep</span> <span class="n">alive</span><span class="o">:</span> <span class="mi">1</span>
+
+<span class="mf">100.00</span><span class="o">%</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="n">milliseconds</span>
+<span class="mf">79365.08</span> <span class="n">requests</span> <span class="n">per</span> <span class="n">second</span>
+
+<span class="o">======</span> <span class="n">SET</span> <span class="o">======</span>
+  <span class="mi">10000</span> <span class="n">requests</span> <span class="n">completed</span> <span class="n">in</span> <span class="mf">0.13</span> <span class="n">seconds</span>
+  <span class="mi">50</span> <span class="n">parallel</span> <span class="n">clients</span>
+  <span class="mi">3</span> <span class="n">bytes</span> <span class="n">payload</span>
+  <span class="n">keep</span> <span class="n">alive</span><span class="o">:</span> <span class="mi">1</span>
+
+<span class="mf">99.93</span><span class="o">%</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="n">milliseconds</span>
+<span class="mf">100.00</span><span class="o">%</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="n">milliseconds</span>
+<span class="mf">78125.00</span> <span class="n">requests</span> <span class="n">per</span> <span class="n">second</span>
+
+<span class="o">======</span> <span class="n">GET</span> <span class="o">======</span>
+  <span class="mi">10000</span> <span class="n">requests</span> <span class="n">completed</span> <span class="n">in</span> <span class="mf">0.13</span> <span class="n">seconds</span>
+  <span class="mi">50</span> <span class="n">parallel</span> <span class="n">clients</span>
+  <span class="mi">3</span> <span class="n">bytes</span> <span class="n">payload</span>
+  <span class="n">keep</span> <span class="n">alive</span><span class="o">:</span> <span class="mi">1</span>
+
+<span class="mf">99.58</span><span class="o">%</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="n">milliseconds</span>
+<span class="mf">100.00</span><span class="o">%</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="n">milliseconds</span>
+<span class="mf">78740.16</span> <span class="n">requests</span> <span class="n">per</span> <span class="n">second</span>
+</pre></div>
+
+
+<h3>百万级数据</h3>
+<div class="highlight"><pre><span class="p">[</span><span class="n">root</span><span class="err">@</span><span class="n">hd124</span><span class="p">]</span><span class="err">$</span><span class="o">&gt;</span><span class="n">src</span><span class="o">/</span><span class="n">redis</span><span class="o">-</span><span class="n">benchmark</span> <span class="o">-</span><span class="n">n</span> <span class="mi">1000000</span>
+<span class="o">======</span> <span class="n">PING_INLINE</span> <span class="o">======</span>
+  <span class="mi">1000000</span> <span class="n">requests</span> <span class="n">completed</span> <span class="n">in</span> <span class="mf">11.54</span> <span class="n">seconds</span>
+  <span class="mi">50</span> <span class="n">parallel</span> <span class="n">clients</span>
+  <span class="mi">3</span> <span class="n">bytes</span> <span class="n">payload</span>
+  <span class="n">keep</span> <span class="n">alive</span><span class="o">:</span> <span class="mi">1</span>
+
+<span class="mf">99.95</span><span class="o">%</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="n">milliseconds</span>
+<span class="mf">99.98</span><span class="o">%</span> <span class="o">&lt;=</span> <span class="mi">2</span> <span class="n">milliseconds</span>
+<span class="mf">99.99</span><span class="o">%</span> <span class="o">&lt;=</span> <span class="mi">3</span> <span class="n">milliseconds</span>
+<span class="mf">100.00</span><span class="o">%</span> <span class="o">&lt;=</span> <span class="mi">4</span> <span class="n">milliseconds</span>
+<span class="mf">100.00</span><span class="o">%</span> <span class="o">&lt;=</span> <span class="mi">5</span> <span class="n">milliseconds</span>
+<span class="mf">100.00</span><span class="o">%</span> <span class="o">&lt;=</span> <span class="mi">5</span> <span class="n">milliseconds</span>
+<span class="mf">86662.62</span> <span class="n">requests</span> <span class="n">per</span> <span class="n">second</span>
+
+<span class="o">======</span> <span class="n">PING_BULK</span> <span class="o">======</span>
+  <span class="mi">1000000</span> <span class="n">requests</span> <span class="n">completed</span> <span class="n">in</span> <span class="mf">11.47</span> <span class="n">seconds</span>
+  <span class="mi">50</span> <span class="n">parallel</span> <span class="n">clients</span>
+  <span class="mi">3</span> <span class="n">bytes</span> <span class="n">payload</span>
+  <span class="n">keep</span> <span class="n">alive</span><span class="o">:</span> <span class="mi">1</span>
+
+<span class="mf">99.98</span><span class="o">%</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="n">milliseconds</span>
+<span class="mf">99.99</span><span class="o">%</span> <span class="o">&lt;=</span> <span class="mi">2</span> <span class="n">milliseconds</span>
+<span class="mf">99.99</span><span class="o">%</span> <span class="o">&lt;=</span> <span class="mi">3</span> <span class="n">milliseconds</span>
+<span class="mf">100.00</span><span class="o">%</span> <span class="o">&lt;=</span> <span class="mi">4</span> <span class="n">milliseconds</span>
+<span class="mf">100.00</span><span class="o">%</span> <span class="o">&lt;=</span> <span class="mi">4</span> <span class="n">milliseconds</span>
+<span class="mf">87214.38</span> <span class="n">requests</span> <span class="n">per</span> <span class="n">second</span>
+
+<span class="o">======</span> <span class="n">SET</span> <span class="o">======</span>
+  <span class="mi">1000000</span> <span class="n">requests</span> <span class="n">completed</span> <span class="n">in</span> <span class="mf">11.70</span> <span class="n">seconds</span>
+  <span class="mi">50</span> <span class="n">parallel</span> <span class="n">clients</span>
+  <span class="mi">3</span> <span class="n">bytes</span> <span class="n">payload</span>
+  <span class="n">keep</span> <span class="n">alive</span><span class="o">:</span> <span class="mi">1</span>
+
+<span class="mf">99.67</span><span class="o">%</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="n">milliseconds</span>
+<span class="mf">99.95</span><span class="o">%</span> <span class="o">&lt;=</span> <span class="mi">2</span> <span class="n">milliseconds</span>
+<span class="mf">99.97</span><span class="o">%</span> <span class="o">&lt;=</span> <span class="mi">3</span> <span class="n">milliseconds</span>
+<span class="mf">99.98</span><span class="o">%</span> <span class="o">&lt;=</span> <span class="mi">4</span> <span class="n">milliseconds</span>
+<span class="mf">99.99</span><span class="o">%</span> <span class="o">&lt;=</span> <span class="mi">5</span> <span class="n">milliseconds</span>
+<span class="mf">99.99</span><span class="o">%</span> <span class="o">&lt;=</span> <span class="mi">6</span> <span class="n">milliseconds</span>
+<span class="mf">100.00</span><span class="o">%</span> <span class="o">&lt;=</span> <span class="mi">8</span> <span class="n">milliseconds</span>
+<span class="mf">100.00</span><span class="o">%</span> <span class="o">&lt;=</span> <span class="mi">8</span> <span class="n">milliseconds</span>
+<span class="mf">85448.17</span> <span class="n">requests</span> <span class="n">per</span> <span class="n">second</span>
+
+<span class="o">======</span> <span class="n">GET</span> <span class="o">======</span>
+  <span class="mi">1000000</span> <span class="n">requests</span> <span class="n">completed</span> <span class="n">in</span> <span class="mf">11.48</span> <span class="n">seconds</span>
+  <span class="mi">50</span> <span class="n">parallel</span> <span class="n">clients</span>
+  <span class="mi">3</span> <span class="n">bytes</span> <span class="n">payload</span>
+  <span class="n">keep</span> <span class="n">alive</span><span class="o">:</span> <span class="mi">1</span>
+
+<span class="mf">99.97</span><span class="o">%</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="n">milliseconds</span>
+<span class="mf">99.99</span><span class="o">%</span> <span class="o">&lt;=</span> <span class="mi">2</span> <span class="n">milliseconds</span>
+<span class="mf">100.00</span><span class="o">%</span> <span class="o">&lt;=</span> <span class="mi">4</span> <span class="n">milliseconds</span>
+<span class="mf">100.00</span><span class="o">%</span> <span class="o">&lt;=</span> <span class="mi">4</span> <span class="n">milliseconds</span>
+<span class="mf">87077.67</span> <span class="n">requests</span> <span class="n">per</span> <span class="n">second</span>
+</pre></div>
+
+
+<p>官方的结果显示请求数在万级数据量的大小时效率比 Jedis 要稍微高一点（0.35s &gt; 0.13s），但是当数据量增加到百万级的时候效率就要低很多了（6s &lt; 11.7s）。这可能是官方客户端访问方式有所不同（毕竟是模拟的多客户端），后面有机会再研究一下这方面的源码。</p>
+<hr />
+<h1>Reference</h1>
+<ol>
+<li><a href="https://github.com/xetorthio/jedis">https://github.com/xetorthio/jedis</a></li>
+<li><a href="http://shift-alt-ctrl.iteye.com/blog/1863790">http://shift-alt-ctrl.iteye.com/blog/1863790</a></li>
+</ol>
+<hr />
+            </div>
+            <!-- /.entry-content -->
+    <hr />
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'weyo'; // required: replace example with your forum shortname
+            var disqus_identifier = 'jedis-and-benchmark';
+            var disqus_url = 'http://weyo.me/pages/techs/jedis-and-benchmark/';
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-lg-3 well well-sm" id="sidebar">
+
+<aside>
+    <section>
+        <ul class="list-group list-group-flush">
+                <li class="list-group-item"><h4><i class="icon-home icon-large"></i>Social</h4></li>
+                    <li class="list-group-item"><a href="https://github.com/weyo/"><i
+                            class="icon-github-sign icon-large"></i>Github
+                    </a></li>
+                    <li class="list-group-item"><a href="https://cn.linkedin.com/in/weiyong"><i
+                            class="icon-linkedin-sign icon-large"></i>LinkedIn
+                    </a></li>
+                <li class="list-group-item"><h4><i class="icon-link icon-large"></i>Links</h4></li>
+                    <li class="list-group-item"><a href="http://getpelican.com/"><i
+                            class="icon-Pelican-sign icon-large"></i>Pelican
+                    </a></li>
+                    <li class="list-group-item"><a href="#"><i
+                            class="icon-WeYo-sign icon-large"></i>WeYo
+                    </a></li>
+
+
+                <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
+                        <li class="list-group-item tag-1">
+                            <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
+                                实时计算
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-1">
+                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
+                                分布式计算
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-1">
+                            <a href="http://weyo.me/tag/storm.html">
+                                Storm
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-2">
+                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
+                                环境搭建
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-3">
+                            <a href="http://weyo.me/tag/linux.html">
+                                Linux
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-3">
+                            <a href="http://weyo.me/tag/kafka.html">
+                                Kafka
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/undefined.html">
+                                Undefined
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/zookeeper.html">
+                                ZooKeeper
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/redis.html">
+                                Redis
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/flume.html">
+                                Flume
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/shell.html">
+                                Shell
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/benchmark.html">
+                                Benchmark
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/jedis.html">
+                                Jedis
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/rpc.html">
+                                RPC
+                            </a>
+                        </li>
+        </ul>
+    </section>
+</aside>        </div>
+    </div>
+</div>
+<footer>
+    <div class="container">
+        <hr>
+        <p class="pull-right"><i class="icon-arrow-up"></i> <a href="#">Back to top</a></p>
+
+
+        <p>&copy; 2015 WeYo &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a></p>
+    </div>
+</footer>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="http://weyo.me/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="http://weyo.me/theme/js/respond.min.js"></script>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'weyo'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+
+
+</body>
+</html>

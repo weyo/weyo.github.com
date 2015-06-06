@@ -1,5 +1,291 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Let There Be Light</title><link>http://weyo.me/</link><description></description><atom:link href="http://weyo.me/feeds/techs.rss.xml" rel="self"></atom:link><lastBuildDate>Sun, 24 May 2015 00:00:00 +0800</lastBuildDate><item><title>Strom DRPC 应用 —— 分布式实时计算应用篇(四)</title><link>http://weyo.me/pages/techs/storm-drpc-basis/</link><description>&lt;h1&gt;Storm DRPC&lt;/h1&gt;
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Let There Be Light</title><link>http://weyo.me/</link><description></description><atom:link href="http://weyo.me/feeds/techs.rss.xml" rel="self"></atom:link><lastBuildDate>Wed, 03 Jun 2015 00:00:00 +0800</lastBuildDate><item><title>Jedis &amp; Benchmark</title><link>http://weyo.me/pages/techs/jedis-and-benchmark/</link><description>&lt;h1&gt;Jedis&lt;/h1&gt;
+&lt;p&gt;&lt;a href="https://github.com/xetorthio/jedis"&gt;Jedis&lt;/a&gt; 是 &lt;a href="http://redis.io/"&gt;Redis&lt;/a&gt; 官方推荐的 Java 客户端，目前已经更新到 2.7 版本，支持 Redis 2.8.x ~ 3.0.x。&lt;/p&gt;
+&lt;p&gt;Jedis 的 Maven 依赖包如下：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nt"&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;redis.clients&lt;span class="nt"&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;jedis&lt;span class="nt"&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;lt;version&amp;gt;&lt;/span&gt;2.7.2&lt;span class="nt"&gt;&amp;lt;/version&amp;gt;&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;lt;type&amp;gt;&lt;/span&gt;jar&lt;span class="nt"&gt;&amp;lt;/type&amp;gt;&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;lt;scope&amp;gt;&lt;/span&gt;compile&lt;span class="nt"&gt;&amp;lt;/scope&amp;gt;&lt;/span&gt;
+&lt;span class="nt"&gt;&amp;lt;/dependency&amp;gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;单条数据处理模式&lt;/h2&gt;
+&lt;p&gt;此模式下 Jedis 的每一个操作都会被当作一个独立的 “Request-Response” 模型进行执行，这种模式的使用非常简单：&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+2
+3
+4
+5
+6
+7&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;JedisPool&lt;/span&gt; &lt;span class="n"&gt;pool&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;JedisPool&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;redis.host&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="n"&gt;Jedis&lt;/span&gt; &lt;span class="n"&gt;jedis&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pool&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getResource&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+&lt;span class="n"&gt;jedis&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;set&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;poop&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;poobar&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="n"&gt;String&lt;/span&gt; &lt;span class="n"&gt;poobar&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;jedis&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;get&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;poop&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+
+&lt;span class="n"&gt;jedis&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;close&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+&lt;span class="n"&gt;pool&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;close&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;h2&gt;批量数据处理模式&lt;/h2&gt;
+&lt;p&gt;批量数据处理模式主要是指通过 &lt;code&gt;Pipeline&lt;/code&gt;(管道) 缓冲数据，将多个 command，依次发送给 server 的一种批处理模式（注意，这里的批处理与事务是不同的概念，批处理并不能保证请求的成功性）。在 server 处理 command 期间，客户端无法获得单个 command 的响应数据，只有在 server 处理完成、关闭 Pipeline 请求之后才可以依次获取每个 command 的响应结果，也就是说每次获取结果之前关闭 Pipeline 请求的过程是必不可少的。&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+2
+3
+4
+5
+6
+7
+8
+9&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;JedisPool&lt;/span&gt; &lt;span class="n"&gt;pool&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;JedisPool&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;redis.host&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="n"&gt;Jedis&lt;/span&gt; &lt;span class="n"&gt;jedis&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pool&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getResource&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+&lt;span class="n"&gt;Pipeline&lt;/span&gt; &lt;span class="n"&gt;pipeline&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;jedis&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;pipelined&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+&lt;span class="n"&gt;Response&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;response&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pipeline&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;get&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;poop&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="n"&gt;pipeline&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;sync&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+&lt;span class="n"&gt;String&lt;/span&gt; &lt;span class="n"&gt;poobar&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;response&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;get&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+
+&lt;span class="n"&gt;jedis&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;close&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+&lt;span class="n"&gt;pool&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;close&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;由于 Pipeline 实际上减少了客户端与服务端之间反复的连接时间，使得数据处理的效率大大提高。笔者在一开始使用 Jedis 时发现效率极低，基本上一秒钟只能处理几千条数据，而且不论怎么优化 Redis，这个结果都没有明显的提高。为此笔者纠结了很长一段时间不得其解，直到最近了解到 Pipeline 这个利器之后才豁然开朗。下面的 Benchmark 测试结果就直接显示了两种方式的性能差异。&lt;/p&gt;
+&lt;hr /&gt;
+&lt;h1&gt;Benchmark&lt;/h1&gt;
+&lt;blockquote&gt;
+&lt;h2&gt;基本信息&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;单点 Redis 服务器，性能一般&lt;/li&gt;
+&lt;li&gt;不开启 DB save&lt;/li&gt;
+&lt;li&gt;单线程客户端&lt;/li&gt;
+&lt;li&gt;由于几次试验测试结果相似，就选取一次的测试结果作为最终结果，没有使用多次测试选取均值的方式，可能与真实性能稍微有些出入&lt;/li&gt;
+&lt;li&gt;单条数据处理指的是直接使用 &lt;code&gt;Jedis&lt;/code&gt; 接口操作，批量处理指的是使用 &lt;code&gt;Pipeline&lt;/code&gt; 接口操作&lt;/li&gt;
+&lt;li&gt;网络访问指的是客户端与服务器位于同一网段的不同机器上，本机访问指的是直接在服务器机器上执行操作&lt;/li&gt;
+&lt;li&gt;简单起见，读写的 key 设置为字符串 "Jedis:i"(i 为循环的次数)，value 与 key 相同&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
+&lt;hr /&gt;
+&lt;h2&gt;网络访问&lt;/h2&gt;
+&lt;h3&gt;单条数据处理&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;百万级数据写（key-String, value-String）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;结果&lt;/strong&gt;  452,730,121,946 纳秒 约等于 453 秒&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;百万级数据读&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;结果&lt;/strong&gt; 508,386,552,562 纳秒 约等于 508 秒&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;百万级数据删除&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;结果&lt;/strong&gt; 508,714,438,156 纳秒 约等于 509 秒&lt;/p&gt;
+&lt;h3&gt;批量数据处理&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;百万级数据写（key-String, value-String）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;结果&lt;/strong&gt;  6,151,898,431 纳秒 约等于 6 秒&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;百万级数据读&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;结果&lt;/strong&gt; 3,519,384,281 纳秒 约等于 3 秒&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;百万级数据删除&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;结果&lt;/strong&gt; 5,186,055,510 纳秒 约等于 5 秒&lt;/p&gt;
+&lt;h2&gt;本机访问&lt;/h2&gt;
+&lt;h3&gt;单条数据处理&lt;/h3&gt;
+&lt;blockquote&gt;
+&lt;p&gt;说明：为了减少测试时间，这里只测试了1W条数据的读写&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;万级数据写（key-String, value-String）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;结果&lt;/strong&gt;  1,199,071,735 纳秒 约等于 1 秒&lt;/p&gt;
+&lt;p&gt;对比：网络访问单条数据处理模式万级数据写时间约等于 5 秒&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;万级数据读&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;结果&lt;/strong&gt; 1,111,957,283 纳秒 约等于 1 秒&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;万级数据删除&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;结果&lt;/strong&gt; 1,121,649,753 纳秒 约等于 1 秒&lt;/p&gt;
+&lt;h3&gt;批量数据处理&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;万级数据写（key-String, value-String）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;结果&lt;/strong&gt;  352,212,255 纳秒 约等于 0.35 秒&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;万级数据读&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;结果&lt;/strong&gt; 344,821,892 纳秒 约等于 0.34 秒&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;万级数据删除&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;结果&lt;/strong&gt; 341,540,726 纳秒 约等于 0.7 秒&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;十万级数据写（key-String, value-String）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;结果&lt;/strong&gt;  827,447,969 纳秒 约等于 0.8 秒&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;十万级数据读&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;结果&lt;/strong&gt; 718,332,980 纳秒 约等于 0.7 秒&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;十万级数据删除&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;结果&lt;/strong&gt; 758,594,043 纳秒 约等于 0.7 秒&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;百万级数据写（key-String, value-String）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;结果&lt;/strong&gt;  6,105,554,458 纳秒 约等于 6 秒&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;百万级数据读&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;结果&lt;/strong&gt; 4,034,674,889 纳秒 约等于 4 秒&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;百万级数据删除&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;结果&lt;/strong&gt; 4,921,311,797 纳秒 约等于 5 秒&lt;/p&gt;
+&lt;p&gt;上面的结果可以看出 Pipeline 的读写方式比普通的读写方式提高了近百倍的效率，差距还是相当明显的。&lt;/p&gt;
+&lt;h2&gt;多线程&lt;/h2&gt;
+&lt;p&gt;在一个客户端上开启 100 个线程写 10000 条数据，吞吐率约为 190,222 res/s。&lt;/p&gt;
+&lt;p&gt;在继续增加线程到 1000 个时报错：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;Exception&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="kr"&gt;thread&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;main&amp;quot;&lt;/span&gt; &lt;span class="n"&gt;java&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;util&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;concurrent&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;ExecutionException&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;redis&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;clients&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;jedis&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;exceptions&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;JedisConnectionException&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;Could&lt;/span&gt; &lt;span class="n"&gt;not&lt;/span&gt; &lt;span class="n"&gt;get&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="n"&gt;resource&lt;/span&gt; &lt;span class="n"&gt;from&lt;/span&gt; &lt;span class="n"&gt;the&lt;/span&gt; &lt;span class="n"&gt;pool&lt;/span&gt;
+    &lt;span class="n"&gt;at&lt;/span&gt; &lt;span class="n"&gt;java&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;util&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;concurrent&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;FutureTask&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;report&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;FutureTask&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;java&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;122&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;at&lt;/span&gt; &lt;span class="n"&gt;java&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;util&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;concurrent&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;FutureTask&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;FutureTask&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;java&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;188&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;at&lt;/span&gt; &lt;span class="n"&gt;com&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;enjoyor&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;jedis&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;benchmark&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Benchmark&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Benchmark&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;java&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;97&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;Caused&lt;/span&gt; &lt;span class="n"&gt;by&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;redis&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;clients&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;jedis&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;exceptions&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;JedisConnectionException&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;Could&lt;/span&gt; &lt;span class="n"&gt;not&lt;/span&gt; &lt;span class="n"&gt;get&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="n"&gt;resource&lt;/span&gt; &lt;span class="n"&gt;from&lt;/span&gt; &lt;span class="n"&gt;the&lt;/span&gt; &lt;span class="n"&gt;pool&lt;/span&gt;
+    &lt;span class="n"&gt;at&lt;/span&gt; &lt;span class="n"&gt;redis&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;clients&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;util&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Pool&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;getResource&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Pool&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;java&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;50&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;at&lt;/span&gt; &lt;span class="n"&gt;redis&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;clients&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;jedis&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;JedisPool&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;getResource&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;JedisPool&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;java&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;86&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;at&lt;/span&gt; &lt;span class="n"&gt;com&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;enjoyor&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;jedis&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;benchmark&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Benchmark&lt;/span&gt;&lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="n"&gt;Ctest&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;call&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Benchmark&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;java&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;57&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;at&lt;/span&gt; &lt;span class="n"&gt;com&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;enjoyor&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;jedis&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;benchmark&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Benchmark&lt;/span&gt;&lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="n"&gt;Ctest&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;call&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Benchmark&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;java&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;at&lt;/span&gt; &lt;span class="n"&gt;java&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;util&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;concurrent&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;FutureTask&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;run&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;FutureTask&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;java&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;262&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;at&lt;/span&gt; &lt;span class="n"&gt;java&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;util&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;concurrent&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;ThreadPoolExecutor&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;runWorker&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ThreadPoolExecutor&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;java&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;1145&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;at&lt;/span&gt; &lt;span class="n"&gt;java&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;util&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;concurrent&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;ThreadPoolExecutor&lt;/span&gt;&lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="n"&gt;Worker&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;run&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ThreadPoolExecutor&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;java&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;615&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;at&lt;/span&gt; &lt;span class="n"&gt;java&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;lang&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Thread&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;run&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Thread&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;java&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;744&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;这是 Redis 的连接数限制的原因，需要修改 maxclients 来增大连接数。&lt;/p&gt;
+&lt;hr /&gt;
+&lt;h2&gt;Redis-benchmark&lt;/h2&gt;
+&lt;p&gt;Redis 自带了一个 benchmark 工具，这里就使用这个官方的 redis-benchmark 工具进行对比验证。&lt;/p&gt;
+&lt;h3&gt;万级数据&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;root&lt;/span&gt;&lt;span class="err"&gt;@&lt;/span&gt;&lt;span class="n"&gt;hd124&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;src&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;redis&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;benchmark&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="mi"&gt;10000&lt;/span&gt;
+&lt;span class="o"&gt;======&lt;/span&gt; &lt;span class="n"&gt;PING_INLINE&lt;/span&gt; &lt;span class="o"&gt;======&lt;/span&gt;
+  &lt;span class="mi"&gt;10000&lt;/span&gt; &lt;span class="n"&gt;requests&lt;/span&gt; &lt;span class="n"&gt;completed&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="mf"&gt;0.13&lt;/span&gt; &lt;span class="n"&gt;seconds&lt;/span&gt;
+  &lt;span class="mi"&gt;50&lt;/span&gt; &lt;span class="n"&gt;parallel&lt;/span&gt; &lt;span class="n"&gt;clients&lt;/span&gt;
+  &lt;span class="mi"&gt;3&lt;/span&gt; &lt;span class="n"&gt;bytes&lt;/span&gt; &lt;span class="n"&gt;payload&lt;/span&gt;
+  &lt;span class="n"&gt;keep&lt;/span&gt; &lt;span class="n"&gt;alive&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+
+&lt;span class="mf"&gt;99.01&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="n"&gt;milliseconds&lt;/span&gt;
+&lt;span class="mf"&gt;99.51&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt; &lt;span class="n"&gt;milliseconds&lt;/span&gt;
+&lt;span class="mf"&gt;99.79&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;6&lt;/span&gt; &lt;span class="n"&gt;milliseconds&lt;/span&gt;
+&lt;span class="mf"&gt;100.00&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;6&lt;/span&gt; &lt;span class="n"&gt;milliseconds&lt;/span&gt;
+&lt;span class="mf"&gt;75187.97&lt;/span&gt; &lt;span class="n"&gt;requests&lt;/span&gt; &lt;span class="n"&gt;per&lt;/span&gt; &lt;span class="n"&gt;second&lt;/span&gt;
+
+&lt;span class="o"&gt;======&lt;/span&gt; &lt;span class="n"&gt;PING_BULK&lt;/span&gt; &lt;span class="o"&gt;======&lt;/span&gt;
+  &lt;span class="mi"&gt;10000&lt;/span&gt; &lt;span class="n"&gt;requests&lt;/span&gt; &lt;span class="n"&gt;completed&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="mf"&gt;0.13&lt;/span&gt; &lt;span class="n"&gt;seconds&lt;/span&gt;
+  &lt;span class="mi"&gt;50&lt;/span&gt; &lt;span class="n"&gt;parallel&lt;/span&gt; &lt;span class="n"&gt;clients&lt;/span&gt;
+  &lt;span class="mi"&gt;3&lt;/span&gt; &lt;span class="n"&gt;bytes&lt;/span&gt; &lt;span class="n"&gt;payload&lt;/span&gt;
+  &lt;span class="n"&gt;keep&lt;/span&gt; &lt;span class="n"&gt;alive&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+
+&lt;span class="mf"&gt;100.00&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="n"&gt;milliseconds&lt;/span&gt;
+&lt;span class="mf"&gt;79365.08&lt;/span&gt; &lt;span class="n"&gt;requests&lt;/span&gt; &lt;span class="n"&gt;per&lt;/span&gt; &lt;span class="n"&gt;second&lt;/span&gt;
+
+&lt;span class="o"&gt;======&lt;/span&gt; &lt;span class="n"&gt;SET&lt;/span&gt; &lt;span class="o"&gt;======&lt;/span&gt;
+  &lt;span class="mi"&gt;10000&lt;/span&gt; &lt;span class="n"&gt;requests&lt;/span&gt; &lt;span class="n"&gt;completed&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="mf"&gt;0.13&lt;/span&gt; &lt;span class="n"&gt;seconds&lt;/span&gt;
+  &lt;span class="mi"&gt;50&lt;/span&gt; &lt;span class="n"&gt;parallel&lt;/span&gt; &lt;span class="n"&gt;clients&lt;/span&gt;
+  &lt;span class="mi"&gt;3&lt;/span&gt; &lt;span class="n"&gt;bytes&lt;/span&gt; &lt;span class="n"&gt;payload&lt;/span&gt;
+  &lt;span class="n"&gt;keep&lt;/span&gt; &lt;span class="n"&gt;alive&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+
+&lt;span class="mf"&gt;99.93&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="n"&gt;milliseconds&lt;/span&gt;
+&lt;span class="mf"&gt;100.00&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="n"&gt;milliseconds&lt;/span&gt;
+&lt;span class="mf"&gt;78125.00&lt;/span&gt; &lt;span class="n"&gt;requests&lt;/span&gt; &lt;span class="n"&gt;per&lt;/span&gt; &lt;span class="n"&gt;second&lt;/span&gt;
+
+&lt;span class="o"&gt;======&lt;/span&gt; &lt;span class="n"&gt;GET&lt;/span&gt; &lt;span class="o"&gt;======&lt;/span&gt;
+  &lt;span class="mi"&gt;10000&lt;/span&gt; &lt;span class="n"&gt;requests&lt;/span&gt; &lt;span class="n"&gt;completed&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="mf"&gt;0.13&lt;/span&gt; &lt;span class="n"&gt;seconds&lt;/span&gt;
+  &lt;span class="mi"&gt;50&lt;/span&gt; &lt;span class="n"&gt;parallel&lt;/span&gt; &lt;span class="n"&gt;clients&lt;/span&gt;
+  &lt;span class="mi"&gt;3&lt;/span&gt; &lt;span class="n"&gt;bytes&lt;/span&gt; &lt;span class="n"&gt;payload&lt;/span&gt;
+  &lt;span class="n"&gt;keep&lt;/span&gt; &lt;span class="n"&gt;alive&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+
+&lt;span class="mf"&gt;99.58&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="n"&gt;milliseconds&lt;/span&gt;
+&lt;span class="mf"&gt;100.00&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="n"&gt;milliseconds&lt;/span&gt;
+&lt;span class="mf"&gt;78740.16&lt;/span&gt; &lt;span class="n"&gt;requests&lt;/span&gt; &lt;span class="n"&gt;per&lt;/span&gt; &lt;span class="n"&gt;second&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;百万级数据&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;root&lt;/span&gt;&lt;span class="err"&gt;@&lt;/span&gt;&lt;span class="n"&gt;hd124&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;src&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;redis&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;benchmark&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="mi"&gt;1000000&lt;/span&gt;
+&lt;span class="o"&gt;======&lt;/span&gt; &lt;span class="n"&gt;PING_INLINE&lt;/span&gt; &lt;span class="o"&gt;======&lt;/span&gt;
+  &lt;span class="mi"&gt;1000000&lt;/span&gt; &lt;span class="n"&gt;requests&lt;/span&gt; &lt;span class="n"&gt;completed&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="mf"&gt;11.54&lt;/span&gt; &lt;span class="n"&gt;seconds&lt;/span&gt;
+  &lt;span class="mi"&gt;50&lt;/span&gt; &lt;span class="n"&gt;parallel&lt;/span&gt; &lt;span class="n"&gt;clients&lt;/span&gt;
+  &lt;span class="mi"&gt;3&lt;/span&gt; &lt;span class="n"&gt;bytes&lt;/span&gt; &lt;span class="n"&gt;payload&lt;/span&gt;
+  &lt;span class="n"&gt;keep&lt;/span&gt; &lt;span class="n"&gt;alive&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+
+&lt;span class="mf"&gt;99.95&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="n"&gt;milliseconds&lt;/span&gt;
+&lt;span class="mf"&gt;99.98&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="n"&gt;milliseconds&lt;/span&gt;
+&lt;span class="mf"&gt;99.99&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt; &lt;span class="n"&gt;milliseconds&lt;/span&gt;
+&lt;span class="mf"&gt;100.00&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt; &lt;span class="n"&gt;milliseconds&lt;/span&gt;
+&lt;span class="mf"&gt;100.00&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt; &lt;span class="n"&gt;milliseconds&lt;/span&gt;
+&lt;span class="mf"&gt;100.00&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt; &lt;span class="n"&gt;milliseconds&lt;/span&gt;
+&lt;span class="mf"&gt;86662.62&lt;/span&gt; &lt;span class="n"&gt;requests&lt;/span&gt; &lt;span class="n"&gt;per&lt;/span&gt; &lt;span class="n"&gt;second&lt;/span&gt;
+
+&lt;span class="o"&gt;======&lt;/span&gt; &lt;span class="n"&gt;PING_BULK&lt;/span&gt; &lt;span class="o"&gt;======&lt;/span&gt;
+  &lt;span class="mi"&gt;1000000&lt;/span&gt; &lt;span class="n"&gt;requests&lt;/span&gt; &lt;span class="n"&gt;completed&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="mf"&gt;11.47&lt;/span&gt; &lt;span class="n"&gt;seconds&lt;/span&gt;
+  &lt;span class="mi"&gt;50&lt;/span&gt; &lt;span class="n"&gt;parallel&lt;/span&gt; &lt;span class="n"&gt;clients&lt;/span&gt;
+  &lt;span class="mi"&gt;3&lt;/span&gt; &lt;span class="n"&gt;bytes&lt;/span&gt; &lt;span class="n"&gt;payload&lt;/span&gt;
+  &lt;span class="n"&gt;keep&lt;/span&gt; &lt;span class="n"&gt;alive&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+
+&lt;span class="mf"&gt;99.98&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="n"&gt;milliseconds&lt;/span&gt;
+&lt;span class="mf"&gt;99.99&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="n"&gt;milliseconds&lt;/span&gt;
+&lt;span class="mf"&gt;99.99&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt; &lt;span class="n"&gt;milliseconds&lt;/span&gt;
+&lt;span class="mf"&gt;100.00&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt; &lt;span class="n"&gt;milliseconds&lt;/span&gt;
+&lt;span class="mf"&gt;100.00&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt; &lt;span class="n"&gt;milliseconds&lt;/span&gt;
+&lt;span class="mf"&gt;87214.38&lt;/span&gt; &lt;span class="n"&gt;requests&lt;/span&gt; &lt;span class="n"&gt;per&lt;/span&gt; &lt;span class="n"&gt;second&lt;/span&gt;
+
+&lt;span class="o"&gt;======&lt;/span&gt; &lt;span class="n"&gt;SET&lt;/span&gt; &lt;span class="o"&gt;======&lt;/span&gt;
+  &lt;span class="mi"&gt;1000000&lt;/span&gt; &lt;span class="n"&gt;requests&lt;/span&gt; &lt;span class="n"&gt;completed&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="mf"&gt;11.70&lt;/span&gt; &lt;span class="n"&gt;seconds&lt;/span&gt;
+  &lt;span class="mi"&gt;50&lt;/span&gt; &lt;span class="n"&gt;parallel&lt;/span&gt; &lt;span class="n"&gt;clients&lt;/span&gt;
+  &lt;span class="mi"&gt;3&lt;/span&gt; &lt;span class="n"&gt;bytes&lt;/span&gt; &lt;span class="n"&gt;payload&lt;/span&gt;
+  &lt;span class="n"&gt;keep&lt;/span&gt; &lt;span class="n"&gt;alive&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+
+&lt;span class="mf"&gt;99.67&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="n"&gt;milliseconds&lt;/span&gt;
+&lt;span class="mf"&gt;99.95&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="n"&gt;milliseconds&lt;/span&gt;
+&lt;span class="mf"&gt;99.97&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt; &lt;span class="n"&gt;milliseconds&lt;/span&gt;
+&lt;span class="mf"&gt;99.98&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt; &lt;span class="n"&gt;milliseconds&lt;/span&gt;
+&lt;span class="mf"&gt;99.99&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt; &lt;span class="n"&gt;milliseconds&lt;/span&gt;
+&lt;span class="mf"&gt;99.99&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;6&lt;/span&gt; &lt;span class="n"&gt;milliseconds&lt;/span&gt;
+&lt;span class="mf"&gt;100.00&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;8&lt;/span&gt; &lt;span class="n"&gt;milliseconds&lt;/span&gt;
+&lt;span class="mf"&gt;100.00&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;8&lt;/span&gt; &lt;span class="n"&gt;milliseconds&lt;/span&gt;
+&lt;span class="mf"&gt;85448.17&lt;/span&gt; &lt;span class="n"&gt;requests&lt;/span&gt; &lt;span class="n"&gt;per&lt;/span&gt; &lt;span class="n"&gt;second&lt;/span&gt;
+
+&lt;span class="o"&gt;======&lt;/span&gt; &lt;span class="n"&gt;GET&lt;/span&gt; &lt;span class="o"&gt;======&lt;/span&gt;
+  &lt;span class="mi"&gt;1000000&lt;/span&gt; &lt;span class="n"&gt;requests&lt;/span&gt; &lt;span class="n"&gt;completed&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="mf"&gt;11.48&lt;/span&gt; &lt;span class="n"&gt;seconds&lt;/span&gt;
+  &lt;span class="mi"&gt;50&lt;/span&gt; &lt;span class="n"&gt;parallel&lt;/span&gt; &lt;span class="n"&gt;clients&lt;/span&gt;
+  &lt;span class="mi"&gt;3&lt;/span&gt; &lt;span class="n"&gt;bytes&lt;/span&gt; &lt;span class="n"&gt;payload&lt;/span&gt;
+  &lt;span class="n"&gt;keep&lt;/span&gt; &lt;span class="n"&gt;alive&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+
+&lt;span class="mf"&gt;99.97&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="n"&gt;milliseconds&lt;/span&gt;
+&lt;span class="mf"&gt;99.99&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="n"&gt;milliseconds&lt;/span&gt;
+&lt;span class="mf"&gt;100.00&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt; &lt;span class="n"&gt;milliseconds&lt;/span&gt;
+&lt;span class="mf"&gt;100.00&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt; &lt;span class="n"&gt;milliseconds&lt;/span&gt;
+&lt;span class="mf"&gt;87077.67&lt;/span&gt; &lt;span class="n"&gt;requests&lt;/span&gt; &lt;span class="n"&gt;per&lt;/span&gt; &lt;span class="n"&gt;second&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;官方的结果显示请求数在万级数据量的大小时效率比 Jedis 要稍微高一点（0.35s &amp;gt; 0.13s），但是当数据量增加到百万级的时候效率就要低很多了（6s &amp;lt; 11.7s）。这可能是官方客户端访问方式有所不同（毕竟是模拟的多客户端），后面有机会再研究一下这方面的源码。&lt;/p&gt;
+&lt;hr /&gt;
+&lt;h1&gt;Reference&lt;/h1&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href="https://github.com/xetorthio/jedis"&gt;https://github.com/xetorthio/jedis&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://shift-alt-ctrl.iteye.com/blog/1863790"&gt;http://shift-alt-ctrl.iteye.com/blog/1863790&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr /&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Wed, 03 Jun 2015 00:00:00 +0800</pubDate><guid>tag:weyo.me,2015-06-03:pages/techs/jedis-and-benchmark/</guid><category>Redis</category><category>Jedis</category><category>Benchmark</category></item><item><title>Strom DRPC 应用 —— 分布式实时计算应用篇(四)</title><link>http://weyo.me/pages/techs/storm-drpc-basis/</link><description>&lt;h1&gt;Storm DRPC&lt;/h1&gt;
 &lt;p&gt;（翻译自 &lt;a href="http://storm.apache.org/documentation/Distributed-RPC.html"&gt;Storm 官网&lt;/a&gt;）分布式 RPC（DRPC）的设计目标是充分利用 Storm 的计算能力实现高密度的并行实时计算。Storm 接收若干个函数参数作为输入流，然后通过 DRPC 输出这些函数调用的结果。严格来说，DRPC 并不能算作是 Storm 的一个特性，因为它只是一种基于 Storm 原语 (Stream、Spout、Bolt、Topology) 实现的计算模式。虽然可以将 DRPC 从 Storm 中打包出来作为一个独立的库，但是与 Storm 集成在一起显然更有用。&lt;/p&gt;
 &lt;p&gt;DRPC 是通过一个 DRPC 服务端(DRPC server)来实现分布式 RPC 功能的。DRPC server 负责接收 RPC 请求，并将该请求发送到 Storm 中运行的 Topology，等待接收 Topology 发送的处理结果，并将该结果返回给发送请求的客户端。因此，从客户端的角度来说，DPRC 与普通的 RPC 调用并没有什么区别。下图是 DRPC 的原理示意图。&lt;/p&gt;
 &lt;p&gt;&lt;img alt="此处输入图片的描述" src="http://storm.apache.org/documentation/images/drpc-workflow.png" /&gt;&lt;/p&gt;
@@ -25,7 +311,7 @@
 
 &lt;p&gt;hd181/otherdrpcservers 是上面启动的 DRPC server 地址。&lt;/p&gt;
 &lt;h2&gt;定义 DRPC topology&lt;/h2&gt;
-&lt;h3&gt;local mode&lt;/h3&gt;
+&lt;h3&gt;Local mode&lt;/h3&gt;
 &lt;p&gt;使用 &lt;code&gt;LocalDRPC&lt;/code&gt; 定义本地 RPC 服务模式：&lt;/p&gt;
 &lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt; 1
  2

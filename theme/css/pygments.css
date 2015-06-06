@@ -43,7 +43,7 @@
 .nf { color: #447fcf } /* Name.Function */
 .nl { color: #d0d0d0 } /* Name.Label */
 .nn { color: #447fcf; text-decoration: underline } /* Name.Namespace */
-.nx { color: #d0d0d0 } /* Name.Other */
+.nx { color: #447fcf } /* Name.Other */
 .py { color: #d0d0d0 } /* Name.Property */
 .nt { color: #6ab825; font-weight: bold } /* Name.Tag */
 .nv { color: #1E90FF } /* Name.Variable */
