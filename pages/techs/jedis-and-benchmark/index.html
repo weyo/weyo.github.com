@@ -189,7 +189,7 @@
 <li>单线程客户端</li>
 <li>由于几次试验测试结果相似，就选取一次的测试结果作为最终结果，没有使用多次测试选取均值的方式，可能与真实性能稍微有些出入</li>
 <li>单条数据处理指的是直接使用 <code>Jedis</code> 接口操作，批量处理指的是使用 <code>Pipeline</code> 接口操作</li>
-<li>网络访问指的是客户端与服务器位于同一网段的不同机器上，本机访问指的是直接在服务器机器上执行操作</li>
+<li>网络访问指的是客户端与 Redis 服务器位于同一网段的不同机器上，本机访问指的是客户端与 Redis 服务器位于同一台机器上</li>
 <li>简单起见，读写的 key 设置为字符串 "Jedis:i"(i 为循环的次数)，value 与 key 相同</li>
 </ul>
 </blockquote>
@@ -465,6 +465,11 @@
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
                         <li class="list-group-item tag-1">
+                            <a href="http://weyo.me/tag/storm.html">
+                                Storm
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-1">
                             <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
                                 实时计算
                             </a>
@@ -472,11 +477,6 @@
                         <li class="list-group-item tag-1">
                             <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
                                 分布式计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/storm.html">
-                                Storm
                             </a>
                         </li>
                         <li class="list-group-item tag-2">
@@ -495,8 +495,8 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/undefined.html">
-                                Undefined
+                            <a href="http://weyo.me/tag/benchmark.html">
+                                Benchmark
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -510,8 +510,13 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/flume.html">
-                                Flume
+                            <a href="http://weyo.me/tag/jedis.html">
+                                Jedis
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/undefined.html">
+                                Undefined
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -520,18 +525,13 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/benchmark.html">
-                                Benchmark
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/jedis.html">
-                                Jedis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
                             <a href="http://weyo.me/tag/rpc.html">
                                 RPC
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/flume.html">
+                                Flume
                             </a>
                         </li>
         </ul>
