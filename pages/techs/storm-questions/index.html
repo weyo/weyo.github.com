@@ -176,7 +176,7 @@
 <p><em><strong>[补充说明]</strong> 这是 storm 的 0.9.4 以下版本的 bug，目前已修复但未合并到发布版本中，因此仍然需要手动处理。网上盛传需要清空、重启 zookeeper，实际上没有必要，而且在生产环境中会造成严重问题。另外一种说法是将 “<code>nimbus.monitor.freq.secs</code>” 配置为120（默认为10），这种做法没有尝试过，效果有待观察。</em></p>
 </blockquote>
 <hr />
-<h3>expected 'document start', but found BlockMappingStart 错误</h3>
+<h3>expected '&lt;document start>', but found BlockMappingStart 错误</h3>
 <p>Storm 启动失败，在 nohup.out 中有如下错误信息</p>
 <div class="highlight"><pre><span class="n">Exception</span> <span class="n">in</span> <span class="kr">thread</span> <span class="s">&quot;main&quot;</span> <span class="n">expected</span> <span class="err">&#39;</span><span class="o">&lt;</span><span class="n">document</span> <span class="n">start</span><span class="o">&gt;</span><span class="err">&#39;</span><span class="p">,</span> <span class="n">but</span> <span class="n">found</span> <span class="n">BlockMappingStart</span>
 </pre></div>
@@ -379,6 +379,11 @@
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
                         <li class="list-group-item tag-1">
+                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
+                                分布式计算
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-1">
                             <a href="http://weyo.me/tag/storm.html">
                                 Storm
                             </a>
@@ -388,19 +393,9 @@
                                 实时计算
                             </a>
                         </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
-                                分布式计算
-                            </a>
-                        </li>
                         <li class="list-group-item tag-2">
                             <a href="http://weyo.me/tag/huan-jing-da-jian.html">
                                 环境搭建
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/linux.html">
-                                Linux
                             </a>
                         </li>
                         <li class="list-group-item tag-3">
@@ -408,9 +403,9 @@
                                 Kafka
                             </a>
                         </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/benchmark.html">
-                                Benchmark
+                        <li class="list-group-item tag-3">
+                            <a href="http://weyo.me/tag/linux.html">
+                                Linux
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -419,8 +414,23 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/redis.html">
-                                Redis
+                            <a href="http://weyo.me/tag/rpc.html">
+                                RPC
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/shell.html">
+                                Shell
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/flume.html">
+                                Flume
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/benchmark.html">
+                                Benchmark
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -434,18 +444,8 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/shell.html">
-                                Shell
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/rpc.html">
-                                RPC
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/flume.html">
-                                Flume
+                            <a href="http://weyo.me/tag/redis.html">
+                                Redis
                             </a>
                         </li>
         </ul>
