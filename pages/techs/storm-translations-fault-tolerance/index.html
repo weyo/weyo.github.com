@@ -3,7 +3,7 @@
       xmlns:og="http://ogp.me/ns#"
       xmlns:fb="https://www.facebook.com/2008/fbml">
 <head>
-    <title>Bash Shell 获取进程 PID
+    <title>Storm 官方文档翻译(3) —— 容错性
    - Let There Be Light
 </title>
     <!-- Using the latest rendering mode for IE -->
@@ -15,9 +15,9 @@
     <!-- Open Graph tags -->
 
             <meta property="og:type" content="article"/>
-            <meta property="og:title" content="Bash Shell 获取进程 PID"/>
-            <meta property="og:url" content="http://weyo.me/pages/techs/linux-get-pid/"/>
-            <meta property="og:description" content="Linux 的交互式 Shell 与 Shell 脚本存在一定的差异，主要是由于后者存在一个独立的运行进程，因此在获取进程 PID 上二者也有所区别。"/>
+            <meta property="og:title" content="Storm 官方文档翻译(3) —— 容错性"/>
+            <meta property="og:url" content="http://weyo.me/pages/techs/storm-translations-fault-tolerance/"/>
+            <meta property="og:description" content="本文通过问答的形式解释了 Storm 的容错性原理。"/>
 
     <!-- Bootstrap -->
         <link rel="stylesheet" href="http://weyo.me/theme/css/bootstrap.min.css" type="text/css"/>
@@ -89,10 +89,10 @@
         <article>
             <header class="page-header">
                 <h1>
-                    <a href="http://weyo.me/pages/techs/linux-get-pid/"
+                    <a href="http://weyo.me/pages/techs/storm-translations-fault-tolerance/"
                        rel="bookmark"
-                       title="Permalink to Bash Shell 获取进程 PID">
-                        Bash Shell 获取进程 PID
+                       title="Permalink to Storm 官方文档翻译(3) —— 容错性">
+                        Storm 官方文档翻译(3) —— 容错性
                     </a>
                 </h1>
             </header>
@@ -102,7 +102,7 @@
 <footer class="post-info">
     <span class="label label-default">Date</span>
     <span class="published">
-        <i class="icon-calendar"></i>2014-05-22
+        <i class="icon-calendar"></i>2015-06-15
     </span>
 	<span style="font-size:12px;">&nbsp;&nbsp;</span>
     <!--     <span class="label label-default">By</span>
@@ -116,97 +116,32 @@
 
 
 <span class="label label-default">Tags</span>
-	<a href="http://weyo.me/tag/linux.html">Linux</a>
-        /
-	<a href="http://weyo.me/tag/shell.html">Shell</a>
+	<a href="http://weyo.me/tag/storm.html">Storm</a>
 	
-	<br /><br />Posted by <span style="font-weight:bold;"><a href="http://github.com/weyo">WeYo</a></span>. 转载请注明出处：<a href="http://weyo.me/pages/techs/linux-get-pid/">http://weyo.me/pages/techs/linux-get-pid/</a>
+	<br /><br />Posted by <span style="font-weight:bold;"><a href="http://github.com/weyo">WeYo</a></span>. 转载请注明出处：<a href="http://weyo.me/pages/techs/storm-translations-fault-tolerance/">http://weyo.me/pages/techs/storm-translations-fault-tolerance/</a>
 </footer><!-- /.post-info -->                    </div>
                 </div>
-                <blockquote>
-<h2>导读</h2>
-<p>Linux 的交互式 Shell 与 Shell 脚本存在一定的差异，主要是由于后者存在一个独立的运行进程，因此在获取进程 pid 上二者也有所区别。</p>
-</blockquote>
+                <h1>容错性</h1>
+<p>本文通过问答的形式解释了 Storm 的容错性原理。</p>
 <hr />
-<h2>交互式 Bash Shell 获取进程 pid</h2>
-<p>在已知进程名(<code>name</code>)的前提下，交互式 Shell 获取进程 pid 有很多种方法，典型的通过 grep 获取 pid 的方法为（这里添加 <code>-v grep</code>是为了避免匹配到 grep 进程）：</p>
-<p><code>ps -ef | grep "name" | grep -v grep | awk '{print $2}'</code></p>
-<p>或者不使用 <code>grep</code>（这里名称首字母加<code>[]</code>的目的是为了避免匹配到 awk 自身的进程）：</p>
-<p><code>ps -ef | awk '/[n]ame/{print $2}'</code></p>
-<p>如果只使用 x 参数的话则 pid 应该位于第一位：</p>
-<p><code>ps x | awk '/[n]ame/{print $1}'</code></p>
-<p>最简单的方法是使用 <code>pgrep</code>：</p>
-<p><code>pgrep -f name</code></p>
-<p>如果需要查找到 pid 之后 kill 掉该进程，还可以使用 <code>pkill</code>：</p>
-<p><code>pkill -f name</code></p>
-<p>如果是可执行程序的话，可以直接使用 <code>pidof</code></p>
-<p><code>pidof name</code></p>
+<h2>工作进程（worker）死亡时会发生什么？</h2>
+<p>工作进程死亡的时候，supervisor 会重新启动这个进程。如果在启动过程中仍然一直失败，并且无法向 Nimbus 发送心跳，Nimbus 就会将这个 worker 重新分配到其他机器上去。</p>
 <hr />
-<h2>Bash Shell 脚本获取进程 pid</h2>
-<h4>根据进程名获取进程 pid</h4>
-<p>在使用 Shell 脚本获取进程 pid 时，如果直接使用上述命令，会出现多个 pid 结果，例如：</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
-2
-3
-4
-5</pre></div></td><td class="code"><div class="highlight"><pre><span class="c">#! /bin/bash</span>
-<span class="c"># process-monitor.sh</span>
-<span class="nv">process</span><span class="o">=</span><span class="nv">$1</span>
-<span class="nv">pid</span><span class="o">=</span><span class="k">$(</span>ps x | grep <span class="nv">$process</span> | grep -v grep | awk <span class="s1">&#39;{print $1}&#39;</span><span class="k">)</span>
-<span class="nb">echo</span> <span class="nv">$pid</span>
-</pre></div>
-</td></tr></table>
-
-<p>执行 <code>process-monitor.sh</code> 会出现多个结果：</p>
-<div class="highlight"><pre><span class="err">$</span><span class="o">&gt;</span> <span class="n">sh</span> <span class="n">process</span><span class="o">-</span><span class="n">monitor</span><span class="p">.</span><span class="n">sh</span>
-<span class="mi">3036</span>  <span class="mi">3098</span>  <span class="mi">3099</span>
-</pre></div>
-
-
-<p>进一步排查可以发现，多出来的几个进程实际上是子 Shell 的（临时）进程：</p>
-<div class="highlight"><pre><span class="n">root</span>      <span class="mi">3036</span>  <span class="mi">2905</span>  <span class="mi">0</span> <span class="mi">09</span><span class="o">:</span><span class="mo">03</span> <span class="n">pts</span><span class="o">/</span><span class="mi">1</span>    <span class="mo">00</span><span class="o">:</span><span class="mo">00</span><span class="o">:</span><span class="mi">45</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">java</span><span class="o">/</span><span class="n">jdk1</span><span class="mf">.7.0</span><span class="n">_71</span><span class="o">/</span><span class="n">bin</span><span class="o">/</span><span class="n">java</span> <span class="p">...</span><span class="n">name</span>
-<span class="n">root</span>      <span class="mi">4522</span>  <span class="mi">2905</span>  <span class="mi">0</span> <span class="mi">16</span><span class="o">:</span><span class="mi">12</span> <span class="n">pts</span><span class="o">/</span><span class="mi">1</span>    <span class="mo">00</span><span class="o">:</span><span class="mo">00</span><span class="o">:</span><span class="mo">00</span> <span class="n">sh</span> <span class="n">process</span><span class="o">-</span><span class="n">monitor</span><span class="p">.</span><span class="n">sh</span> <span class="n">name</span>
-<span class="n">root</span>      <span class="mi">4523</span>  <span class="mi">4522</span>  <span class="mi">0</span> <span class="mi">16</span><span class="o">:</span><span class="mi">12</span> <span class="n">pts</span><span class="o">/</span><span class="mi">1</span>    <span class="mo">00</span><span class="o">:</span><span class="mo">00</span><span class="o">:</span><span class="mo">00</span> <span class="n">sh</span> <span class="n">process</span><span class="o">-</span><span class="n">monitor</span><span class="p">.</span><span class="n">sh</span> <span class="n">name</span>
-</pre></div>
-
-
-<p>其中 3036 是需要查找的进程pid，而 4522、4523 就是子 Shell 的 pid。
-为了避免这种情况，需要进一步明确查找条件，考虑到所要查找的是 Java 程序，就可以通过 Java 的关键字进行匹配：</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
-2
-3
-4
-5</pre></div></td><td class="code"><div class="highlight"><pre><span class="c">#! /bin/bash</span>
-<span class="c"># process-monitor.sh</span>
-<span class="nv">process</span><span class="o">=</span><span class="nv">$1</span>
-<span class="nv">pid</span><span class="o">=</span><span class="k">$(</span>ps -ef | grep <span class="nv">$process</span> | grep <span class="s1">&#39;/bin/java&#39;</span> | grep -v grep | awk <span class="s1">&#39;{print $2}&#39;</span><span class="k">)</span>
-<span class="nb">echo</span> <span class="nv">$pid</span>
-</pre></div>
-</td></tr></table>
-
+<h2>节点故障时会发生什么？</h2>
+<p>一个节点（集群中的工作节点，非 Nimbus 所在服务器）故障时，该节点上所有的任务（tasks）都会超时，然后 Nimbus 在检测到超时后悔将所有的这些任务重新分配到其他机器上去。</p>
 <hr />
-<h4>获取 Shell 脚本自身进程 pid</h4>
-<p>这里涉及两个指令：
- 1. <code>$$</code> ：当前 Shell 进程的 pid
- 2. <code>$!</code> ：上一个后台进程的 pid
-可以使用这两个指令来获取相应的进程 pid。例如，如果需要获取某个正在执行的进程的 pid（并写入指定的文件）：</p>
-<div class="highlight"><pre><span class="n">myCommand</span> <span class="o">&amp;&amp;</span> <span class="n">pid</span><span class="o">=</span><span class="err">$</span><span class="o">!</span>
-<span class="n">myCommand</span> <span class="o">&amp;</span> <span class="n">echo</span> <span class="err">$</span><span class="o">!</span> <span class="o">&gt;/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">pid</span><span class="p">.</span><span class="n">file</span>
-</pre></div>
-
-
-<blockquote>
-<p>注意，在脚本中执行 <code>$!</code> 只会显示子 Shell 的后台进程 pid，如果子 Shell 先前没有启动后台进程，则没有输出。</p>
-</blockquote>
+<h2>Nimbus 或者 Supervisor 的后台进程挂掉时会发生什么</h2>
+<p>Nimbus 和 Supervisor 的后台进程本身是设计为快速失败（无论何时发生了异常情况之后都会启动自毁操作）和无状态（所有的状态由 ZooKeeper 负责管理）的。正如<a href="http://storm.apache.org/documentation/Setting-up-a-Storm-cluster.html">配置 Storm 集群</a>这篇文章中所述，Nimbus 和 Supervisor 的后台进程实际上是在后台监控工具的监控之下运行的。所以，如果 Nimbus 或者 Supervisor 进程挂掉，他们就会静默地自动重启。</p>
+<p>值得一提的是，Nimbus 和 Supervisor 的故障不会影响任何工作进程。这一点与 Hadoop 形成了鲜明对比，在 Hadoop 中 JobTracker 的故障会导致所有正在运行的 job 运行失败（Hadoop 2.x 中引入的 Yarn 架构已经提升了 Hadoop 系统的稳定性，目前的架构并不会如这里所说的那么不堪——译者注）。</p>
 <hr />
-<h2>查看指定进程是否存在</h2>
-<p>在获取到 pid 之后，还可以根据 pid 查看对应的进程是否存在（运行），这个方法也可以用于 kill 指定的进程。</p>
-<div class="highlight"><pre><span class="k">if</span> <span class="n">ps</span> <span class="o">-</span><span class="n">p</span> <span class="err">$</span><span class="n">PID</span> <span class="o">&gt;</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">null</span>
-<span class="n">then</span>
-   <span class="n">echo</span> <span class="s">&quot;$PID is running&quot;</span>
-   <span class="err">#</span> <span class="n">Do</span> <span class="n">something</span> <span class="n">knowing</span> <span class="n">the</span> <span class="n">pid</span> <span class="n">exists</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">e</span><span class="p">.</span> <span class="n">the</span> <span class="n">process</span> <span class="n">with</span> <span class="err">$</span><span class="n">PID</span> <span class="n">is</span> <span class="n">running</span>
-<span class="n">fi</span>
-</pre></div>
+<h2>Nimbus 是系统的单故障点<sup>1</sup>吗？</h2>
+<p>如果你的 Nimbus 节点出现故障无法访问，集群中的 worker 仍然会继续保持运行。另外，此时 Supervisor 也仍然会正常工作，在 worker 挂掉时自动重启挂掉的进程。但是，由于缺少 Nimbus 的协调，worker 就不会在必要的时候重新分配到不同的机器中（看上去好像你丢失了一个 worker）。</p>
+<p>所以这个问题的答案是，Nimbus 确实稍微有一点像 SPOF（单故障点，Single Point of Failure）。不过在实际应用中，Nimbus 的故障从来就不是什么问题。未来的开发计划中还会考虑让 Nimbus 具备更好的可用性。</p>
+<hr />
+<h2>Storm 是如何保障消息的完全处理的？</h2>
+<p>对于节点故障或者消息丢失的情况，Storm 提供了一套完善的机制保障所有的消息都能够得到正确处理。<a href="http://storm.apache.org/documentation/Guaranteeing-message-processing.html">消息的可靠性保障</a>一文中解释了这方面更多的技术细节。</p>
+<hr />
+<p><sup>1</sup>单故障点是指在一个系统中的某个在失效或停止运转后会导致整个系统不能工作的部件，具体概念可以参考<a href="https://en.wikipedia.org/wiki/Single_point_of_failure">维基百科</a>。</p>
             </div>
             <!-- /.entry-content -->
     <hr />
@@ -216,8 +151,8 @@
         <script type="text/javascript">
             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
             var disqus_shortname = 'weyo'; // required: replace example with your forum shortname
-            var disqus_identifier = 'linux-get-pid';
-            var disqus_url = 'http://weyo.me/pages/techs/linux-get-pid/';
+            var disqus_identifier = 'storm-translations-fault-tolerance';
+            var disqus_url = 'http://weyo.me/pages/techs/storm-translations-fault-tolerance/';
 
             /* * * DON'T EDIT BELOW THIS LINE * * */
             (function () {
