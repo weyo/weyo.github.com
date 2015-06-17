@@ -1,5 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Let There Be Light</title><link>http://weyo.me/</link><description></description><atom:link href="http://weyo.me/feeds/techs.rss.xml" rel="self"></atom:link><lastBuildDate>Tue, 16 Jun 2015 23:04:17 +0800</lastBuildDate><item><title>KafkaSpout 引起的 log4j 的问题</title><link>http://weyo.me/pages/techs/kafka-problem-with-log4j/</link><description>&lt;p&gt;今天在测试 &lt;code&gt;KafkaSpout&lt;/code&gt; 的时候突然冒出了 log4j 的问题，先是两行醒目的红色警告：&lt;/p&gt;
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Let There Be Light</title><link>http://weyo.me/</link><description></description><atom:link href="http://weyo.me/feeds/techs.rss.xml" rel="self"></atom:link><lastBuildDate>Wed, 17 Jun 2015 20:57:17 +0800</lastBuildDate><item><title>Storm 官方文档翻译(5) —— 配置</title><link>http://weyo.me/pages/techs/storm-translations-command-line-client/</link><description>&lt;h1&gt;命令行操作&lt;/h1&gt;
+&lt;p&gt;本文介绍了 Storm 命令行客户端中的所有命令操作。如果想要了解怎样设置你的 Strom 客户端和远程集群的交互，请按照&lt;a href="http://storm.apache.org/documentation/Setting-up-a-development-environment.html"&gt;配置开发环境&lt;/a&gt;一文中的步骤操作。&lt;/p&gt;
+&lt;p&gt;Storm 中支持的命令包括：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;jar&lt;/li&gt;
+&lt;li&gt;kill&lt;/li&gt;
+&lt;li&gt;activate&lt;/li&gt;
+&lt;li&gt;deactivate&lt;/li&gt;
+&lt;li&gt;rebalance&lt;/li&gt;
+&lt;li&gt;repl&lt;/li&gt;
+&lt;li&gt;classpath&lt;/li&gt;
+&lt;li&gt;localconfvalue&lt;/li&gt;
+&lt;li&gt;remoteconfvalue&lt;/li&gt;
+&lt;li&gt;nimbus&lt;/li&gt;
+&lt;li&gt;supervisor&lt;/li&gt;
+&lt;li&gt;ui&lt;/li&gt;
+&lt;li&gt;drpc&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2&gt;jar&lt;/h2&gt;
+&lt;p&gt;语法：&lt;code&gt;storm jar topology-jar-path class ...&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;使用指定的参数运行 main 方法（也就是打包好的拓扑 jar 包中的 main 方法）。Storm 所需要的 jar 包和配置信息都在类路径（classpath）中。这个运行过程已经配置好了，这样 &lt;a href="http://storm.apache.org/javadoc/apidocs/backtype/storm/StormSubmitter.html"&gt;StormSubmitter&lt;/a&gt; 就可以在提交拓扑的时候将 &lt;code&gt;topology-jar-path&lt;/code&gt; 中的 jar 包上传到集群中。&lt;/p&gt;
+&lt;h2&gt;kill&lt;/h2&gt;
+&lt;p&gt;语法：&lt;code&gt;storm kill topology-name [-w wait-time-secs]&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;杀死集群中正在运行的名为 &lt;code&gt;topology-name&lt;/code&gt; 的拓扑。执行该操作后，Storm 首先会注销拓扑中的 spout，使得拓扑中的消息超时，这样当前的所有消息就会结束执行。随后，Storm 会将所有的 worker 关闭，并清除他们的状态。你可以使用 &lt;code&gt;-w&lt;/code&gt; 参数来调整 Storm 在注销与关闭拓扑之间的间隔时间。&lt;/p&gt;
+&lt;h2&gt;activate&lt;/h2&gt;
+&lt;p&gt;语法：&lt;code&gt;storm activate topology-name&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;激活运行指定拓扑的所有 spout。&lt;/p&gt;
+&lt;h2&gt;deactivate&lt;/h2&gt;
+&lt;p&gt;语法：&lt;code&gt;storm deactivate topology-name&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;停止指定拓扑的所有 spout 的运行。&lt;/p&gt;
+&lt;h2&gt;rebalance&lt;/h2&gt;
+&lt;p&gt;语法：&lt;code&gt;storm rebalance topology-name [-w wait-time-secs]&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;有些场景下需要对正在运行的拓扑的工作进程（worker）进行弹性扩展。例如，加入你有 10 个节点，每个节点上运行有 4 个 worker，现在由于各种原因你需要为集群添加 10 个新节点。这时你就会希望通过扩展正在运行的拓扑的 worker 来使得每个节点只运行两个 worker，降低集群的负载。实现这个目的的一种直接的办法是 kill 掉正在运行的拓扑，然后重新向集群提交。不过 Storm 提供了再平衡命令可以以一种更简单的方法实现目的。&lt;/p&gt;
+&lt;p&gt;再平衡首先会在一个超时时间内（这个时间是可以通过 &lt;code&gt;-w&lt;/code&gt; 参数配置的）注销掉拓扑，然后在整个集群中重新分配 worker。接着拓扑就会自动回到之前的状态（也就是说之前处于注销状态的拓扑仍然会保持注销状态，而处于激活状态的拓扑则会返回激活状态）。&lt;/p&gt;
+&lt;h2&gt;repl&lt;/h2&gt;
+&lt;p&gt;语法：&lt;code&gt;storm repl&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;打开一个带有类路径上的 jar 包和配置信息的 Clojure 的交互式解释器（REPL）。该命令主要用于调试。&lt;/p&gt;
+&lt;h2&gt;classpath&lt;/h2&gt;
+&lt;p&gt;语法：&lt;code&gt;storm classpath&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;打印客户端执行命令时使用的类路径环境变量。&lt;/p&gt;
+&lt;h2&gt;localconfvalue&lt;/h2&gt;
+&lt;p&gt;语法：&lt;code&gt;storm localconfvalue conf-name&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;打印出本地 Storm 配置中 &lt;code&gt;conf-name&lt;/code&gt; 属性的值。这里的本地配置指的是 &lt;code&gt;~/.storm/storm.yaml&lt;/code&gt; 和 &lt;code&gt;defaults.yaml&lt;/code&gt; 两个配置文件综合后的配置信息。&lt;/p&gt;
+&lt;h2&gt;remoteconfvalue&lt;/h2&gt;
+&lt;p&gt;语法：&lt;code&gt;storm remoteconfvalue conf-name&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;打印出集群配置中 &lt;code&gt;conf-name&lt;/code&gt; 属性的值。这里的集群配置指的是 &lt;code&gt;$STORM-PATH/conf/storm.yaml&lt;/code&gt; 和 &lt;code&gt;defaults.yaml&lt;/code&gt; 两个配置文件综合后的配置信息。该命令必须在一个集群机器上执行。&lt;/p&gt;
+&lt;h2&gt;nimbus&lt;/h2&gt;
+&lt;p&gt;语法：&lt;code&gt;storm nimbus&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;启动 nimbus 后台进程。该命令应该在 &lt;a href="http://cr.yp.to/daemontools.html"&gt;daemontools&lt;/a&gt; 或者 &lt;a href="http://mmonit.com/monit/"&gt;monit&lt;/a&gt; 这样的工具监控下执行。详细信息请参考&lt;a href="http://mmonit.com/monit/"&gt;配置 Storm 集群&lt;/a&gt;一文。&lt;/p&gt;
+&lt;h2&gt;supervisor&lt;/h2&gt;
+&lt;p&gt;语法：&lt;code&gt;storm supervisor&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;启动 supervisor 后台进程。该命令应该在 &lt;a href="http://cr.yp.to/daemontools.html"&gt;daemontools&lt;/a&gt; 或者 &lt;a href="http://mmonit.com/monit/"&gt;monit&lt;/a&gt; 这样的工具监控下执行。详细信息请参考&lt;a href="http://mmonit.com/monit/"&gt;配置 Storm 集群&lt;/a&gt;一文。&lt;/p&gt;
+&lt;h2&gt;ui&lt;/h2&gt;
+&lt;p&gt;语法：&lt;code&gt;storm ui&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;启动 UI 后台进程。UI 提供了一个访问 Storm 集群的 Web 接口，其中包含有运行中的拓扑的详细信息。该命令应该在 &lt;a href="http://cr.yp.to/daemontools.html"&gt;daemontools&lt;/a&gt; 或者 &lt;a href="http://mmonit.com/monit/"&gt;monit&lt;/a&gt; 这样的工具监控下执行。详细信息请参考&lt;a href="http://mmonit.com/monit/"&gt;配置 Storm 集群&lt;/a&gt;一文。&lt;/p&gt;
+&lt;h2&gt;drpc&lt;/h2&gt;
+&lt;p&gt;语法：&lt;code&gt;storm drpc&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;启动 DRPC 后台进程。该命令应该在 &lt;a href="http://cr.yp.to/daemontools.html"&gt;daemontools&lt;/a&gt; 或者 &lt;a href="http://mmonit.com/monit/"&gt;monit&lt;/a&gt; 这样的工具监控下执行。详细信息请参考&lt;a href="http://storm.apache.org/documentation/Distributed-RPC.html"&gt;分布式 RPC&lt;/a&gt;一文。&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Wed, 17 Jun 2015 20:57:17 +0800</pubDate><guid>tag:weyo.me,2015-06-17:pages/techs/storm-translations-command-line-client/</guid><category>Storm</category></item><item><title>KafkaSpout 引起的 log4j 的问题</title><link>http://weyo.me/pages/techs/kafka-problem-with-log4j/</link><description>&lt;p&gt;今天在测试 &lt;code&gt;KafkaSpout&lt;/code&gt; 的时候突然冒出了 log4j 的问题，先是两行醒目的红色警告：&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;SLF4J&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;Detected&lt;/span&gt; &lt;span class="n"&gt;both&lt;/span&gt; &lt;span class="n"&gt;log4j&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;over&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;slf4j&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;jar&lt;/span&gt; &lt;span class="n"&gt;AND&lt;/span&gt; &lt;span class="n"&gt;slf4j&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;log4j12&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;jar&lt;/span&gt; &lt;span class="n"&gt;on&lt;/span&gt; &lt;span class="n"&gt;the&lt;/span&gt; &lt;span class="kd"&gt;class&lt;/span&gt; &lt;span class="n"&gt;path&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;preempting&lt;/span&gt; &lt;span class="n"&gt;StackOverflowError&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt; 
 &lt;span class="n"&gt;SLF4J&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;See&lt;/span&gt; &lt;span class="n"&gt;also&lt;/span&gt; &lt;span class="n"&gt;http&lt;/span&gt;&lt;span class="o"&gt;://&lt;/span&gt;&lt;span class="n"&gt;www&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;slf4j&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;org&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;codes&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;html&lt;/span&gt;&lt;span class="err"&gt;#&lt;/span&gt;&lt;span class="n"&gt;log4jDelegationLoop&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;more&lt;/span&gt; &lt;span class="n"&gt;details&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
@@ -248,10 +305,10 @@ java.lang.NoClassDefFoundError: Could not initialize class org.apache.log4j.Log4
 &lt;p&gt;综上所述，Storm 的可靠性机制完全具备分布的、可伸缩的、容错的特征。&lt;/p&gt;
 &lt;h2&gt;调整可靠性&lt;/h2&gt;
 &lt;p&gt;由于 acker 任务是轻量级的，在拓扑中你并不需要很多 acker 任务。你可以通过 Storm UI 监控他们的性能（acker 任务的 id 为“__acker”）。如果发现观察结果存在问题，你可能就需要增加更多的 acker 任务。&lt;/p&gt;
-&lt;p&gt;如果你不关注消息的可靠性 —— 也就是说你不关心在失败情形下发生的 tuple 丢失 —— 那么你就可以通过不跟踪 tuple 树的处理来提升拓扑的性能。由于 tuple 树种的每个 tuple 都会带有一个应答消息，不追踪 tuple 树会使得传输的消息的数量减半。同时，下游数据流中的 id 也会变少，这样可以降低网络带宽的消耗。&lt;/p&gt;
+&lt;p&gt;如果你不关注消息的可靠性 —— 也就是说你不关心在失败情形下发生的 tuple 丢失 —— 那么你就可以通过不跟踪 tuple 树的处理来提升拓扑的性能。由于 tuple 树中的每个 tuple 都会带有一个应答消息，不追踪 tuple 树会使得传输的消息的数量减半。同时，下游数据流中的 id 也会变少，这样可以降低网络带宽的消耗。&lt;/p&gt;
 &lt;p&gt;有三种方法可以移除 Storm 的可靠性机制。第一种方法是将 Config.TOPOLOGY_ACKERS 设置为0，在这种情况下，Storm 会在 Spout 发送 tuple 之后立即调用 &lt;code&gt;ack&lt;/code&gt; 方法，tuple 树叶就不会被跟踪了。&lt;/p&gt;
 &lt;p&gt;第二种方法是基于消息本身移除可靠性。你可以通过在 &lt;code&gt;SpoutOutputCollector.emit&lt;/code&gt; 方法中省略消息 id 来关闭 spout tuple 的跟踪功能。&lt;/p&gt;
-&lt;p&gt;最后，如果你不关心拓扑中的下游 tuple 是否会失败，你可以在发送 tuple 的时候选择发送“非锚定”的（unanchored）tuple。由于这些 tuple 不会被标记到任何一个 spout tuple 中，显然在他们处理失败的时候不会引起任何 spout tuple 的重新处理。&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Tue, 16 Jun 2015 22:31:09 +0800</pubDate><guid>tag:weyo.me,2015-06-16:pages/techs/storm-translations-guaranteeing-message-processing/</guid><category>Storm</category></item><item><title>Storm 官方文档翻译(3) —— 容错性</title><link>http://weyo.me/pages/techs/storm-translations-fault-tolerance/</link><description>&lt;h1&gt;容错性&lt;/h1&gt;
+&lt;p&gt;最后，如果你不关心拓扑中的下游 tuple 是否会失败，你可以在发送 tuple 的时候选择发送“非锚定”的（unanchored）tuple（（注意，在使用这种方法时，如果上游有 spout 或 bolt 仍然保持可靠性机制，那么需要在 execute 方法之初调用 OutputCollector.ack 来立即响应上游的消息，否则上游组件会误认为消息没有发送成功导致所有的消息会被反复发送——译者注））。由于这些 tuple 不会被标记到任何一个 spout tuple 中，显然在他们处理失败的时候不会引起任何 spout tuple 的重新处理。&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Tue, 16 Jun 2015 22:31:09 +0800</pubDate><guid>tag:weyo.me,2015-06-16:pages/techs/storm-translations-guaranteeing-message-processing/</guid><category>Storm</category></item><item><title>Storm 官方文档翻译(3) —— 容错性</title><link>http://weyo.me/pages/techs/storm-translations-fault-tolerance/</link><description>&lt;h1&gt;容错性&lt;/h1&gt;
 &lt;p&gt;本文通过问答的形式解释了 Storm 的容错性原理。&lt;/p&gt;
 &lt;hr /&gt;
 &lt;h2&gt;工作进程（worker）死亡时会发生什么？&lt;/h2&gt;
@@ -2013,7 +2070,268 @@ nimbus.host: "111.222.333.444"&lt;/p&gt;
 &lt;p&gt;在 Kafka consumer 客户端观察数据接收情况&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-&lt;hr /&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Fri, 10 Apr 2015 00:00:00 +0800</pubDate><guid>tag:weyo.me,2015-04-10:pages/techs/flume-kafka-integration/</guid><category>Flume</category><category>Kafka</category><category>环境搭建</category><category>分布式计算</category></item><item><title>Linux 系统时间配置入门</title><link>http://weyo.me/pages/techs/linux-time-setting/</link><description>&lt;blockquote&gt;
+&lt;hr /&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Fri, 10 Apr 2015 00:00:00 +0800</pubDate><guid>tag:weyo.me,2015-04-10:pages/techs/flume-kafka-integration/</guid><category>Flume</category><category>Kafka</category><category>环境搭建</category><category>分布式计算</category></item><item><title>Bash Shell 获取进程 PID</title><link>http://weyo.me/pages/techs/linux-get-pid/</link><description>&lt;blockquote&gt;
+&lt;h2&gt;导读&lt;/h2&gt;
+&lt;p&gt;Linux 的交互式 Shell 与 Shell 脚本存在一定的差异，主要是由于后者存在一个独立的运行进程，因此在获取进程 pid 上二者也有所区别。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr /&gt;
+&lt;h2&gt;交互式 Bash Shell 获取进程 pid&lt;/h2&gt;
+&lt;p&gt;在已知进程名(&lt;code&gt;name&lt;/code&gt;)的前提下，交互式 Shell 获取进程 pid 有很多种方法，典型的通过 grep 获取 pid 的方法为（这里添加 &lt;code&gt;-v grep&lt;/code&gt;是为了避免匹配到 grep 进程）：&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;ps -ef | grep "name" | grep -v grep | awk '{print $2}'&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;或者不使用 &lt;code&gt;grep&lt;/code&gt;（这里名称首字母加&lt;code&gt;[]&lt;/code&gt;的目的是为了避免匹配到 awk 自身的进程）：&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;ps -ef | awk '/[n]ame/{print $2}'&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;如果只使用 x 参数的话则 pid 应该位于第一位：&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;ps x | awk '/[n]ame/{print $1}'&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;最简单的方法是使用 &lt;code&gt;pgrep&lt;/code&gt;：&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;pgrep -f name&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;如果需要查找到 pid 之后 kill 掉该进程，还可以使用 &lt;code&gt;pkill&lt;/code&gt;：&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;pkill -f name&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;如果是可执行程序的话，可以直接使用 &lt;code&gt;pidof&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;pidof name&lt;/code&gt;&lt;/p&gt;
+&lt;hr /&gt;
+&lt;h2&gt;Bash Shell 脚本获取进程 pid&lt;/h2&gt;
+&lt;h4&gt;根据进程名获取进程 pid&lt;/h4&gt;
+&lt;p&gt;在使用 Shell 脚本获取进程 pid 时，如果直接使用上述命令，会出现多个 pid 结果，例如：&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+2
+3
+4
+5&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;#! /bin/bash&lt;/span&gt;
+&lt;span class="c"&gt;# process-monitor.sh&lt;/span&gt;
+&lt;span class="nv"&gt;process&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nv"&gt;$1&lt;/span&gt;
+&lt;span class="nv"&gt;pid&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;ps x | grep &lt;span class="nv"&gt;$process&lt;/span&gt; | grep -v grep | awk &lt;span class="s1"&gt;&amp;#39;{print $1}&amp;#39;&lt;/span&gt;&lt;span class="k"&gt;)&lt;/span&gt;
+&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="nv"&gt;$pid&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;执行 &lt;code&gt;process-monitor.sh&lt;/code&gt; 会出现多个结果：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;sh&lt;/span&gt; &lt;span class="n"&gt;process&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;monitor&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sh&lt;/span&gt;
+&lt;span class="mi"&gt;3036&lt;/span&gt;  &lt;span class="mi"&gt;3098&lt;/span&gt;  &lt;span class="mi"&gt;3099&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;进一步排查可以发现，多出来的几个进程实际上是子 Shell 的（临时）进程：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;root&lt;/span&gt;      &lt;span class="mi"&gt;3036&lt;/span&gt;  &lt;span class="mi"&gt;2905&lt;/span&gt;  &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="mi"&gt;09&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mo"&gt;03&lt;/span&gt; &lt;span class="n"&gt;pts&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;    &lt;span class="mo"&gt;00&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mo"&gt;00&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;45&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;usr&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;java&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;jdk1&lt;/span&gt;&lt;span class="mf"&gt;.7.0&lt;/span&gt;&lt;span class="n"&gt;_71&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;bin&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;java&lt;/span&gt; &lt;span class="p"&gt;...&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;
+&lt;span class="n"&gt;root&lt;/span&gt;      &lt;span class="mi"&gt;4522&lt;/span&gt;  &lt;span class="mi"&gt;2905&lt;/span&gt;  &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="mi"&gt;16&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;12&lt;/span&gt; &lt;span class="n"&gt;pts&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;    &lt;span class="mo"&gt;00&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mo"&gt;00&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mo"&gt;00&lt;/span&gt; &lt;span class="n"&gt;sh&lt;/span&gt; &lt;span class="n"&gt;process&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;monitor&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sh&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt;
+&lt;span class="n"&gt;root&lt;/span&gt;      &lt;span class="mi"&gt;4523&lt;/span&gt;  &lt;span class="mi"&gt;4522&lt;/span&gt;  &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="mi"&gt;16&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;12&lt;/span&gt; &lt;span class="n"&gt;pts&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;    &lt;span class="mo"&gt;00&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mo"&gt;00&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mo"&gt;00&lt;/span&gt; &lt;span class="n"&gt;sh&lt;/span&gt; &lt;span class="n"&gt;process&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;monitor&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sh&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;其中 3036 是需要查找的进程pid，而 4522、4523 就是子 Shell 的 pid。
+为了避免这种情况，需要进一步明确查找条件，考虑到所要查找的是 Java 程序，就可以通过 Java 的关键字进行匹配：&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+2
+3
+4
+5&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;#! /bin/bash&lt;/span&gt;
+&lt;span class="c"&gt;# process-monitor.sh&lt;/span&gt;
+&lt;span class="nv"&gt;process&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nv"&gt;$1&lt;/span&gt;
+&lt;span class="nv"&gt;pid&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;ps -ef | grep &lt;span class="nv"&gt;$process&lt;/span&gt; | grep &lt;span class="s1"&gt;&amp;#39;/bin/java&amp;#39;&lt;/span&gt; | grep -v grep | awk &lt;span class="s1"&gt;&amp;#39;{print $2}&amp;#39;&lt;/span&gt;&lt;span class="k"&gt;)&lt;/span&gt;
+&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="nv"&gt;$pid&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;hr /&gt;
+&lt;h4&gt;获取 Shell 脚本自身进程 pid&lt;/h4&gt;
+&lt;p&gt;这里涉及两个指令：
+ 1. &lt;code&gt;$$&lt;/code&gt; ：当前 Shell 进程的 pid
+ 2. &lt;code&gt;$!&lt;/code&gt; ：上一个后台进程的 pid
+可以使用这两个指令来获取相应的进程 pid。例如，如果需要获取某个正在执行的进程的 pid（并写入指定的文件）：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;myCommand&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;pid&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="o"&gt;!&lt;/span&gt;
+&lt;span class="n"&gt;myCommand&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;echo&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="o"&gt;!&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;/&lt;/span&gt;&lt;span class="n"&gt;path&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;to&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;pid&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;file&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;blockquote&gt;
+&lt;p&gt;注意，在脚本中执行 &lt;code&gt;$!&lt;/code&gt; 只会显示子 Shell 的后台进程 pid，如果子 Shell 先前没有启动后台进程，则没有输出。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr /&gt;
+&lt;h2&gt;查看指定进程是否存在&lt;/h2&gt;
+&lt;p&gt;在获取到 pid 之后，还可以根据 pid 查看对应的进程是否存在（运行），这个方法也可以用于 kill 指定的进程。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;ps&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;p&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="n"&gt;PID&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;dev&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;null&lt;/span&gt;
+&lt;span class="n"&gt;then&lt;/span&gt;
+   &lt;span class="n"&gt;echo&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;$PID is running&amp;quot;&lt;/span&gt;
+   &lt;span class="err"&gt;#&lt;/span&gt; &lt;span class="n"&gt;Do&lt;/span&gt; &lt;span class="n"&gt;something&lt;/span&gt; &lt;span class="n"&gt;knowing&lt;/span&gt; &lt;span class="n"&gt;the&lt;/span&gt; &lt;span class="n"&gt;pid&lt;/span&gt; &lt;span class="n"&gt;exists&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt; &lt;span class="n"&gt;the&lt;/span&gt; &lt;span class="n"&gt;process&lt;/span&gt; &lt;span class="n"&gt;with&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="n"&gt;PID&lt;/span&gt; &lt;span class="n"&gt;is&lt;/span&gt; &lt;span class="n"&gt;running&lt;/span&gt;
+&lt;span class="n"&gt;fi&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Thu, 22 May 2014 00:00:00 +0800</pubDate><guid>tag:weyo.me,2014-05-22:pages/techs/linux-get-pid/</guid><category>Linux</category><category>Shell</category></item><item><title>Yaml for Java</title><link>http://weyo.me/pages/techs/yaml-for-java/</link><description>&lt;p&gt;最近在学 Storm 的时候发现 Storm 的配置文件是 yaml 格式的，就好奇地查了下这个没听说过的格式（&lt;a href="https://en.wikipedia.org/?title=YAML"&gt;YAML - Wikipedia&lt;/a&gt;），这才发现原来不是什么新新物种，而是 2001 年就推出来了的文件格式。虽然 Yaml 相对于 XML 这种老大哥还差远了，但是后辈小子胜在年轻，有干劲，语法简单，功能强大，而且这几年相关工具的解析速度也提升了不少，大有超越 XML 这种大块头的趋势。简单地试用了下，发现压马路（“yaml”的拼音打出来就是这个）的语法真的是既简洁又优雅，让人爱不释手。于是，就这么愉快地决定了，以后的项目中没有其他要求的情况下全部使用 yaml 来做格式化，让 XML 先飞一会儿……&lt;/p&gt;
+&lt;p&gt;言归正传，Google 了一下，评价最好的解析工具还是 snakeyaml：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nt"&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;org.yaml&lt;span class="nt"&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;snakeyaml&lt;span class="nt"&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;lt;version&amp;gt;&lt;/span&gt;1.15&lt;span class="nt"&gt;&amp;lt;/version&amp;gt;&lt;/span&gt;
+&lt;span class="nt"&gt;&amp;lt;/dependency&amp;gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;对于下面这样基本的配置文件：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;redis&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;rhost&lt;/span&gt;
+&lt;span class="n"&gt;redis&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;6379&lt;/span&gt;
+&lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;rule&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;light&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;weighted&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;使用 snakeyaml 解析 yaml 配置文件非常简单：&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt; 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;static&lt;/span&gt; &lt;span class="n"&gt;Map&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Object&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;loadMap&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt; &lt;span class="n"&gt;file&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="kd"&gt;throws&lt;/span&gt; &lt;span class="n"&gt;IOException&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;Yaml&lt;/span&gt; &lt;span class="n"&gt;yaml&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Yaml&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+    &lt;span class="n"&gt;Map&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Object&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;map&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+    &lt;span class="n"&gt;InputStream&lt;/span&gt; &lt;span class="n"&gt;is&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;YamlUtil&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;class&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getResourceAsStream&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;file&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;is&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;map&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Map&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Object&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;)&lt;/span&gt; &lt;span class="n"&gt;yaml&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;load&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;is&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+        &lt;span class="n"&gt;is&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;close&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;map&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;对于下面这样比较复杂的对象 dump 文件：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="o"&gt;!!&lt;/span&gt;&lt;span class="n"&gt;me&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;weyo&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;yaml&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Dev&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="nl"&gt;enabled:&lt;/span&gt; &lt;span class="nb"&gt;false&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="nl"&gt;inn:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;III&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;timeout&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;600000000&lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt;
+  &lt;span class="nl"&gt;port:&lt;/span&gt; &lt;span class="mi"&gt;33333&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="nl"&gt;type:&lt;/span&gt; &lt;span class="n"&gt;T1&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="o"&gt;---&lt;/span&gt; &lt;span class="o"&gt;!!&lt;/span&gt;&lt;span class="n"&gt;me&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;weyo&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;yaml&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Dev&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; 
+  &lt;span class="n"&gt;enabled&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;true&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="nl"&gt;inn:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;UH&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;timeout&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;180003300&lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt;
+  &lt;span class="nl"&gt;port:&lt;/span&gt; &lt;span class="mi"&gt;10028&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="nl"&gt;type:&lt;/span&gt; &lt;span class="n"&gt;T2&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;也可以很轻松的解析：&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt; 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;static&lt;/span&gt; &lt;span class="n"&gt;List&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Object&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="nf"&gt;loadObjects&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt; &lt;span class="n"&gt;file&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="kd"&gt;throws&lt;/span&gt; &lt;span class="n"&gt;IOException&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;Yaml&lt;/span&gt; &lt;span class="n"&gt;yaml&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Yaml&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+    &lt;span class="n"&gt;List&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Object&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;list&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+    &lt;span class="n"&gt;InputStream&lt;/span&gt; &lt;span class="n"&gt;is&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;YamlUtil&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;class&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getResourceAsStream&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;file&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;is&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;list&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;ArrayList&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Object&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;();&lt;/span&gt;
+        &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Object&lt;/span&gt; &lt;span class="n"&gt;obj&lt;/span&gt; &lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;yaml&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;loadAll&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;is&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+            &lt;span class="n"&gt;list&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;add&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;obj&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+        &lt;span class="o"&gt;}&lt;/span&gt;
+        &lt;span class="n"&gt;is&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;close&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;list&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;当然，如果有需要，还可以将对象 dump 到文件中：&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt; 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;Yaml&lt;/span&gt; &lt;span class="n"&gt;yaml&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Yaml&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+&lt;span class="n"&gt;RedisConnection&lt;/span&gt; &lt;span class="n"&gt;redis&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;RedisConnection&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+&lt;span class="n"&gt;redis&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;setHost&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;rh134&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="n"&gt;redis&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;setPort&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;10029&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+
+&lt;span class="n"&gt;FileWriter&lt;/span&gt; &lt;span class="n"&gt;output&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+&lt;span class="k"&gt;try&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;output&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;FileWriter&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;src/main/resources/topology.yaml&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="k"&gt;catch&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;IOException&lt;/span&gt; &lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;printStackTrace&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;output&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;yaml&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;dump&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;redis&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;output&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="n"&gt;output&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;close&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;综上所述，无所不能的 Yaml 真是居家旅行之必备 ：)&lt;/p&gt;
+&lt;hr /&gt;
+&lt;h1&gt;Q &amp;amp; A&lt;/h1&gt;
+&lt;h3&gt;无法创建 Java 对象&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;Exception&lt;/span&gt; &lt;span class="k"&gt;in&lt;/span&gt; &lt;span class="k"&gt;thread&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;main&amp;quot;&lt;/span&gt; &lt;span class="nx"&gt;Can&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;t construct a java object for tag:yaml.org,2002:me.weyo.yaml.Dev; exception=java.lang.NoSuchMethodException: me.weyo.yaml.Dev.&amp;lt;init&amp;gt;()&lt;/span&gt;
+&lt;span class="s1"&gt; in &amp;#39;&lt;/span&gt;&lt;span class="nx"&gt;reader&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;, line 1, column 1:&lt;/span&gt;
+&lt;span class="s1"&gt;    !!me.weyo.yaml.Dev ... &lt;/span&gt;
+&lt;span class="s1"&gt;    ^&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;这个错误表明被解析的对象（Dev）中没有默认的构造器（即只有带参数的构造器，没有无参构造器，snakeyaml 无法将对象解析为 Bean）。&lt;/p&gt;
+&lt;h3&gt;解析错误异常&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;Exception&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="kr"&gt;thread&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;main&amp;quot;&lt;/span&gt; &lt;span class="k"&gt;while&lt;/span&gt; &lt;span class="n"&gt;parsing&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="n"&gt;flow&lt;/span&gt; &lt;span class="n"&gt;mapping&lt;/span&gt;
+ &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;reader&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;column&lt;/span&gt; &lt;span class="mi"&gt;40&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+     &lt;span class="p"&gt;...&lt;/span&gt; &lt;span class="n"&gt;me&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;weyo&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;yaml&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Dev&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+                                         &lt;span class="o"&gt;^&lt;/span&gt;
+&lt;span class="n"&gt;expected&lt;/span&gt; &lt;span class="sc"&gt;&amp;#39;,&amp;#39;&lt;/span&gt; &lt;span class="n"&gt;or&lt;/span&gt; &lt;span class="sc"&gt;&amp;#39;}&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;but&lt;/span&gt; &lt;span class="n"&gt;got&lt;/span&gt; &lt;span class="n"&gt;Value&lt;/span&gt;
+ &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;reader&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;column&lt;/span&gt; &lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+      &lt;span class="nl"&gt;port:&lt;/span&gt; &lt;span class="mi"&gt;33333&lt;/span&gt;
+          &lt;span class="o"&gt;^&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;这是被解析的文件中有属性没有以逗号结束的缘故，例如，下面这样的文件描述就少了逗号：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="cp"&gt;# 错误的配置方式！&lt;/span&gt;
+&lt;span class="o"&gt;!!&lt;/span&gt;&lt;span class="n"&gt;me&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;weyo&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;yaml&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Dev&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="nl"&gt;enabled:&lt;/span&gt; &lt;span class="nb"&gt;false&lt;/span&gt; &lt;span class="err"&gt;#&lt;/span&gt; &lt;span class="err"&gt;缺少逗号&lt;/span&gt;
+  &lt;span class="nl"&gt;inn:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;III&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;timeout&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;600000000&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="nl"&gt;port:&lt;/span&gt; &lt;span class="mi"&gt;33333&lt;/span&gt;
+  &lt;span class="nl"&gt;type:&lt;/span&gt; &lt;span class="n"&gt;T1&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;标记识别异常&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;Exception&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="kr"&gt;thread&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;main&amp;quot;&lt;/span&gt; &lt;span class="n"&gt;expected&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;document&lt;/span&gt; &lt;span class="n"&gt;start&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;but&lt;/span&gt; &lt;span class="n"&gt;found&lt;/span&gt; &lt;span class="n"&gt;Tag&lt;/span&gt;
+ &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;reader&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt; &lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;column&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="o"&gt;!!&lt;/span&gt;&lt;span class="n"&gt;me&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;weyo&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;yaml&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Dev&lt;/span&gt; &lt;span class="p"&gt;...&lt;/span&gt; 
+    &lt;span class="o"&gt;^&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;这是由于缺少不同对象之间的分隔标识，例如这样的定义：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="cp"&gt;# 错误的配置方式！&lt;/span&gt;
+&lt;span class="o"&gt;!!&lt;/span&gt;&lt;span class="n"&gt;me&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;weyo&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;yaml&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Dev&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="nl"&gt;enabled:&lt;/span&gt; &lt;span class="nb"&gt;false&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="nl"&gt;inn:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;III&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;timeout&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;600000000&lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt;
+  &lt;span class="nl"&gt;port:&lt;/span&gt; &lt;span class="mi"&gt;33333&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="nl"&gt;type:&lt;/span&gt; &lt;span class="n"&gt;T1&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="o"&gt;!!&lt;/span&gt;&lt;span class="n"&gt;me&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;weyo&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;yaml&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Dev&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="err"&gt;#&lt;/span&gt; &lt;span class="err"&gt;缺少分隔符&lt;/span&gt;
+  &lt;span class="nl"&gt;enabled:&lt;/span&gt; &lt;span class="nb"&gt;true&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="nl"&gt;inn:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;UH&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;timeout&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;180003300&lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt;
+  &lt;span class="nl"&gt;port:&lt;/span&gt; &lt;span class="mi"&gt;10028&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="nl"&gt;type:&lt;/span&gt; &lt;span class="n"&gt;T2&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;hr /&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Mon, 14 Apr 2014 00:00:00 +0800</pubDate><guid>tag:weyo.me,2014-04-14:pages/techs/yaml-for-java/</guid><category>Java</category><category>Yaml</category></item><item><title>Linux 系统时间配置</title><link>http://weyo.me/pages/techs/linux-time-setting/</link><description>&lt;blockquote&gt;
 &lt;p&gt;本文根据网络资料整理。
 Linux 系统时间配置大致可以大致分为“手动”设置与基于 ntp 的配置两种方式。&lt;/p&gt;
 &lt;/blockquote&gt;
@@ -2158,87 +2476,4 @@ a) 检查NTP服务端使用的ntp版本：&lt;br /&gt;
 &lt;li&gt;http://bbs.chinaunix.net/thread-4131894-1-1.html&lt;/li&gt;
 &lt;li&gt;http://blog.csdn.net/weidan1121/article/details/3953021&lt;/li&gt;
 &lt;/ol&gt;
-&lt;/blockquote&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Fri, 04 Jul 2014 00:00:00 +0800</pubDate><guid>tag:weyo.me,2014-07-04:pages/techs/linux-time-setting/</guid><category>Linux</category></item><item><title>Bash Shell 获取进程 PID</title><link>http://weyo.me/pages/techs/linux-get-pid/</link><description>&lt;blockquote&gt;
-&lt;h2&gt;导读&lt;/h2&gt;
-&lt;p&gt;Linux 的交互式 Shell 与 Shell 脚本存在一定的差异，主要是由于后者存在一个独立的运行进程，因此在获取进程 pid 上二者也有所区别。&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;hr /&gt;
-&lt;h2&gt;交互式 Bash Shell 获取进程 pid&lt;/h2&gt;
-&lt;p&gt;在已知进程名(&lt;code&gt;name&lt;/code&gt;)的前提下，交互式 Shell 获取进程 pid 有很多种方法，典型的通过 grep 获取 pid 的方法为（这里添加 &lt;code&gt;-v grep&lt;/code&gt;是为了避免匹配到 grep 进程）：&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;ps -ef | grep "name" | grep -v grep | awk '{print $2}'&lt;/code&gt;&lt;/p&gt;
-&lt;p&gt;或者不使用 &lt;code&gt;grep&lt;/code&gt;（这里名称首字母加&lt;code&gt;[]&lt;/code&gt;的目的是为了避免匹配到 awk 自身的进程）：&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;ps -ef | awk '/[n]ame/{print $2}'&lt;/code&gt;&lt;/p&gt;
-&lt;p&gt;如果只使用 x 参数的话则 pid 应该位于第一位：&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;ps x | awk '/[n]ame/{print $1}'&lt;/code&gt;&lt;/p&gt;
-&lt;p&gt;最简单的方法是使用 &lt;code&gt;pgrep&lt;/code&gt;：&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;pgrep -f name&lt;/code&gt;&lt;/p&gt;
-&lt;p&gt;如果需要查找到 pid 之后 kill 掉该进程，还可以使用 &lt;code&gt;pkill&lt;/code&gt;：&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;pkill -f name&lt;/code&gt;&lt;/p&gt;
-&lt;p&gt;如果是可执行程序的话，可以直接使用 &lt;code&gt;pidof&lt;/code&gt;&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;pidof name&lt;/code&gt;&lt;/p&gt;
-&lt;hr /&gt;
-&lt;h2&gt;Bash Shell 脚本获取进程 pid&lt;/h2&gt;
-&lt;h4&gt;根据进程名获取进程 pid&lt;/h4&gt;
-&lt;p&gt;在使用 Shell 脚本获取进程 pid 时，如果直接使用上述命令，会出现多个 pid 结果，例如：&lt;/p&gt;
-&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
-2
-3
-4
-5&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;#! /bin/bash&lt;/span&gt;
-&lt;span class="c"&gt;# process-monitor.sh&lt;/span&gt;
-&lt;span class="nv"&gt;process&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nv"&gt;$1&lt;/span&gt;
-&lt;span class="nv"&gt;pid&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;ps x | grep &lt;span class="nv"&gt;$process&lt;/span&gt; | grep -v grep | awk &lt;span class="s1"&gt;&amp;#39;{print $1}&amp;#39;&lt;/span&gt;&lt;span class="k"&gt;)&lt;/span&gt;
-&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="nv"&gt;$pid&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
-
-&lt;p&gt;执行 &lt;code&gt;process-monitor.sh&lt;/code&gt; 会出现多个结果：&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;sh&lt;/span&gt; &lt;span class="n"&gt;process&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;monitor&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sh&lt;/span&gt;
-&lt;span class="mi"&gt;3036&lt;/span&gt;  &lt;span class="mi"&gt;3098&lt;/span&gt;  &lt;span class="mi"&gt;3099&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;进一步排查可以发现，多出来的几个进程实际上是子 Shell 的（临时）进程：&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;root&lt;/span&gt;      &lt;span class="mi"&gt;3036&lt;/span&gt;  &lt;span class="mi"&gt;2905&lt;/span&gt;  &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="mi"&gt;09&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mo"&gt;03&lt;/span&gt; &lt;span class="n"&gt;pts&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;    &lt;span class="mo"&gt;00&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mo"&gt;00&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;45&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;usr&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;java&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;jdk1&lt;/span&gt;&lt;span class="mf"&gt;.7.0&lt;/span&gt;&lt;span class="n"&gt;_71&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;bin&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;java&lt;/span&gt; &lt;span class="p"&gt;...&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;
-&lt;span class="n"&gt;root&lt;/span&gt;      &lt;span class="mi"&gt;4522&lt;/span&gt;  &lt;span class="mi"&gt;2905&lt;/span&gt;  &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="mi"&gt;16&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;12&lt;/span&gt; &lt;span class="n"&gt;pts&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;    &lt;span class="mo"&gt;00&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mo"&gt;00&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mo"&gt;00&lt;/span&gt; &lt;span class="n"&gt;sh&lt;/span&gt; &lt;span class="n"&gt;process&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;monitor&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sh&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt;
-&lt;span class="n"&gt;root&lt;/span&gt;      &lt;span class="mi"&gt;4523&lt;/span&gt;  &lt;span class="mi"&gt;4522&lt;/span&gt;  &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="mi"&gt;16&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;12&lt;/span&gt; &lt;span class="n"&gt;pts&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;    &lt;span class="mo"&gt;00&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mo"&gt;00&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mo"&gt;00&lt;/span&gt; &lt;span class="n"&gt;sh&lt;/span&gt; &lt;span class="n"&gt;process&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;monitor&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sh&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;其中 3036 是需要查找的进程pid，而 4522、4523 就是子 Shell 的 pid。
-为了避免这种情况，需要进一步明确查找条件，考虑到所要查找的是 Java 程序，就可以通过 Java 的关键字进行匹配：&lt;/p&gt;
-&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
-2
-3
-4
-5&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;#! /bin/bash&lt;/span&gt;
-&lt;span class="c"&gt;# process-monitor.sh&lt;/span&gt;
-&lt;span class="nv"&gt;process&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nv"&gt;$1&lt;/span&gt;
-&lt;span class="nv"&gt;pid&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;ps -ef | grep &lt;span class="nv"&gt;$process&lt;/span&gt; | grep &lt;span class="s1"&gt;&amp;#39;/bin/java&amp;#39;&lt;/span&gt; | grep -v grep | awk &lt;span class="s1"&gt;&amp;#39;{print $2}&amp;#39;&lt;/span&gt;&lt;span class="k"&gt;)&lt;/span&gt;
-&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="nv"&gt;$pid&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
-
-&lt;hr /&gt;
-&lt;h4&gt;获取 Shell 脚本自身进程 pid&lt;/h4&gt;
-&lt;p&gt;这里涉及两个指令：
- 1. &lt;code&gt;$$&lt;/code&gt; ：当前 Shell 进程的 pid
- 2. &lt;code&gt;$!&lt;/code&gt; ：上一个后台进程的 pid
-可以使用这两个指令来获取相应的进程 pid。例如，如果需要获取某个正在执行的进程的 pid（并写入指定的文件）：&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;myCommand&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;pid&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="o"&gt;!&lt;/span&gt;
-&lt;span class="n"&gt;myCommand&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;echo&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="o"&gt;!&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;/&lt;/span&gt;&lt;span class="n"&gt;path&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;to&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;pid&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;file&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;blockquote&gt;
-&lt;p&gt;注意，在脚本中执行 &lt;code&gt;$!&lt;/code&gt; 只会显示子 Shell 的后台进程 pid，如果子 Shell 先前没有启动后台进程，则没有输出。&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;hr /&gt;
-&lt;h2&gt;查看指定进程是否存在&lt;/h2&gt;
-&lt;p&gt;在获取到 pid 之后，还可以根据 pid 查看对应的进程是否存在（运行），这个方法也可以用于 kill 指定的进程。&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;ps&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;p&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="n"&gt;PID&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;dev&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;null&lt;/span&gt;
-&lt;span class="n"&gt;then&lt;/span&gt;
-   &lt;span class="n"&gt;echo&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;$PID is running&amp;quot;&lt;/span&gt;
-   &lt;span class="err"&gt;#&lt;/span&gt; &lt;span class="n"&gt;Do&lt;/span&gt; &lt;span class="n"&gt;something&lt;/span&gt; &lt;span class="n"&gt;knowing&lt;/span&gt; &lt;span class="n"&gt;the&lt;/span&gt; &lt;span class="n"&gt;pid&lt;/span&gt; &lt;span class="n"&gt;exists&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt; &lt;span class="n"&gt;the&lt;/span&gt; &lt;span class="n"&gt;process&lt;/span&gt; &lt;span class="n"&gt;with&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="n"&gt;PID&lt;/span&gt; &lt;span class="n"&gt;is&lt;/span&gt; &lt;span class="n"&gt;running&lt;/span&gt;
-&lt;span class="n"&gt;fi&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Thu, 22 May 2014 00:00:00 +0800</pubDate><guid>tag:weyo.me,2014-05-22:pages/techs/linux-get-pid/</guid><category>Linux</category><category>Shell</category></item></channel></rss>
+&lt;/blockquote&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Tue, 04 Mar 2014 00:00:00 +0800</pubDate><guid>tag:weyo.me,2014-03-04:pages/techs/linux-time-setting/</guid><category>Linux</category></item></channel></rss>
