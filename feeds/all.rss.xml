@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Let There Be Light</title><link>http://weyo.me/</link><description></description><atom:link href="http://weyo.me/feeds/all.rss.xml" rel="self"></atom:link><lastBuildDate>Wed, 17 Jun 2015 20:57:17 +0800</lastBuildDate><item><title>Storm 官方文档翻译(5) —— 配置</title><link>http://weyo.me/pages/techs/storm-translations-command-line-client/</link><description>&lt;h1&gt;命令行操作&lt;/h1&gt;
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Let There Be Light</title><link>http://weyo.me/</link><description></description><atom:link href="http://weyo.me/feeds/all.rss.xml" rel="self"></atom:link><lastBuildDate>Wed, 17 Jun 2015 20:57:17 +0800</lastBuildDate><item><title>Storm 官方文档翻译(5) —— 命令行操作</title><link>http://weyo.me/pages/techs/storm-translations-command-line-client/</link><description>&lt;h1&gt;命令行操作&lt;/h1&gt;
 &lt;p&gt;本文介绍了 Storm 命令行客户端中的所有命令操作。如果想要了解怎样设置你的 Strom 客户端和远程集群的交互，请按照&lt;a href="http://storm.apache.org/documentation/Setting-up-a-development-environment.html"&gt;配置开发环境&lt;/a&gt;一文中的步骤操作。&lt;/p&gt;
 &lt;p&gt;Storm 中支持的命令包括：&lt;/p&gt;
 &lt;ol&gt;
