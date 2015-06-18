@@ -1,5 +1,105 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Let There Be Light</title><link>http://weyo.me/</link><description></description><atom:link href="http://weyo.me/feeds/techs.rss.xml" rel="self"></atom:link><lastBuildDate>Wed, 17 Jun 2015 20:57:17 +0800</lastBuildDate><item><title>Storm 官方文档翻译(5) —— 命令行操作</title><link>http://weyo.me/pages/techs/storm-translations-command-line-client/</link><description>&lt;h1&gt;命令行操作&lt;/h1&gt;
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Let There Be Light</title><link>http://weyo.me/</link><description></description><atom:link href="http://weyo.me/feeds/techs.rss.xml" rel="self"></atom:link><lastBuildDate>Thu, 18 Jun 2015 19:29:02 +0800</lastBuildDate><item><title>Storm 官方文档翻译(6) —— 理解 Storm 拓扑的并行度(parallelism)概念</title><link>http://weyo.me/pages/techs/storm-translations-understanding-the-parallelism-of-a-storm-topology/</link><description>&lt;h1&gt;理解 Storm 拓扑的并行度(parallelism)概念&lt;/h1&gt;
+&lt;h2&gt;一个运行中的拓扑是由什么构成的：工作进程（worker processes），执行器（executors）和任务（tasks）&lt;/h2&gt;
+&lt;p&gt;在一个 Storm 集群中，Storm 主要通过以下三个部件来运行拓扑：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;工作进程（worker processes）&lt;/li&gt;
+&lt;li&gt;执行器（executors）&lt;/li&gt;
+&lt;li&gt;任务（tasks）&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;下面是他们之间相互关系的简单图示。&lt;/p&gt;
+&lt;p&gt;&lt;img alt="relationship" src="https://raw.githubusercontent.com/weyo/Storm-Documents/master/Manual/images/fig-parallelism-1.png" /&gt;&lt;/p&gt;
+&lt;p&gt;在 Worker 中运行的是拓扑的一个子集。一个 worker 进程是从属于某一个特定的拓扑的，在 worker 进程中会运行一个或者多个与拓扑中的组件相关联的 executor。一个运行中的拓扑就是由这些运行于 Storm 集群中的很多机器上的进程组成的。&lt;/p&gt;
+&lt;p&gt;一个 executor 是由 worker 进程生成的一个线程。在 executor 中可能会有一个或者多个 task，这些 task 都是为同一个组件（spout 或者 bolt）服务的。&lt;/p&gt;
+&lt;p&gt;task 是实际执行数据处理的最小工作单元（注意，task 并不是线程） —— 在你的代码中实现的每个 spout 或者 bolt 都会在集群中运行很多个 task。在拓扑的整个生命周期中每个组件的 task 数量都是保持不变的，不过每个组件的 executor 数量却是有可能会随着时间变化。在默认情况下 task 的数量是和 executor 的数量一样的，也就是说，默认情况下 Storm 会在每个线程上运行一个 task。&lt;/p&gt;
+&lt;h2&gt;配置拓扑的并行度（parallelism）&lt;/h2&gt;
+&lt;p&gt;注意，这里所说的术语“并行度”主要是用于表示所谓的 &lt;code&gt;parallelism_hint&lt;/code&gt;，它代表着一个组件的初始 executor （也是线程）数量。在这篇文章里，我们使用这个“并行度”术语来说明在 Storm 拓扑中既可以配置 executor 的数量，也可以配置 worker 和 task 的数量。如果“并行度”的概念需要表示其他的一般情况，我们也会特别指出。&lt;/p&gt;
+&lt;p&gt;下面的内容里显示了很多可配置选项，以及在代码中配置他们的方法。可以用于配置的方法有很多种，这里列出的只是其中一部分。另外需要注意的是，Storm 的&lt;a href="https://github.com/weyo/Storm-Documents/blob/master/Manual/zh/Configuration.md"&gt;配置优先级&lt;/a&gt;为 &lt;code&gt;defaults.yaml&lt;/code&gt; &amp;lt; &lt;code&gt;storm.yaml&lt;/code&gt; &amp;lt; 拓扑配置 &amp;lt; 内置型组件信息配置 &amp;lt; 外置型组件信息配置。&lt;/p&gt;
+&lt;h2&gt;Worker 数量&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;说明：拓扑在集群中运行所需要的工作进程数&lt;/li&gt;
+&lt;li&gt;配置选项：&lt;a href="http://storm.apache.org/javadoc/apidocs/backtype/storm/Config.html#TOPOLOGY_WORKERS"&gt;TOPOLOGY_WORKERS&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;在代码中如何使用（示例）：&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://storm.apache.org/javadoc/apidocs/backtype/storm/Config.html"&gt;Config#setNumWorkers&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Executors（线程）数量&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;说明：每个组件需要的执行线程数&lt;/li&gt;
+&lt;li&gt;配置选项：（没有拓扑级的通用配置项）&lt;/li&gt;
+&lt;li&gt;在代码中如何使用（示例）：&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://storm.apache.org/javadoc/apidocs/backtype/storm/topology/TopologyBuilder.html"&gt;TopologyBuilder#setSpout()&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://storm.apache.org/javadoc/apidocs/backtype/storm/topology/TopologyBuilder.html"&gt;TopologyBuilder#setBolt()&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;注意：从 Storm 0.8 开始 &lt;code&gt;parallelism_hint&lt;/code&gt; 参数代表 executor 的数量，而不是 task 的数量&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Tasks 数量&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;说明：每个组件需要的执行任务数&lt;/li&gt;
+&lt;li&gt;配置选项：&lt;a href="http://storm.apache.org/javadoc/apidocs/backtype/storm/Config.html#TOPOLOGY_TASKS"&gt;TOPOLOGY_TASKS&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;在代码中如何使用（示例）：&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://storm.apache.org/javadoc/apidocs/backtype/storm/topology/ComponentConfigurationDeclarer.html"&gt;ComponentConfigurationDeclarer#setNumTasks()&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;以下是配置上述参数的一个简单示例代码：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;topologyBuilder&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;setBolt&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;green-bolt&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;new&lt;/span&gt; &lt;span class="n"&gt;GreenBolt&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+               &lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;setNumTasks&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+               &lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;shuffleGrouping&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;blue-spout);&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;在上面的代码中，我们为 &lt;code&gt;GreenBolt&lt;/code&gt; 配置了 2 个初始执行线程（executor）和 4 个关联任务（task）。这样，每个执行线程中会运行 2 个任务。如果你在设置 bolt 的时候不指定 task 的数量，那么每个 executor 的 task 数会默认设置为 1。&lt;/p&gt;
+&lt;h2&gt;拓扑示例&lt;/h2&gt;
+&lt;p&gt;下图显示了一个与实际应用场景很接近的简单拓扑的结构。这个拓扑由三个组件构成：一个名为 &lt;code&gt;BlueSpout&lt;/code&gt; 的 spout，和两个名为 &lt;code&gt;GreenBolt&lt;/code&gt; 和 &lt;code&gt;YellowBolt&lt;/code&gt; 的 bolt。这些组件之间的关系是：&lt;code&gt;BlueSpout&lt;/code&gt; 将它的输出发送到 &lt;code&gt;GreenBolt&lt;/code&gt; 中，然后 &lt;code&gt;GreenBolt&lt;/code&gt; 将消息继续发送到 &lt;code&gt;YellowBolt&lt;/code&gt; 中。&lt;/p&gt;
+&lt;p&gt;&lt;img alt="running-topology" src="http://storm.apache.org/documentation/images/example-of-a-running-topology.png" /&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;图中是一个包含有两个 worker 进程的拓扑。其中，蓝色的 &lt;code&gt;BlueSpout&lt;/code&gt; 有两个 executor，每个 executor 中有一个 task，并行度为 2；绿色的 &lt;code&gt;GreenBolt&lt;/code&gt; 有两个 executor，每个 executor 有两个 task，并行度也为2；而黄色的 &lt;code&gt;YellowBolt&lt;/code&gt; 有 6 个 executor，每个 executor 中有一个 task，并行度为 6，因此，这个拓扑的总并行度就是 2 + 2 + 6 = 10。具体分配到每个 worker 就有 10 / 2 = 5 个 executor。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;上图中，&lt;code&gt;GreenBolt&lt;/code&gt; 配置了 task 数，而 &lt;code&gt;BlueSpout&lt;/code&gt; 和 &lt;code&gt;YellowBolt&lt;/code&gt; 仅仅配置了 executor 数。下面是相关代码：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;Config&lt;/span&gt; &lt;span class="n"&gt;conf&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Config&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;span class="n"&gt;conf&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;setNumWorkers&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// use two worker processes&lt;/span&gt;
+
+&lt;span class="n"&gt;topologyBuilder&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;setSpout&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;blue-spout&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;new&lt;/span&gt; &lt;span class="n"&gt;BlueSpout&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// set parallelism hint to 2&lt;/span&gt;
+
+&lt;span class="n"&gt;topologyBuilder&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;setBolt&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;green-bolt&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;new&lt;/span&gt; &lt;span class="n"&gt;GreenBolt&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+               &lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;setNumTasks&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+               &lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;shuffleGrouping&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;blue-spout&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+&lt;span class="n"&gt;topologyBuilder&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;setBolt&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;yellow-bolt&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;new&lt;/span&gt; &lt;span class="n"&gt;YellowBolt&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+               &lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;shuffleGrouping&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;green-bolt&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+&lt;span class="n"&gt;StormSubmitter&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;submitTopology&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+        &lt;span class="s"&gt;&amp;quot;mytopology&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;conf&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;topologyBuilder&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;createTopology&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;当然，Storm 还有一些其他的配置项可以控制拓扑的并行度，包括：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://storm.apache.org/javadoc/apidocs/backtype/storm/Config.html#TOPOLOGY_MAX_TASK_PARALLELISM"&gt;TOPOLOGY_MAX_TASK_PARALLELISM&lt;/a&gt;：该选项设置了一个组件最多能够分配的 executor 数（线程数上限），一般用于在本地模式运行拓扑时测试分配线程的数量限制。你可以通过 &lt;a href="http://storm.apache.org/javadoc/apidocs/backtype/storm/Config.html#setMaxTaskParallelism(int)"&gt;Config#setMaxTaskParallelism()&lt;/a&gt; 来配置该参数。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;如何修改运行中的拓扑的并行度&lt;/h2&gt;
+&lt;p&gt;Storm 的一个很有意思的特点是你可以随时增加或者减少 worker 或者 executor 的数量，而不需要重启集群或者拓扑。这个方法就叫做再平衡（rebalance）。&lt;/p&gt;
+&lt;p&gt;有两种方法可以对一个拓扑执行再平衡操作：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;使用 Storm UI&lt;/li&gt;
+&lt;li&gt;使用以下所示的客户端（CLI）工具&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;下面是使用 CLI 工具的一个简单示例：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="cp"&gt;## 重新配置拓扑 &amp;quot;mytopology&amp;quot;，使得该拓扑拥有 5 个 worker processes，&lt;/span&gt;
+&lt;span class="cp"&gt;## 另外，配置名为 &amp;quot;blue-spout&amp;quot; 的 spout 使用 3 个 executor，&lt;/span&gt;
+&lt;span class="cp"&gt;## 配置名为 &amp;quot;yellow-bolt&amp;quot; 的 bolt 使用 10 个 executor。&lt;/span&gt;
+
+&lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="n"&gt;storm&lt;/span&gt; &lt;span class="n"&gt;rebalance&lt;/span&gt; &lt;span class="n"&gt;mytopology&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;e&lt;/span&gt; &lt;span class="n"&gt;blue&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;spout&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;e&lt;/span&gt; &lt;span class="n"&gt;yellow&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;bolt&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;hr /&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Thu, 18 Jun 2015 19:29:02 +0800</pubDate><guid>tag:weyo.me,2015-06-18:pages/techs/storm-translations-understanding-the-parallelism-of-a-storm-topology/</guid><category>Storm</category></item><item><title>Storm 官方文档翻译(5) —— 命令行操作</title><link>http://weyo.me/pages/techs/storm-translations-command-line-client/</link><description>&lt;h1&gt;命令行操作&lt;/h1&gt;
 &lt;p&gt;本文介绍了 Storm 命令行客户端中的所有命令操作。如果想要了解怎样设置你的 Strom 客户端和远程集群的交互，请按照&lt;a href="http://storm.apache.org/documentation/Setting-up-a-development-environment.html"&gt;配置开发环境&lt;/a&gt;一文中的步骤操作。&lt;/p&gt;
 &lt;p&gt;Storm 中支持的命令包括：&lt;/p&gt;
 &lt;ol&gt;
@@ -1601,7 +1701,185 @@ java.lang.NoClassDefFoundError: Could not initialize class org.apache.log4j.Log4
 &lt;hr /&gt;
 &lt;blockquote&gt;
 &lt;p&gt;&lt;em&gt;Updating...&lt;/em&gt;&lt;/p&gt;
-&lt;/blockquote&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Wed, 15 Apr 2015 00:00:00 +0800</pubDate><guid>tag:weyo.me,2015-04-15:pages/techs/storm-questions/</guid><category>Storm</category><category>分布式计算</category><category>实时计算</category></item><item><title>Kafka-Storm 集成部署</title><link>http://weyo.me/pages/techs/kafka-storm-integration/</link><description>&lt;h3&gt;前言&lt;/h3&gt;
+&lt;/blockquote&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Wed, 15 Apr 2015 00:00:00 +0800</pubDate><guid>tag:weyo.me,2015-04-15:pages/techs/storm-questions/</guid><category>Storm</category><category>分布式计算</category><category>实时计算</category></item><item><title>Yaml for Java</title><link>http://weyo.me/pages/techs/yaml-for-java/</link><description>&lt;p&gt;最近在学 Storm 的时候发现 Storm 的配置文件是 yaml 格式的，就好奇地查了下这个没听说过的格式（&lt;a href="https://en.wikipedia.org/?title=YAML"&gt;YAML - Wikipedia&lt;/a&gt;），这才发现原来不是什么新新物种，而是 2001 年就推出来了的文件格式。虽然 Yaml 相对于 XML 这种老大哥还差远了，但是后辈小子胜在年轻，有干劲，语法简单，功能强大，而且这几年相关工具的解析速度也提升了不少，大有超越 XML 这种大块头的趋势。简单地试用了下，发现压马路（“yaml”的拼音打出来就是这个）的语法真的是既简洁又优雅，让人爱不释手。于是，就这么愉快地决定了，以后的项目中没有其他要求的情况下全部使用 yaml 来做格式化，让 XML 先飞一会儿……&lt;/p&gt;
+&lt;p&gt;言归正传，Google 了一下，评价最好的解析工具还是 snakeyaml：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nt"&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;org.yaml&lt;span class="nt"&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;snakeyaml&lt;span class="nt"&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;lt;version&amp;gt;&lt;/span&gt;1.15&lt;span class="nt"&gt;&amp;lt;/version&amp;gt;&lt;/span&gt;
+&lt;span class="nt"&gt;&amp;lt;/dependency&amp;gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;对于下面这样基本的配置文件：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;redis&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;rhost&lt;/span&gt;
+&lt;span class="n"&gt;redis&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;6379&lt;/span&gt;
+&lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;rule&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;light&lt;/span&gt;
+    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;weighted&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;使用 snakeyaml 解析 yaml 配置文件非常简单：&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt; 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;static&lt;/span&gt; &lt;span class="n"&gt;Map&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Object&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;loadMap&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt; &lt;span class="n"&gt;file&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="kd"&gt;throws&lt;/span&gt; &lt;span class="n"&gt;IOException&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;Yaml&lt;/span&gt; &lt;span class="n"&gt;yaml&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Yaml&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+    &lt;span class="n"&gt;Map&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Object&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;map&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+    &lt;span class="n"&gt;InputStream&lt;/span&gt; &lt;span class="n"&gt;is&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;YamlUtil&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;class&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getResourceAsStream&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;file&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;is&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;map&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Map&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Object&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;)&lt;/span&gt; &lt;span class="n"&gt;yaml&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;load&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;is&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+        &lt;span class="n"&gt;is&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;close&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;map&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;对于下面这样比较复杂的对象 dump 文件：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="o"&gt;!!&lt;/span&gt;&lt;span class="n"&gt;me&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;weyo&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;yaml&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Dev&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="nl"&gt;enabled:&lt;/span&gt; &lt;span class="nb"&gt;false&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="nl"&gt;inn:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;III&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;timeout&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;600000000&lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt;
+  &lt;span class="nl"&gt;port:&lt;/span&gt; &lt;span class="mi"&gt;33333&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="nl"&gt;type:&lt;/span&gt; &lt;span class="n"&gt;T1&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="o"&gt;---&lt;/span&gt; &lt;span class="o"&gt;!!&lt;/span&gt;&lt;span class="n"&gt;me&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;weyo&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;yaml&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Dev&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; 
+  &lt;span class="n"&gt;enabled&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;true&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="nl"&gt;inn:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;UH&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;timeout&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;180003300&lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt;
+  &lt;span class="nl"&gt;port:&lt;/span&gt; &lt;span class="mi"&gt;10028&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="nl"&gt;type:&lt;/span&gt; &lt;span class="n"&gt;T2&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;也可以很轻松的解析：&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt; 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;static&lt;/span&gt; &lt;span class="n"&gt;List&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Object&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="nf"&gt;loadObjects&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt; &lt;span class="n"&gt;file&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="kd"&gt;throws&lt;/span&gt; &lt;span class="n"&gt;IOException&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;Yaml&lt;/span&gt; &lt;span class="n"&gt;yaml&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Yaml&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+    &lt;span class="n"&gt;List&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Object&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;list&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+    &lt;span class="n"&gt;InputStream&lt;/span&gt; &lt;span class="n"&gt;is&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;YamlUtil&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;class&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getResourceAsStream&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;file&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;is&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;list&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;ArrayList&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Object&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;();&lt;/span&gt;
+        &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Object&lt;/span&gt; &lt;span class="n"&gt;obj&lt;/span&gt; &lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;yaml&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;loadAll&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;is&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+            &lt;span class="n"&gt;list&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;add&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;obj&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+        &lt;span class="o"&gt;}&lt;/span&gt;
+        &lt;span class="n"&gt;is&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;close&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;list&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;当然，如果有需要，还可以将对象 dump 到文件中：&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt; 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;Yaml&lt;/span&gt; &lt;span class="n"&gt;yaml&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Yaml&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+&lt;span class="n"&gt;RedisConnection&lt;/span&gt; &lt;span class="n"&gt;redis&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;RedisConnection&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+&lt;span class="n"&gt;redis&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;setHost&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;rh134&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="n"&gt;redis&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;setPort&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;10029&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+
+&lt;span class="n"&gt;FileWriter&lt;/span&gt; &lt;span class="n"&gt;output&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+&lt;span class="k"&gt;try&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;output&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;FileWriter&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;src/main/resources/topology.yaml&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="k"&gt;catch&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;IOException&lt;/span&gt; &lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;printStackTrace&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;output&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;yaml&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;dump&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;redis&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;output&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="n"&gt;output&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;close&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;综上所述，无所不能的 Yaml 真是居家旅行之必备 ：)&lt;/p&gt;
+&lt;hr /&gt;
+&lt;h1&gt;Q &amp;amp; A&lt;/h1&gt;
+&lt;h3&gt;无法创建 Java 对象&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;Exception&lt;/span&gt; &lt;span class="k"&gt;in&lt;/span&gt; &lt;span class="k"&gt;thread&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;main&amp;quot;&lt;/span&gt; &lt;span class="nx"&gt;Can&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;t construct a java object for tag:yaml.org,2002:me.weyo.yaml.Dev; exception=java.lang.NoSuchMethodException: me.weyo.yaml.Dev.&amp;lt;init&amp;gt;()&lt;/span&gt;
+&lt;span class="s1"&gt; in &amp;#39;&lt;/span&gt;&lt;span class="nx"&gt;reader&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;, line 1, column 1:&lt;/span&gt;
+&lt;span class="s1"&gt;    !!me.weyo.yaml.Dev ... &lt;/span&gt;
+&lt;span class="s1"&gt;    ^&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;这个错误表明被解析的对象（Dev）中没有默认的构造器（即只有带参数的构造器，没有无参构造器，snakeyaml 无法将对象解析为 Bean）。&lt;/p&gt;
+&lt;h3&gt;解析错误异常&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;Exception&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="kr"&gt;thread&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;main&amp;quot;&lt;/span&gt; &lt;span class="k"&gt;while&lt;/span&gt; &lt;span class="n"&gt;parsing&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="n"&gt;flow&lt;/span&gt; &lt;span class="n"&gt;mapping&lt;/span&gt;
+ &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;reader&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;column&lt;/span&gt; &lt;span class="mi"&gt;40&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+     &lt;span class="p"&gt;...&lt;/span&gt; &lt;span class="n"&gt;me&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;weyo&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;yaml&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Dev&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+                                         &lt;span class="o"&gt;^&lt;/span&gt;
+&lt;span class="n"&gt;expected&lt;/span&gt; &lt;span class="sc"&gt;&amp;#39;,&amp;#39;&lt;/span&gt; &lt;span class="n"&gt;or&lt;/span&gt; &lt;span class="sc"&gt;&amp;#39;}&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;but&lt;/span&gt; &lt;span class="n"&gt;got&lt;/span&gt; &lt;span class="n"&gt;Value&lt;/span&gt;
+ &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;reader&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;column&lt;/span&gt; &lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+      &lt;span class="nl"&gt;port:&lt;/span&gt; &lt;span class="mi"&gt;33333&lt;/span&gt;
+          &lt;span class="o"&gt;^&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;这是被解析的文件中有属性没有以逗号结束的缘故，例如，下面这样的文件描述就少了逗号：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="cp"&gt;# 错误的配置方式！&lt;/span&gt;
+&lt;span class="o"&gt;!!&lt;/span&gt;&lt;span class="n"&gt;me&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;weyo&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;yaml&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Dev&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="nl"&gt;enabled:&lt;/span&gt; &lt;span class="nb"&gt;false&lt;/span&gt; &lt;span class="err"&gt;#&lt;/span&gt; &lt;span class="err"&gt;缺少逗号&lt;/span&gt;
+  &lt;span class="nl"&gt;inn:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;III&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;timeout&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;600000000&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="nl"&gt;port:&lt;/span&gt; &lt;span class="mi"&gt;33333&lt;/span&gt;
+  &lt;span class="nl"&gt;type:&lt;/span&gt; &lt;span class="n"&gt;T1&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;标记识别异常&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;Exception&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="kr"&gt;thread&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;main&amp;quot;&lt;/span&gt; &lt;span class="n"&gt;expected&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;document&lt;/span&gt; &lt;span class="n"&gt;start&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;but&lt;/span&gt; &lt;span class="n"&gt;found&lt;/span&gt; &lt;span class="n"&gt;Tag&lt;/span&gt;
+ &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;reader&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt; &lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;column&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="o"&gt;!!&lt;/span&gt;&lt;span class="n"&gt;me&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;weyo&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;yaml&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Dev&lt;/span&gt; &lt;span class="p"&gt;...&lt;/span&gt; 
+    &lt;span class="o"&gt;^&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;这是由于缺少不同对象之间的分隔标识，例如这样的定义：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="cp"&gt;# 错误的配置方式！&lt;/span&gt;
+&lt;span class="o"&gt;!!&lt;/span&gt;&lt;span class="n"&gt;me&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;weyo&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;yaml&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Dev&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="nl"&gt;enabled:&lt;/span&gt; &lt;span class="nb"&gt;false&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="nl"&gt;inn:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;III&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;timeout&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;600000000&lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt;
+  &lt;span class="nl"&gt;port:&lt;/span&gt; &lt;span class="mi"&gt;33333&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="nl"&gt;type:&lt;/span&gt; &lt;span class="n"&gt;T1&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="o"&gt;!!&lt;/span&gt;&lt;span class="n"&gt;me&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;weyo&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;yaml&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Dev&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="err"&gt;#&lt;/span&gt; &lt;span class="err"&gt;缺少分隔符&lt;/span&gt;
+  &lt;span class="nl"&gt;enabled:&lt;/span&gt; &lt;span class="nb"&gt;true&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="nl"&gt;inn:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;UH&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;timeout&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;180003300&lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt;
+  &lt;span class="nl"&gt;port:&lt;/span&gt; &lt;span class="mi"&gt;10028&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="nl"&gt;type:&lt;/span&gt; &lt;span class="n"&gt;T2&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;hr /&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Tue, 14 Apr 2015 00:00:00 +0800</pubDate><guid>tag:weyo.me,2015-04-14:pages/techs/yaml-for-java/</guid><category>Java</category><category>Yaml</category></item><item><title>Kafka-Storm 集成部署</title><link>http://weyo.me/pages/techs/kafka-storm-integration/</link><description>&lt;h3&gt;前言&lt;/h3&gt;
 &lt;p&gt;分布式实时计算的主要组件采用基于流式计算的 Apache Storm，而实时计算的数据源来自基础数据输入组件中的 Kafka，如何将 Kafka 的消息数据传入 Storm 就是本文讨论的内容。&lt;/p&gt;
 &lt;hr /&gt;
 &lt;h3&gt;0. 材料准备&lt;/h3&gt;
@@ -2153,185 +2431,7 @@ nimbus.host: "111.222.333.444"&lt;/p&gt;
    &lt;span class="n"&gt;echo&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;$PID is running&amp;quot;&lt;/span&gt;
    &lt;span class="err"&gt;#&lt;/span&gt; &lt;span class="n"&gt;Do&lt;/span&gt; &lt;span class="n"&gt;something&lt;/span&gt; &lt;span class="n"&gt;knowing&lt;/span&gt; &lt;span class="n"&gt;the&lt;/span&gt; &lt;span class="n"&gt;pid&lt;/span&gt; &lt;span class="n"&gt;exists&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt; &lt;span class="n"&gt;the&lt;/span&gt; &lt;span class="n"&gt;process&lt;/span&gt; &lt;span class="n"&gt;with&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="n"&gt;PID&lt;/span&gt; &lt;span class="n"&gt;is&lt;/span&gt; &lt;span class="n"&gt;running&lt;/span&gt;
 &lt;span class="n"&gt;fi&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Thu, 22 May 2014 00:00:00 +0800</pubDate><guid>tag:weyo.me,2014-05-22:pages/techs/linux-get-pid/</guid><category>Linux</category><category>Shell</category></item><item><title>Yaml for Java</title><link>http://weyo.me/pages/techs/yaml-for-java/</link><description>&lt;p&gt;最近在学 Storm 的时候发现 Storm 的配置文件是 yaml 格式的，就好奇地查了下这个没听说过的格式（&lt;a href="https://en.wikipedia.org/?title=YAML"&gt;YAML - Wikipedia&lt;/a&gt;），这才发现原来不是什么新新物种，而是 2001 年就推出来了的文件格式。虽然 Yaml 相对于 XML 这种老大哥还差远了，但是后辈小子胜在年轻，有干劲，语法简单，功能强大，而且这几年相关工具的解析速度也提升了不少，大有超越 XML 这种大块头的趋势。简单地试用了下，发现压马路（“yaml”的拼音打出来就是这个）的语法真的是既简洁又优雅，让人爱不释手。于是，就这么愉快地决定了，以后的项目中没有其他要求的情况下全部使用 yaml 来做格式化，让 XML 先飞一会儿……&lt;/p&gt;
-&lt;p&gt;言归正传，Google 了一下，评价最好的解析工具还是 snakeyaml：&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nt"&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
-    &lt;span class="nt"&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;org.yaml&lt;span class="nt"&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
-    &lt;span class="nt"&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;snakeyaml&lt;span class="nt"&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
-    &lt;span class="nt"&gt;&amp;lt;version&amp;gt;&lt;/span&gt;1.15&lt;span class="nt"&gt;&amp;lt;/version&amp;gt;&lt;/span&gt;
-&lt;span class="nt"&gt;&amp;lt;/dependency&amp;gt;&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;对于下面这样基本的配置文件：&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;redis&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;rhost&lt;/span&gt;
-&lt;span class="n"&gt;redis&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;6379&lt;/span&gt;
-&lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;rule&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
-    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;light&lt;/span&gt;
-    &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;weighted&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;使用 snakeyaml 解析 yaml 配置文件非常简单：&lt;/p&gt;
-&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt; 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;static&lt;/span&gt; &lt;span class="n"&gt;Map&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Object&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;loadMap&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt; &lt;span class="n"&gt;file&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="kd"&gt;throws&lt;/span&gt; &lt;span class="n"&gt;IOException&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
-    &lt;span class="n"&gt;Yaml&lt;/span&gt; &lt;span class="n"&gt;yaml&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Yaml&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
-    &lt;span class="n"&gt;Map&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Object&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;map&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
-    &lt;span class="n"&gt;InputStream&lt;/span&gt; &lt;span class="n"&gt;is&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;YamlUtil&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;class&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getResourceAsStream&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;file&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
-    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;is&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
-        &lt;span class="n"&gt;map&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Map&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Object&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;)&lt;/span&gt; &lt;span class="n"&gt;yaml&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;load&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;is&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
-        &lt;span class="n"&gt;is&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;close&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
-    &lt;span class="o"&gt;}&lt;/span&gt;
-    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;map&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
-&lt;span class="o"&gt;}&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
-
-&lt;p&gt;对于下面这样比较复杂的对象 dump 文件：&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="o"&gt;!!&lt;/span&gt;&lt;span class="n"&gt;me&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;weyo&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;yaml&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Dev&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
-  &lt;span class="nl"&gt;enabled:&lt;/span&gt; &lt;span class="nb"&gt;false&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-  &lt;span class="nl"&gt;inn:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;III&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;timeout&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;600000000&lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt;
-  &lt;span class="nl"&gt;port:&lt;/span&gt; &lt;span class="mi"&gt;33333&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-  &lt;span class="nl"&gt;type:&lt;/span&gt; &lt;span class="n"&gt;T1&lt;/span&gt;
-&lt;span class="p"&gt;}&lt;/span&gt;
-&lt;span class="o"&gt;---&lt;/span&gt; &lt;span class="o"&gt;!!&lt;/span&gt;&lt;span class="n"&gt;me&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;weyo&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;yaml&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Dev&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; 
-  &lt;span class="n"&gt;enabled&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;true&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-  &lt;span class="nl"&gt;inn:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;UH&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;timeout&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;180003300&lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt;
-  &lt;span class="nl"&gt;port:&lt;/span&gt; &lt;span class="mi"&gt;10028&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-  &lt;span class="nl"&gt;type:&lt;/span&gt; &lt;span class="n"&gt;T2&lt;/span&gt;
-&lt;span class="p"&gt;}&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;也可以很轻松的解析：&lt;/p&gt;
-&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt; 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10
-11
-12
-13&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;static&lt;/span&gt; &lt;span class="n"&gt;List&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Object&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="nf"&gt;loadObjects&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt; &lt;span class="n"&gt;file&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="kd"&gt;throws&lt;/span&gt; &lt;span class="n"&gt;IOException&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
-    &lt;span class="n"&gt;Yaml&lt;/span&gt; &lt;span class="n"&gt;yaml&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Yaml&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
-    &lt;span class="n"&gt;List&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Object&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;list&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
-    &lt;span class="n"&gt;InputStream&lt;/span&gt; &lt;span class="n"&gt;is&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;YamlUtil&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;class&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getResourceAsStream&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;file&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
-    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;is&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
-        &lt;span class="n"&gt;list&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;ArrayList&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Object&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;();&lt;/span&gt;
-        &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Object&lt;/span&gt; &lt;span class="n"&gt;obj&lt;/span&gt; &lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;yaml&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;loadAll&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;is&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
-            &lt;span class="n"&gt;list&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;add&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;obj&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
-        &lt;span class="o"&gt;}&lt;/span&gt;
-        &lt;span class="n"&gt;is&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;close&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
-    &lt;span class="o"&gt;}&lt;/span&gt;
-    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;list&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
-&lt;span class="o"&gt;}&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
-
-&lt;p&gt;当然，如果有需要，还可以将对象 dump 到文件中：&lt;/p&gt;
-&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt; 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10
-11
-12
-13
-14&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;Yaml&lt;/span&gt; &lt;span class="n"&gt;yaml&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Yaml&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
-&lt;span class="n"&gt;RedisConnection&lt;/span&gt; &lt;span class="n"&gt;redis&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;RedisConnection&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
-&lt;span class="n"&gt;redis&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;setHost&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;rh134&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
-&lt;span class="n"&gt;redis&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;setPort&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;10029&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
-
-&lt;span class="n"&gt;FileWriter&lt;/span&gt; &lt;span class="n"&gt;output&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
-&lt;span class="k"&gt;try&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
-    &lt;span class="n"&gt;output&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;FileWriter&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;src/main/resources/topology.yaml&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
-&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="k"&gt;catch&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;IOException&lt;/span&gt; &lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
-    &lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;printStackTrace&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
-&lt;span class="o"&gt;}&lt;/span&gt;
-&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;output&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-    &lt;span class="n"&gt;yaml&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;dump&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;redis&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;output&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
-&lt;span class="n"&gt;output&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;close&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
-
-&lt;p&gt;综上所述，无所不能的 Yaml 真是居家旅行之必备 ：)&lt;/p&gt;
-&lt;hr /&gt;
-&lt;h1&gt;Q &amp;amp; A&lt;/h1&gt;
-&lt;h3&gt;无法创建 Java 对象&lt;/h3&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;Exception&lt;/span&gt; &lt;span class="k"&gt;in&lt;/span&gt; &lt;span class="k"&gt;thread&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;main&amp;quot;&lt;/span&gt; &lt;span class="nx"&gt;Can&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;t construct a java object for tag:yaml.org,2002:me.weyo.yaml.Dev; exception=java.lang.NoSuchMethodException: me.weyo.yaml.Dev.&amp;lt;init&amp;gt;()&lt;/span&gt;
-&lt;span class="s1"&gt; in &amp;#39;&lt;/span&gt;&lt;span class="nx"&gt;reader&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;, line 1, column 1:&lt;/span&gt;
-&lt;span class="s1"&gt;    !!me.weyo.yaml.Dev ... &lt;/span&gt;
-&lt;span class="s1"&gt;    ^&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;这个错误表明被解析的对象（Dev）中没有默认的构造器（即只有带参数的构造器，没有无参构造器，snakeyaml 无法将对象解析为 Bean）。&lt;/p&gt;
-&lt;h3&gt;解析错误异常&lt;/h3&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;Exception&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="kr"&gt;thread&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;main&amp;quot;&lt;/span&gt; &lt;span class="k"&gt;while&lt;/span&gt; &lt;span class="n"&gt;parsing&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="n"&gt;flow&lt;/span&gt; &lt;span class="n"&gt;mapping&lt;/span&gt;
- &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;reader&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;column&lt;/span&gt; &lt;span class="mi"&gt;40&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
-     &lt;span class="p"&gt;...&lt;/span&gt; &lt;span class="n"&gt;me&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;weyo&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;yaml&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Dev&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
-                                         &lt;span class="o"&gt;^&lt;/span&gt;
-&lt;span class="n"&gt;expected&lt;/span&gt; &lt;span class="sc"&gt;&amp;#39;,&amp;#39;&lt;/span&gt; &lt;span class="n"&gt;or&lt;/span&gt; &lt;span class="sc"&gt;&amp;#39;}&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;but&lt;/span&gt; &lt;span class="n"&gt;got&lt;/span&gt; &lt;span class="n"&gt;Value&lt;/span&gt;
- &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;reader&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;column&lt;/span&gt; &lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
-      &lt;span class="nl"&gt;port:&lt;/span&gt; &lt;span class="mi"&gt;33333&lt;/span&gt;
-          &lt;span class="o"&gt;^&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;这是被解析的文件中有属性没有以逗号结束的缘故，例如，下面这样的文件描述就少了逗号：&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="cp"&gt;# 错误的配置方式！&lt;/span&gt;
-&lt;span class="o"&gt;!!&lt;/span&gt;&lt;span class="n"&gt;me&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;weyo&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;yaml&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Dev&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
-  &lt;span class="nl"&gt;enabled:&lt;/span&gt; &lt;span class="nb"&gt;false&lt;/span&gt; &lt;span class="err"&gt;#&lt;/span&gt; &lt;span class="err"&gt;缺少逗号&lt;/span&gt;
-  &lt;span class="nl"&gt;inn:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;III&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;timeout&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;600000000&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
-  &lt;span class="nl"&gt;port:&lt;/span&gt; &lt;span class="mi"&gt;33333&lt;/span&gt;
-  &lt;span class="nl"&gt;type:&lt;/span&gt; &lt;span class="n"&gt;T1&lt;/span&gt;
-&lt;span class="p"&gt;}&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;h3&gt;标记识别异常&lt;/h3&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;Exception&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="kr"&gt;thread&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;main&amp;quot;&lt;/span&gt; &lt;span class="n"&gt;expected&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;document&lt;/span&gt; &lt;span class="n"&gt;start&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;but&lt;/span&gt; &lt;span class="n"&gt;found&lt;/span&gt; &lt;span class="n"&gt;Tag&lt;/span&gt;
- &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;reader&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt; &lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;column&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
-    &lt;span class="o"&gt;!!&lt;/span&gt;&lt;span class="n"&gt;me&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;weyo&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;yaml&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Dev&lt;/span&gt; &lt;span class="p"&gt;...&lt;/span&gt; 
-    &lt;span class="o"&gt;^&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;这是由于缺少不同对象之间的分隔标识，例如这样的定义：&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="cp"&gt;# 错误的配置方式！&lt;/span&gt;
-&lt;span class="o"&gt;!!&lt;/span&gt;&lt;span class="n"&gt;me&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;weyo&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;yaml&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Dev&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
-  &lt;span class="nl"&gt;enabled:&lt;/span&gt; &lt;span class="nb"&gt;false&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-  &lt;span class="nl"&gt;inn:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;III&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;timeout&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;600000000&lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt;
-  &lt;span class="nl"&gt;port:&lt;/span&gt; &lt;span class="mi"&gt;33333&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-  &lt;span class="nl"&gt;type:&lt;/span&gt; &lt;span class="n"&gt;T1&lt;/span&gt;
-&lt;span class="p"&gt;}&lt;/span&gt;
-&lt;span class="o"&gt;!!&lt;/span&gt;&lt;span class="n"&gt;me&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;weyo&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;yaml&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Dev&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="err"&gt;#&lt;/span&gt; &lt;span class="err"&gt;缺少分隔符&lt;/span&gt;
-  &lt;span class="nl"&gt;enabled:&lt;/span&gt; &lt;span class="nb"&gt;true&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-  &lt;span class="nl"&gt;inn:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;UH&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;timeout&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;180003300&lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt;
-  &lt;span class="nl"&gt;port:&lt;/span&gt; &lt;span class="mi"&gt;10028&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-  &lt;span class="nl"&gt;type:&lt;/span&gt; &lt;span class="n"&gt;T2&lt;/span&gt;
-&lt;span class="p"&gt;}&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;hr /&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Mon, 14 Apr 2014 00:00:00 +0800</pubDate><guid>tag:weyo.me,2014-04-14:pages/techs/yaml-for-java/</guid><category>Java</category><category>Yaml</category></item><item><title>Linux 系统时间配置</title><link>http://weyo.me/pages/techs/linux-time-setting/</link><description>&lt;blockquote&gt;
+&lt;/pre&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Thu, 22 May 2014 00:00:00 +0800</pubDate><guid>tag:weyo.me,2014-05-22:pages/techs/linux-get-pid/</guid><category>Linux</category><category>Shell</category></item><item><title>Linux 系统时间配置</title><link>http://weyo.me/pages/techs/linux-time-setting/</link><description>&lt;blockquote&gt;
 &lt;p&gt;本文根据网络资料整理。
 Linux 系统时间配置大致可以大致分为“手动”设置与基于 ntp 的配置两种方式。&lt;/p&gt;
 &lt;/blockquote&gt;

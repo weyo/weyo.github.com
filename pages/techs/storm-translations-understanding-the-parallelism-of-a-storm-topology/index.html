@@ -3,7 +3,7 @@
       xmlns:og="http://ogp.me/ns#"
       xmlns:fb="https://www.facebook.com/2008/fbml">
 <head>
-    <title>Storm 官方文档翻译(2) —— 配置
+    <title>Storm 官方文档翻译(6) —— 理解 Storm 拓扑的并行度(parallelism)概念
    - Let There Be Light
 </title>
     <!-- Using the latest rendering mode for IE -->
@@ -15,9 +15,9 @@
     <!-- Open Graph tags -->
 
             <meta property="og:type" content="article"/>
-            <meta property="og:title" content="Storm 官方文档翻译(2) —— 配置"/>
-            <meta property="og:url" content="http://weyo.me/pages/techs/storm-translations-configuration/"/>
-            <meta property="og:description" content="Storm 的配置。"/>
+            <meta property="og:title" content="Storm 官方文档翻译(6) —— 理解 Storm 拓扑的并行度(parallelism)概念"/>
+            <meta property="og:url" content="http://weyo.me/pages/techs/storm-translations-understanding-the-parallelism-of-a-storm-topology/"/>
+            <meta property="og:description" content="本文介绍了 Storm 的并发模型结构。"/>
 
     <!-- Bootstrap -->
         <link rel="stylesheet" href="http://weyo.me/theme/css/bootstrap.min.css" type="text/css"/>
@@ -89,10 +89,10 @@
         <article>
             <header class="page-header">
                 <h1>
-                    <a href="http://weyo.me/pages/techs/storm-translations-configuration/"
+                    <a href="http://weyo.me/pages/techs/storm-translations-understanding-the-parallelism-of-a-storm-topology/"
                        rel="bookmark"
-                       title="Permalink to Storm 官方文档翻译(2) —— 配置">
-                        Storm 官方文档翻译(2) —— 配置
+                       title="Permalink to Storm 官方文档翻译(6) —— 理解 Storm 拓扑的并行度(parallelism)概念">
+                        Storm 官方文档翻译(6) —— 理解 Storm 拓扑的并行度(parallelism)概念
                     </a>
                 </h1>
             </header>
@@ -102,7 +102,7 @@
 <footer class="post-info">
     <span class="label label-default">Date</span>
     <span class="published">
-        <i class="icon-calendar"></i>2015-06-14
+        <i class="icon-calendar"></i>2015-06-18
     </span>
 	<span style="font-size:12px;">&nbsp;&nbsp;</span>
     <!--     <span class="label label-default">By</span>
@@ -118,33 +118,110 @@
 <span class="label label-default">Tags</span>
 	<a href="http://weyo.me/tag/storm.html">Storm</a>
 	
-	<br /><br />Posted by <span style="font-weight:bold;"><a href="http://github.com/weyo">WeYo</a></span>. 转载请注明出处：<a href="http://weyo.me/pages/techs/storm-translations-configuration/">http://weyo.me/pages/techs/storm-translations-configuration/</a>
+	<br /><br />Posted by <span style="font-weight:bold;"><a href="http://github.com/weyo">WeYo</a></span>. 转载请注明出处：<a href="http://weyo.me/pages/techs/storm-translations-understanding-the-parallelism-of-a-storm-topology/">http://weyo.me/pages/techs/storm-translations-understanding-the-parallelism-of-a-storm-topology/</a>
 </footer><!-- /.post-info -->                    </div>
                 </div>
-                <h1>配置</h1>
-<p>Storm 有大量配置项用于调整 nimbus、supervisors 和拓扑的行为。有些配置项是系统级的配置项，在拓扑中不能修改，另外一些配置项则是可以在拓扑中修改的。</p>
-<p>每一个配置项都在 Storm 代码库的 <a href="https://github.com/apache/storm/blob/master/conf/defaults.yaml">defaults.yaml</a> 中有一个默认值。可以通过在 Nimbus 和 Supervisors 的环境变量中定义一个 storm.yaml 来覆盖默认值。最后，在使用 <a href="http://storm.apache.org/javadoc/apidocs/backtype/storm/StormSubmitter.html">StormSubmitter</a> 提交拓扑时也可以定义基于具体拓扑的配置项。但是，基于拓扑的配置项仅仅能够覆盖那些以 “TOPOLOGY” 作为前缀的配置项。</p>
-<p>Storm 0.7.0 以上版本支持覆写每个 Bolt/Spout 的配置信息。不过，使用这种方式只能修改以下几个配置项：</p>
+                <h1>理解 Storm 拓扑的并行度(parallelism)概念</h1>
+<h2>一个运行中的拓扑是由什么构成的：工作进程（worker processes），执行器（executors）和任务（tasks）</h2>
+<p>在一个 Storm 集群中，Storm 主要通过以下三个部件来运行拓扑：</p>
 <ol>
-<li>"topology.debug"</li>
-<li>"topology.max.spout.pending"</li>
-<li>"topology.max.task.parallelism"</li>
-<li>"topology.kryo.register"：由于序列化对拓扑中的所有组件都是可见的，这一项与其他几项稍微有一些不同，详细信息可以参考 <a href="http://storm.apache.org/documentation/Serialization.html">Serialization</a></li>
+<li>工作进程（worker processes）</li>
+<li>执行器（executors）</li>
+<li>任务（tasks）</li>
 </ol>
-<p>Storm 的 Java API 支持两种自定义组件配置信息的方式：</p>
-<ol>
-<li>内置型：在需要配置的 Spout/Bolt 中覆写 <code>getComponentConfiguration</code> 方法，使其返回特定组件的配置表；</li>
-<li>外置型：<code>TopologyBuilder</code> 中的 <code>setSpout</code> 与 <code>setBolt</code> 方法会返回一个带有 <code>addConfiguration</code> 方法的 <code>ComponentConfigurationDeclarer</code> 对象，通过 <code>addConfiguration</code> 方法就可以覆写对应组件的配置项（同时也可以添加自定义的配置信息——译者注）。</li>
-</ol>
-<p>配置信息的优先级依次为：defaults.yaml &lt; storm.yaml &lt; 拓扑配置 &lt; 内置型组件信息配置 &lt; 外置型组件信息配置。</p>
-<p><strong>相关资料</strong></p>
+<p>下面是他们之间相互关系的简单图示。</p>
+<p><img alt="relationship" src="https://raw.githubusercontent.com/weyo/Storm-Documents/master/Manual/images/fig-parallelism-1.png" /></p>
+<p>在 Worker 中运行的是拓扑的一个子集。一个 worker 进程是从属于某一个特定的拓扑的，在 worker 进程中会运行一个或者多个与拓扑中的组件相关联的 executor。一个运行中的拓扑就是由这些运行于 Storm 集群中的很多机器上的进程组成的。</p>
+<p>一个 executor 是由 worker 进程生成的一个线程。在 executor 中可能会有一个或者多个 task，这些 task 都是为同一个组件（spout 或者 bolt）服务的。</p>
+<p>task 是实际执行数据处理的最小工作单元（注意，task 并不是线程） —— 在你的代码中实现的每个 spout 或者 bolt 都会在集群中运行很多个 task。在拓扑的整个生命周期中每个组件的 task 数量都是保持不变的，不过每个组件的 executor 数量却是有可能会随着时间变化。在默认情况下 task 的数量是和 executor 的数量一样的，也就是说，默认情况下 Storm 会在每个线程上运行一个 task。</p>
+<h2>配置拓扑的并行度（parallelism）</h2>
+<p>注意，这里所说的术语“并行度”主要是用于表示所谓的 <code>parallelism_hint</code>，它代表着一个组件的初始 executor （也是线程）数量。在这篇文章里，我们使用这个“并行度”术语来说明在 Storm 拓扑中既可以配置 executor 的数量，也可以配置 worker 和 task 的数量。如果“并行度”的概念需要表示其他的一般情况，我们也会特别指出。</p>
+<p>下面的内容里显示了很多可配置选项，以及在代码中配置他们的方法。可以用于配置的方法有很多种，这里列出的只是其中一部分。另外需要注意的是，Storm 的<a href="https://github.com/weyo/Storm-Documents/blob/master/Manual/zh/Configuration.md">配置优先级</a>为 <code>defaults.yaml</code> &lt; <code>storm.yaml</code> &lt; 拓扑配置 &lt; 内置型组件信息配置 &lt; 外置型组件信息配置。</p>
+<h2>Worker 数量</h2>
 <ul>
-<li><a href="http://storm.apache.org/javadoc/apidocs/backtype/storm/Config.html">Config</a>：此类包含所有可配置项的列表，对于创建拓扑配置信息很有帮助</li>
-<li><a href="https://github.com/apache/storm/blob/master/conf/defaults.yaml">defaults.yaml</a>：所有配置项的默认值</li>
-<li><a href="http://storm.apache.org/documentation/Setting-up-a-Storm-cluster.html">配置 Storm 集群</a>：说明了如何创建、配置一个 Storm 集群</li>
-<li><a href="http://storm.apache.org/documentation/Running-topologies-on-a-production-cluster.html">在生产环境中运行拓扑</a>：列出了在集群中运行拓扑的一些有用的配置项</li>
-<li><a href="http://storm.apache.org/documentation/Local-mode.html">本地模式</a>：列出了使用本地模式时比较有用的配置项</li>
+<li>说明：拓扑在集群中运行所需要的工作进程数</li>
+<li>配置选项：<a href="http://storm.apache.org/javadoc/apidocs/backtype/storm/Config.html#TOPOLOGY_WORKERS">TOPOLOGY_WORKERS</a></li>
+<li>在代码中如何使用（示例）：<ul>
+<li><a href="http://storm.apache.org/javadoc/apidocs/backtype/storm/Config.html">Config#setNumWorkers</a></li>
 </ul>
+</li>
+</ul>
+<h2>Executors（线程）数量</h2>
+<ul>
+<li>说明：每个组件需要的执行线程数</li>
+<li>配置选项：（没有拓扑级的通用配置项）</li>
+<li>在代码中如何使用（示例）：<ul>
+<li><a href="http://storm.apache.org/javadoc/apidocs/backtype/storm/topology/TopologyBuilder.html">TopologyBuilder#setSpout()</a></li>
+<li><a href="http://storm.apache.org/javadoc/apidocs/backtype/storm/topology/TopologyBuilder.html">TopologyBuilder#setBolt()</a></li>
+<li>注意：从 Storm 0.8 开始 <code>parallelism_hint</code> 参数代表 executor 的数量，而不是 task 的数量</li>
+</ul>
+</li>
+</ul>
+<h2>Tasks 数量</h2>
+<ul>
+<li>说明：每个组件需要的执行任务数</li>
+<li>配置选项：<a href="http://storm.apache.org/javadoc/apidocs/backtype/storm/Config.html#TOPOLOGY_TASKS">TOPOLOGY_TASKS</a></li>
+<li>在代码中如何使用（示例）：<ul>
+<li><a href="http://storm.apache.org/javadoc/apidocs/backtype/storm/topology/ComponentConfigurationDeclarer.html">ComponentConfigurationDeclarer#setNumTasks()</a></li>
+</ul>
+</li>
+</ul>
+<p>以下是配置上述参数的一个简单示例代码：</p>
+<div class="highlight"><pre><span class="n">topologyBuilder</span><span class="p">.</span><span class="n">setBolt</span><span class="p">(</span><span class="s">&quot;green-bolt&quot;</span><span class="p">,</span> <span class="n">new</span> <span class="n">GreenBolt</span><span class="p">(),</span> <span class="mi">2</span><span class="p">)</span>
+               <span class="p">.</span><span class="n">setNumTasks</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+               <span class="p">.</span><span class="n">shuffleGrouping</span><span class="p">(</span><span class="s">&quot;blue-spout);</span>
+</pre></div>
+
+
+<p>在上面的代码中，我们为 <code>GreenBolt</code> 配置了 2 个初始执行线程（executor）和 4 个关联任务（task）。这样，每个执行线程中会运行 2 个任务。如果你在设置 bolt 的时候不指定 task 的数量，那么每个 executor 的 task 数会默认设置为 1。</p>
+<h2>拓扑示例</h2>
+<p>下图显示了一个与实际应用场景很接近的简单拓扑的结构。这个拓扑由三个组件构成：一个名为 <code>BlueSpout</code> 的 spout，和两个名为 <code>GreenBolt</code> 和 <code>YellowBolt</code> 的 bolt。这些组件之间的关系是：<code>BlueSpout</code> 将它的输出发送到 <code>GreenBolt</code> 中，然后 <code>GreenBolt</code> 将消息继续发送到 <code>YellowBolt</code> 中。</p>
+<p><img alt="running-topology" src="http://storm.apache.org/documentation/images/example-of-a-running-topology.png" /></p>
+<blockquote>
+<p>图中是一个包含有两个 worker 进程的拓扑。其中，蓝色的 <code>BlueSpout</code> 有两个 executor，每个 executor 中有一个 task，并行度为 2；绿色的 <code>GreenBolt</code> 有两个 executor，每个 executor 有两个 task，并行度也为2；而黄色的 <code>YellowBolt</code> 有 6 个 executor，每个 executor 中有一个 task，并行度为 6，因此，这个拓扑的总并行度就是 2 + 2 + 6 = 10。具体分配到每个 worker 就有 10 / 2 = 5 个 executor。</p>
+</blockquote>
+<p>上图中，<code>GreenBolt</code> 配置了 task 数，而 <code>BlueSpout</code> 和 <code>YellowBolt</code> 仅仅配置了 executor 数。下面是相关代码：</p>
+<div class="highlight"><pre><span class="n">Config</span> <span class="n">conf</span> <span class="o">=</span> <span class="n">new</span> <span class="n">Config</span><span class="p">();</span>
+<span class="n">conf</span><span class="p">.</span><span class="n">setNumWorkers</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span> <span class="c1">// use two worker processes</span>
+
+<span class="n">topologyBuilder</span><span class="p">.</span><span class="n">setSpout</span><span class="p">(</span><span class="s">&quot;blue-spout&quot;</span><span class="p">,</span> <span class="n">new</span> <span class="n">BlueSpout</span><span class="p">(),</span> <span class="mi">2</span><span class="p">);</span> <span class="c1">// set parallelism hint to 2</span>
+
+<span class="n">topologyBuilder</span><span class="p">.</span><span class="n">setBolt</span><span class="p">(</span><span class="s">&quot;green-bolt&quot;</span><span class="p">,</span> <span class="n">new</span> <span class="n">GreenBolt</span><span class="p">(),</span> <span class="mi">2</span><span class="p">)</span>
+               <span class="p">.</span><span class="n">setNumTasks</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+               <span class="p">.</span><span class="n">shuffleGrouping</span><span class="p">(</span><span class="s">&quot;blue-spout&quot;</span><span class="p">);</span>
+
+<span class="n">topologyBuilder</span><span class="p">.</span><span class="n">setBolt</span><span class="p">(</span><span class="s">&quot;yellow-bolt&quot;</span><span class="p">,</span> <span class="n">new</span> <span class="n">YellowBolt</span><span class="p">(),</span> <span class="mi">6</span><span class="p">)</span>
+               <span class="p">.</span><span class="n">shuffleGrouping</span><span class="p">(</span><span class="s">&quot;green-bolt&quot;</span><span class="p">);</span>
+
+<span class="n">StormSubmitter</span><span class="p">.</span><span class="n">submitTopology</span><span class="p">(</span>
+        <span class="s">&quot;mytopology&quot;</span><span class="p">,</span>
+        <span class="n">conf</span><span class="p">,</span>
+        <span class="n">topologyBuilder</span><span class="p">.</span><span class="n">createTopology</span><span class="p">()</span>
+    <span class="p">);</span>
+</pre></div>
+
+
+<p>当然，Storm 还有一些其他的配置项可以控制拓扑的并行度，包括：</p>
+<ul>
+<li><a href="http://storm.apache.org/javadoc/apidocs/backtype/storm/Config.html#TOPOLOGY_MAX_TASK_PARALLELISM">TOPOLOGY_MAX_TASK_PARALLELISM</a>：该选项设置了一个组件最多能够分配的 executor 数（线程数上限），一般用于在本地模式运行拓扑时测试分配线程的数量限制。你可以通过 <a href="http://storm.apache.org/javadoc/apidocs/backtype/storm/Config.html#setMaxTaskParallelism(int)">Config#setMaxTaskParallelism()</a> 来配置该参数。</li>
+</ul>
+<h2>如何修改运行中的拓扑的并行度</h2>
+<p>Storm 的一个很有意思的特点是你可以随时增加或者减少 worker 或者 executor 的数量，而不需要重启集群或者拓扑。这个方法就叫做再平衡（rebalance）。</p>
+<p>有两种方法可以对一个拓扑执行再平衡操作：</p>
+<ol>
+<li>使用 Storm UI</li>
+<li>使用以下所示的客户端（CLI）工具</li>
+</ol>
+<p>下面是使用 CLI 工具的一个简单示例：</p>
+<div class="highlight"><pre><span class="cp">## 重新配置拓扑 &quot;mytopology&quot;，使得该拓扑拥有 5 个 worker processes，</span>
+<span class="cp">## 另外，配置名为 &quot;blue-spout&quot; 的 spout 使用 3 个 executor，</span>
+<span class="cp">## 配置名为 &quot;yellow-bolt&quot; 的 bolt 使用 10 个 executor。</span>
+
+<span class="err">$</span> <span class="n">storm</span> <span class="n">rebalance</span> <span class="n">mytopology</span> <span class="o">-</span><span class="n">n</span> <span class="mi">5</span> <span class="o">-</span><span class="n">e</span> <span class="n">blue</span><span class="o">-</span><span class="n">spout</span><span class="o">=</span><span class="mi">3</span> <span class="o">-</span><span class="n">e</span> <span class="n">yellow</span><span class="o">-</span><span class="n">bolt</span><span class="o">=</span><span class="mi">10</span>
+</pre></div>
+
+
+<hr />
             </div>
             <!-- /.entry-content -->
     <hr />
@@ -154,8 +231,8 @@
         <script type="text/javascript">
             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
             var disqus_shortname = 'weyo'; // required: replace example with your forum shortname
-            var disqus_identifier = 'storm-translations-configuration';
-            var disqus_url = 'http://weyo.me/pages/techs/storm-translations-configuration/';
+            var disqus_identifier = 'storm-translations-understanding-the-parallelism-of-a-storm-topology';
+            var disqus_url = 'http://weyo.me/pages/techs/storm-translations-understanding-the-parallelism-of-a-storm-topology/';
 
             /* * * DON'T EDIT BELOW THIS LINE * * */
             (function () {
