@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:og="http://ogp.me/ns#"
+      xmlns:fb="https://www.facebook.com/2008/fbml">
+<head>
+    <title>Worker 启动后异常退出问题的排查解决
+   - Let There Be Light
+</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel = "Shortcut Icon" href=https://raw.githubusercontent.com/weyo/weyo.github.com/master/images/photos/avatar.png>
+
+    <!-- Open Graph tags -->
+
+            <meta property="og:type" content="article"/>
+            <meta property="og:title" content="Worker 启动后异常退出问题的排查解决"/>
+            <meta property="og:url" content="http://weyo.me/pages/techs/storm-worker-die-with-exceptions/"/>
+            <meta property="og:description" content="最近应用升级后遇到的一个 Worker 启动后异常退出问题的排查解决。"/>
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="http://weyo.me/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="http://weyo.me/theme/css/font-awesome.min.css" rel="stylesheet">
+    <link href="http://weyo.me/theme/css/pygments.css" rel="stylesheet">
+    <link rel="stylesheet" href="http://weyo.me/theme/css/style.css" type="text/css"/>
+    <!-- JavaScript plugins (requires jQuery) -->
+    <script src="http://code.jquery.com/jquery.js"></script>
+
+        <link href="http://weyo.me/feeds/all.rss.xml" type="application/atom+xml" rel="alternate"
+              title="Let There Be Light RSS Feed"/>
+
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46991080-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+
+    </script>
+</head>
+<body>
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="http://weyo.me" class="navbar-brand">Let There Be Light</a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="http://weyo.me/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="http://weyo.me/pages/gallery.html">
+                             Gallery
+                          </a></li>
+                        <li >
+                            <a href="http://weyo.me/category/essays.html">Essays</a>
+                        </li>
+                        <li class="active">
+                            <a href="http://weyo.me/category/techs.html">Techs</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="http://weyo.me/archives.html"><i class="icon-th-list"></i>Archives</a></li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</nav>
+<!-- /.navbar -->
+<div class="container">
+    <div class="row">
+        <div class="col-lg-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="http://weyo.me/pages/techs/storm-worker-die-with-exceptions/"
+                       rel="bookmark"
+                       title="Permalink to Worker 启动后异常退出问题的排查解决">
+                        Worker 启动后异常退出问题的排查解决
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="icon-calendar"></i>2015-06-19
+    </span>
+	<span style="font-size:12px;">&nbsp;&nbsp;</span>
+    <!--     <span class="label label-default">By</span>
+    <a href="http://weyo.me/author/weyo.html"><i class="icon-user"></i>WeYo</a>
+	<span style="font-size:12px;">&nbsp;&nbsp;</span>
+ -->
+
+    <span class="label label-default">Category</span>
+    <a href="http://weyo.me/category/techs.html">Techs</a>
+	<span style="font-size:12px;">&nbsp;&nbsp;</span>
+
+
+<span class="label label-default">Tags</span>
+	<a href="http://weyo.me/tag/storm.html">Storm</a>
+	
+	<br /><br />Posted by <span style="font-weight:bold;"><a href="http://github.com/weyo">WeYo</a></span>. 转载请注明出处：<a href="http://weyo.me/pages/techs/storm-worker-die-with-exceptions/">http://weyo.me/pages/techs/storm-worker-die-with-exceptions/</a>
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>最近应用升级之后，有个机器上的 worker 总会在启动一段时间后挂掉。worker 日志如下：</p>
+<div class="highlight"><pre> <span class="mi">2015</span><span class="o">-</span><span class="mo">06</span><span class="o">-</span><span class="mi">18</span><span class="n">T17</span><span class="o">:</span><span class="mi">19</span><span class="o">:</span><span class="mf">19.931</span><span class="o">+</span><span class="mi">0800</span> <span class="n">o</span><span class="p">.</span><span class="n">a</span><span class="p">.</span><span class="n">s</span><span class="p">.</span><span class="n">c</span><span class="p">.</span><span class="n">ConnectionState</span> <span class="p">[</span><span class="n">ERROR</span><span class="p">]</span> <span class="n">Connection</span> <span class="n">timed</span> <span class="n">out</span> <span class="k">for</span> <span class="n">connection</span> <span class="n">string</span> <span class="p">(</span><span class="n">z124</span><span class="o">:</span><span class="mi">2181</span><span class="p">,</span><span class="n">z128</span><span class="o">:</span><span class="mi">2181</span><span class="p">,</span><span class="n">z168</span><span class="o">:</span><span class="mi">2181</span><span class="o">/</span><span class="n">storm</span><span class="p">)</span> <span class="n">and</span> <span class="n">timeout</span> <span class="p">(</span><span class="mi">15000</span><span class="p">)</span> <span class="o">/</span> <span class="n">elapsed</span> <span class="p">(</span><span class="mi">16172</span><span class="p">)</span>
+<span class="mi">492856</span> <span class="n">org</span><span class="p">.</span><span class="n">apache</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">curator</span><span class="p">.</span><span class="n">CuratorConnectionLossException</span><span class="o">:</span> <span class="n">KeeperErrorCode</span> <span class="o">=</span> <span class="n">ConnectionLoss</span>
+<span class="mi">492857</span>         <span class="n">at</span> <span class="n">org</span><span class="p">.</span><span class="n">apache</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">curator</span><span class="p">.</span><span class="n">ConnectionState</span><span class="p">.</span><span class="n">checkTimeouts</span><span class="p">(</span><span class="n">ConnectionState</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">198</span><span class="p">)</span> <span class="p">[</span><span class="n">storm</span><span class="o">-</span><span class="n">core</span><span class="o">-</span><span class="mf">0.9.3</span><span class="p">.</span><span class="n">jar</span><span class="o">:</span><span class="mf">0.9.3</span><span class="p">]</span>
+<span class="mi">492858</span>         <span class="n">at</span> <span class="n">org</span><span class="p">.</span><span class="n">apache</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">curator</span><span class="p">.</span><span class="n">ConnectionState</span><span class="p">.</span><span class="n">getZooKeeper</span><span class="p">(</span><span class="n">ConnectionState</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">88</span><span class="p">)</span> <span class="p">[</span><span class="n">storm</span><span class="o">-</span><span class="n">core</span><span class="o">-</span><span class="mf">0.9.3</span><span class="p">.</span><span class="n">jar</span><span class="o">:</span><span class="mf">0.9.3</span><span class="p">]</span>
+<span class="mi">492859</span>         <span class="n">at</span> <span class="n">org</span><span class="p">.</span><span class="n">apache</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">curator</span><span class="p">.</span><span class="n">CuratorZookeeperClient</span><span class="p">.</span><span class="n">getZooKeeper</span><span class="p">(</span><span class="n">CuratorZookeeperClient</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">115</span><span class="p">)</span> <span class="p">[</span><span class="n">storm</span><span class="o">-</span><span class="n">core</span><span class="o">-</span><span class="mf">0.9.3</span><span class="p">.</span><span class="n">jar</span><span class="o">:</span><span class="mf">0.9.3</span><span class="p">]</span>
+<span class="mi">492860</span>         <span class="n">at</span> <span class="n">org</span><span class="p">.</span><span class="n">apache</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">curator</span><span class="p">.</span><span class="n">framework</span><span class="p">.</span><span class="n">imps</span><span class="p">.</span><span class="n">CuratorFrameworkImpl</span><span class="p">.</span><span class="n">getZooKeeper</span><span class="p">(</span><span class="n">CuratorFrameworkImpl</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">488</span><span class="p">)</span> <span class="p">[</span><span class="n">storm</span><span class="o">-</span><span class="n">core</span><span class="o">-</span><span class="mf">0.9.3</span><span class="p">.</span><span class="n">jar</span><span class="o">:</span><span class="mf">0.9.3</span><span class="p">]</span>
+<span class="mi">492861</span>         <span class="n">at</span> <span class="n">org</span><span class="p">.</span><span class="n">apache</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">curator</span><span class="p">.</span><span class="n">framework</span><span class="p">.</span><span class="n">imps</span><span class="p">.</span><span class="n">ExistsBuilderImpl</span><span class="err">$</span><span class="mf">2.</span><span class="n">call</span><span class="p">(</span><span class="n">ExistsBuilderImpl</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">168</span><span class="p">)</span> <span class="p">[</span><span class="n">storm</span><span class="o">-</span><span class="n">core</span><span class="o">-</span><span class="mf">0.9.3</span><span class="p">.</span><span class="n">jar</span><span class="o">:</span><span class="mf">0.9.3</span><span class="p">]</span>
+<span class="mi">492862</span>         <span class="n">at</span> <span class="n">org</span><span class="p">.</span><span class="n">apache</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">curator</span><span class="p">.</span><span class="n">framework</span><span class="p">.</span><span class="n">imps</span><span class="p">.</span><span class="n">ExistsBuilderImpl</span><span class="err">$</span><span class="mf">2.</span><span class="n">call</span><span class="p">(</span><span class="n">ExistsBuilderImpl</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">161</span><span class="p">)</span> <span class="p">[</span><span class="n">storm</span><span class="o">-</span><span class="n">core</span><span class="o">-</span><span class="mf">0.9.3</span><span class="p">.</span><span class="n">jar</span><span class="o">:</span><span class="mf">0.9.3</span><span class="p">]</span><span class="mi">492863</span>         <span class="n">at</span> <span class="n">org</span><span class="p">.</span><span class="n">apache</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">curator</span><span class="p">.</span><span class="n">RetryLoop</span><span class="p">.</span><span class="n">callWithRetry</span><span class="p">(</span><span class="n">RetryLoop</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">107</span><span class="p">)</span> <span class="p">[</span><span class="n">storm</span><span class="o">-</span><span class="n">core</span><span class="o">-</span><span class="mf">0.9.3</span><span class="p">.</span><span class="n">jar</span><span class="o">:</span><span class="mf">0.9.3</span><span class="p">]</span><span class="mi">492864</span>         <span class="n">at</span> <span class="n">org</span><span class="p">.</span><span class="n">apache</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">curator</span><span class="p">.</span><span class="n">framework</span><span class="p">.</span><span class="n">imps</span><span class="p">.</span><span class="n">ExistsBuilderImpl</span><span class="p">.</span><span class="n">pathInForeground</span><span class="p">(</span><span class="n">ExistsBuilderImpl</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">157</span><span class="p">)</span> <span class="p">[</span><span class="n">storm</span><span class="o">-</span><span class="n">core</span><span class="o">-</span><span class="mf">0.9.3</span><span class="p">.</span><span class="n">jar</span><span class="o">:</span><span class="mf">0.9.3</span><span class="p">]</span>
+<span class="mi">492865</span>         <span class="n">at</span> <span class="n">org</span><span class="p">.</span><span class="n">apache</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">curator</span><span class="p">.</span><span class="n">framework</span><span class="p">.</span><span class="n">imps</span><span class="p">.</span><span class="n">ExistsBuilderImpl</span><span class="p">.</span><span class="n">forPath</span><span class="p">(</span><span class="n">ExistsBuilderImpl</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">148</span><span class="p">)</span> <span class="p">[</span><span class="n">storm</span><span class="o">-</span><span class="n">core</span><span class="o">-</span><span class="mf">0.9.3</span><span class="p">.</span><span class="n">jar</span><span class="o">:</span><span class="mf">0.9.3</span><span class="p">]</span><span class="mi">492866</span>         <span class="n">at</span> <span class="n">org</span><span class="p">.</span><span class="n">apache</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">curator</span><span class="p">.</span><span class="n">framework</span><span class="p">.</span><span class="n">imps</span><span class="p">.</span><span class="n">ExistsBuilderImpl</span><span class="p">.</span><span class="n">forPath</span><span class="p">(</span><span class="n">ExistsBuilderImpl</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">36</span><span class="p">)</span> <span class="p">[</span><span class="n">storm</span><span class="o">-</span><span class="n">core</span><span class="o">-</span><span class="mf">0.9.3</span><span class="p">.</span><span class="n">jar</span><span class="o">:</span><span class="mf">0.9.3</span><span class="p">]</span>
+<span class="mi">492867</span>         <span class="n">at</span> <span class="n">sun</span><span class="p">.</span><span class="n">reflect</span><span class="p">.</span><span class="n">GeneratedMethodAccessor38</span><span class="p">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">Unknown</span> <span class="n">Source</span><span class="p">)</span> <span class="o">~</span><span class="p">[</span><span class="n">na</span><span class="o">:</span><span class="n">na</span><span class="p">]</span>
+<span class="mi">492868</span>         <span class="n">at</span> <span class="n">sun</span><span class="p">.</span><span class="n">reflect</span><span class="p">.</span><span class="n">DelegatingMethodAccessorImpl</span><span class="p">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">DelegatingMethodAccessorImpl</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">43</span><span class="p">)</span> <span class="o">~</span><span class="p">[</span><span class="n">na</span><span class="o">:</span><span class="mf">1.7.0</span><span class="n">_71</span><span class="p">]</span>
+<span class="mi">492869</span>         <span class="n">at</span> <span class="n">java</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">reflect</span><span class="p">.</span><span class="n">Method</span><span class="p">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">Method</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">606</span><span class="p">)</span> <span class="o">~</span><span class="p">[</span><span class="n">na</span><span class="o">:</span><span class="mf">1.7.0</span><span class="n">_71</span><span class="p">]</span>
+<span class="mi">492870</span>         <span class="n">at</span> <span class="n">clojure</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">Reflector</span><span class="p">.</span><span class="n">invokeMatchingMethod</span><span class="p">(</span><span class="n">Reflector</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">93</span><span class="p">)</span> <span class="p">[</span><span class="n">clojure</span><span class="o">-</span><span class="mf">1.5.1</span><span class="p">.</span><span class="n">jar</span><span class="o">:</span><span class="n">na</span><span class="p">]</span>
+<span class="mi">492871</span>         <span class="n">at</span> <span class="n">clojure</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">Reflector</span><span class="p">.</span><span class="n">invokeInstanceMethod</span><span class="p">(</span><span class="n">Reflector</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">28</span><span class="p">)</span> <span class="p">[</span><span class="n">clojure</span><span class="o">-</span><span class="mf">1.5.1</span><span class="p">.</span><span class="n">jar</span><span class="o">:</span><span class="n">na</span><span class="p">]</span>
+<span class="mi">492872</span>         <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">zookeeper</span><span class="err">$</span><span class="n">get_version</span><span class="p">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">zookeeper</span><span class="p">.</span><span class="n">clj</span><span class="o">:</span><span class="mi">156</span><span class="p">)</span> <span class="p">[</span><span class="n">storm</span><span class="o">-</span><span class="n">core</span><span class="o">-</span><span class="mf">0.9.3</span><span class="p">.</span><span class="n">jar</span><span class="o">:</span><span class="mf">0.9.3</span><span class="p">]</span>
+<span class="mi">492873</span>         <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">cluster</span><span class="err">$</span><span class="n">mk_distributed_cluster_state</span><span class="err">$</span><span class="n">reify__1915</span><span class="p">.</span><span class="n">get_version</span><span class="p">(</span><span class="n">cluster</span><span class="p">.</span><span class="n">clj</span><span class="o">:</span><span class="mi">111</span><span class="p">)</span> <span class="p">[</span><span class="n">storm</span><span class="o">-</span><span class="n">core</span><span class="o">-</span><span class="mf">0.9.3</span><span class="p">.</span><span class="n">jar</span><span class="o">:</span><span class="mf">0.9.3</span><span class="p">]</span>
+<span class="mi">492874</span>         <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">cluster</span><span class="err">$</span><span class="n">mk_storm_cluster_state</span><span class="err">$</span><span class="n">reify__2372</span><span class="p">.</span><span class="n">assignment_version</span><span class="p">(</span><span class="n">cluster</span><span class="p">.</span><span class="n">clj</span><span class="o">:</span><span class="mi">287</span><span class="p">)</span> <span class="p">[</span><span class="n">storm</span><span class="o">-</span><span class="n">core</span><span class="o">-</span><span class="mf">0.9.3</span><span class="p">.</span><span class="n">jar</span><span class="o">:</span><span class="mf">0.9.3</span><span class="p">]</span>
+<span class="mi">492875</span>         <span class="n">at</span> <span class="n">sun</span><span class="p">.</span><span class="n">reflect</span><span class="p">.</span><span class="n">GeneratedMethodAccessor43</span><span class="p">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">Unknown</span> <span class="n">Source</span><span class="p">)</span> <span class="o">~</span><span class="p">[</span><span class="n">na</span><span class="o">:</span><span class="n">na</span><span class="p">]</span>
+<span class="mi">492876</span>         <span class="n">at</span> <span class="n">sun</span><span class="p">.</span><span class="n">reflect</span><span class="p">.</span><span class="n">DelegatingMethodAccessorImpl</span><span class="p">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">DelegatingMethodAccessorImpl</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">43</span><span class="p">)</span> <span class="o">~</span><span class="p">[</span><span class="n">na</span><span class="o">:</span><span class="mf">1.7.0</span><span class="n">_71</span><span class="p">]</span>
+<span class="mi">492877</span>         <span class="n">at</span> <span class="n">java</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">reflect</span><span class="p">.</span><span class="n">Method</span><span class="p">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">Method</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">606</span><span class="p">)</span> <span class="o">~</span><span class="p">[</span><span class="n">na</span><span class="o">:</span><span class="mf">1.7.0</span><span class="n">_71</span><span class="p">]</span>
+<span class="mi">492878</span>         <span class="n">at</span> <span class="n">clojure</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">Reflector</span><span class="p">.</span><span class="n">invokeMatchingMethod</span><span class="p">(</span><span class="n">Reflector</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">93</span><span class="p">)</span> <span class="p">[</span><span class="n">clojure</span><span class="o">-</span><span class="mf">1.5.1</span><span class="p">.</span><span class="n">jar</span><span class="o">:</span><span class="n">na</span><span class="p">]</span>
+<span class="mi">492879</span>         <span class="n">at</span> <span class="n">clojure</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">Reflector</span><span class="p">.</span><span class="n">invokeInstanceMethod</span><span class="p">(</span><span class="n">Reflector</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">28</span><span class="p">)</span> <span class="p">[</span><span class="n">clojure</span><span class="o">-</span><span class="mf">1.5.1</span><span class="p">.</span><span class="n">jar</span><span class="o">:</span><span class="n">na</span><span class="p">]</span>
+<span class="mi">492880</span>         <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">daemon</span><span class="p">.</span><span class="n">worker</span><span class="err">$</span><span class="n">mk_refresh_connections</span><span class="err">$</span><span class="n">this__3690</span><span class="p">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">worker</span><span class="p">.</span><span class="n">clj</span><span class="o">:</span><span class="mi">255</span><span class="p">)</span> <span class="p">[</span><span class="n">storm</span><span class="o">-</span><span class="n">core</span><span class="o">-</span><span class="mf">0.9.3</span><span class="p">.</span><span class="n">jar</span><span class="o">:</span><span class="mf">0.9.3</span><span class="p">]</span>
+<span class="mi">492881</span>         <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">daemon</span><span class="p">.</span><span class="n">worker</span><span class="err">$</span><span class="n">mk_refresh_connections</span><span class="err">$</span><span class="n">this__3690</span><span class="p">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">worker</span><span class="p">.</span><span class="n">clj</span><span class="o">:</span><span class="mi">253</span><span class="p">)</span> <span class="p">[</span><span class="n">storm</span><span class="o">-</span><span class="n">core</span><span class="o">-</span><span class="mf">0.9.3</span><span class="p">.</span><span class="n">jar</span><span class="o">:</span><span class="mf">0.9.3</span><span class="p">]</span>
+<span class="mi">492882</span>         <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">timer</span><span class="err">$</span><span class="n">schedule_recurring</span><span class="err">$</span><span class="n">this__1649</span><span class="p">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">timer</span><span class="p">.</span><span class="n">clj</span><span class="o">:</span><span class="mi">99</span><span class="p">)</span> <span class="p">[</span><span class="n">storm</span><span class="o">-</span><span class="n">core</span><span class="o">-</span><span class="mf">0.9.3</span><span class="p">.</span><span class="n">jar</span><span class="o">:</span><span class="mf">0.9.3</span><span class="p">]</span>
+<span class="mi">492883</span>         <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">timer</span><span class="err">$</span><span class="n">mk_timer</span><span class="err">$</span><span class="n">fn__1632</span><span class="err">$</span><span class="n">fn__1633</span><span class="p">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">timer</span><span class="p">.</span><span class="n">clj</span><span class="o">:</span><span class="mi">50</span><span class="p">)</span> <span class="p">[</span><span class="n">storm</span><span class="o">-</span><span class="n">core</span><span class="o">-</span><span class="mf">0.9.3</span><span class="p">.</span><span class="n">jar</span><span class="o">:</span><span class="mf">0.9.3</span><span class="p">]</span>
+<span class="mi">492884</span>         <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">timer</span><span class="err">$</span><span class="n">mk_timer</span><span class="err">$</span><span class="n">fn__1632</span><span class="p">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">timer</span><span class="p">.</span><span class="n">clj</span><span class="o">:</span><span class="mi">42</span><span class="p">)</span> <span class="p">[</span><span class="n">storm</span><span class="o">-</span><span class="n">core</span><span class="o">-</span><span class="mf">0.9.3</span><span class="p">.</span><span class="n">jar</span><span class="o">:</span><span class="mf">0.9.3</span><span class="p">]</span>
+<span class="mi">492885</span>         <span class="n">at</span> <span class="n">clojure</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">AFn</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">AFn</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">24</span><span class="p">)</span> <span class="p">[</span><span class="n">clojure</span><span class="o">-</span><span class="mf">1.5.1</span><span class="p">.</span><span class="n">jar</span><span class="o">:</span><span class="n">na</span><span class="p">]</span>
+<span class="mi">492886</span>         <span class="n">at</span> <span class="n">java</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">Thread</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">Thread</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">745</span><span class="p">)</span> <span class="p">[</span><span class="n">na</span><span class="o">:</span><span class="mf">1.7.0</span><span class="n">_71</span><span class="p">]</span>
+</pre></div>
+
+
+<p>而同一时间的 supervisor 不停地提示 “{id} still hasn't started”</p>
+<div class="highlight"><pre><span class="mi">2015</span><span class="o">-</span><span class="mo">06</span><span class="o">-</span><span class="mi">18</span><span class="n">T17</span><span class="o">:</span><span class="mi">14</span><span class="o">:</span><span class="mf">56.752</span><span class="o">+</span><span class="mi">0800</span> <span class="n">b</span><span class="p">.</span><span class="n">s</span><span class="p">.</span><span class="n">d</span><span class="p">.</span><span class="n">supervisor</span> <span class="p">[</span><span class="n">INFO</span><span class="p">]</span> <span class="mi">2376</span><span class="n">a892</span><span class="o">-</span><span class="mi">2</span><span class="n">a8a</span><span class="o">-</span><span class="mf">401e-9</span><span class="n">bd6</span><span class="o">-</span><span class="mi">85059</span><span class="n">ab57586</span> <span class="n">still</span> <span class="n">hasn</span><span class="err">&#39;</span><span class="n">t</span> <span class="n">started</span>
+<span class="mi">646</span> <span class="mi">2015</span><span class="o">-</span><span class="mo">06</span><span class="o">-</span><span class="mi">18</span><span class="n">T17</span><span class="o">:</span><span class="mi">14</span><span class="o">:</span><span class="mf">57.254</span><span class="o">+</span><span class="mi">0800</span> <span class="n">b</span><span class="p">.</span><span class="n">s</span><span class="p">.</span><span class="n">d</span><span class="p">.</span><span class="n">supervisor</span> <span class="p">[</span><span class="n">INFO</span><span class="p">]</span> <span class="mi">2376</span><span class="n">a892</span><span class="o">-</span><span class="mi">2</span><span class="n">a8a</span><span class="o">-</span><span class="mf">401e-9</span><span class="n">bd6</span><span class="o">-</span><span class="mi">85059</span><span class="n">ab57586</span> <span class="n">still</span> <span class="n">hasn</span><span class="err">&#39;</span><span class="n">t</span> <span class="n">started</span>
+<span class="mi">647</span> <span class="mi">2015</span><span class="o">-</span><span class="mo">06</span><span class="o">-</span><span class="mi">18</span><span class="n">T17</span><span class="o">:</span><span class="mi">14</span><span class="o">:</span><span class="mf">57.756</span><span class="o">+</span><span class="mi">0800</span> <span class="n">b</span><span class="p">.</span><span class="n">s</span><span class="p">.</span><span class="n">d</span><span class="p">.</span><span class="n">supervisor</span> <span class="p">[</span><span class="n">INFO</span><span class="p">]</span> <span class="mi">2376</span><span class="n">a892</span><span class="o">-</span><span class="mi">2</span><span class="n">a8a</span><span class="o">-</span><span class="mf">401e-9</span><span class="n">bd6</span><span class="o">-</span><span class="mi">85059</span><span class="n">ab57586</span> <span class="n">still</span> <span class="n">hasn</span><span class="err">&#39;</span><span class="n">t</span> <span class="n">started</span>
+<span class="p">...</span><span class="err">（若干条重复的信息）</span>
+</pre></div>
+
+
+<p>当然，正常情况下 supervisor 在刚启动 worker 的时候也会报这个信息，只不过会在 worker 正常运行之后恢复正常。但是这里的 supervisor 之后仍然会不停地尝试重连，并且最终在超时后放弃这个 worker，这个就不属于正常情况了。</p>
+<div class="highlight"><pre><span class="mi">2015</span><span class="o">-</span><span class="mo">06</span><span class="o">-</span><span class="mi">18</span><span class="n">T17</span><span class="o">:</span><span class="mi">17</span><span class="o">:</span><span class="mf">07.880</span><span class="o">+</span><span class="mi">0800</span> <span class="n">o</span><span class="p">.</span><span class="n">a</span><span class="p">.</span><span class="n">s</span><span class="p">.</span><span class="n">z</span><span class="p">.</span><span class="n">ClientCnxn</span> <span class="p">[</span><span class="n">INFO</span><span class="p">]</span> <span class="n">Unable</span> <span class="n">to</span> <span class="n">read</span> <span class="n">additional</span> <span class="n">data</span> <span class="n">from</span> <span class="n">server</span> <span class="n">sessionid</span> <span class="mh">0x804de6f8a15a0000</span><span class="p">,</span> <span class="n">likely</span> <span class="n">server</span> <span class="n">has</span> <span class="n">closed</span> <span class="n">socket</span><span class="p">,</span> <span class="n">closing</span> <span class="n">socket</span> <span class="n">connection</span> <span class="n">and</span> <span class="n">attempting</span> <span class="n">reco</span>    <span class="n">nnect</span>
+<span class="mi">668</span> <span class="mi">2015</span><span class="o">-</span><span class="mo">06</span><span class="o">-</span><span class="mi">18</span><span class="n">T17</span><span class="o">:</span><span class="mi">17</span><span class="o">:</span><span class="mf">19.491</span><span class="o">+</span><span class="mi">0800</span> <span class="n">o</span><span class="p">.</span><span class="n">a</span><span class="p">.</span><span class="n">s</span><span class="p">.</span><span class="n">z</span><span class="p">.</span><span class="n">ClientCnxn</span> <span class="p">[</span><span class="n">INFO</span><span class="p">]</span> <span class="n">Opening</span> <span class="n">socket</span> <span class="n">connection</span> <span class="n">to</span> <span class="n">server</span> <span class="n">hd124</span><span class="o">/</span><span class="mf">192.168.91.124</span><span class="o">:</span><span class="mf">2181.</span> <span class="n">Will</span> <span class="n">not</span> <span class="n">attempt</span> <span class="n">to</span> <span class="n">authenticate</span> <span class="n">using</span> <span class="n">SASL</span> <span class="p">(</span><span class="n">unknown</span> <span class="n">error</span><span class="p">)</span>
+<span class="mi">669</span> <span class="mi">2015</span><span class="o">-</span><span class="mo">06</span><span class="o">-</span><span class="mi">18</span><span class="n">T17</span><span class="o">:</span><span class="mi">17</span><span class="o">:</span><span class="mf">19.492</span><span class="o">+</span><span class="mi">0800</span> <span class="n">o</span><span class="p">.</span><span class="n">a</span><span class="p">.</span><span class="n">s</span><span class="p">.</span><span class="n">z</span><span class="p">.</span><span class="n">ClientCnxn</span> <span class="p">[</span><span class="n">INFO</span><span class="p">]</span> <span class="n">Socket</span> <span class="n">connection</span> <span class="n">established</span> <span class="n">to</span> <span class="n">hd124</span><span class="o">/</span><span class="mf">192.168.91.124</span><span class="o">:</span><span class="mi">2181</span><span class="p">,</span> <span class="n">initiating</span> <span class="n">session</span>
+<span class="mi">670</span> <span class="mi">2015</span><span class="o">-</span><span class="mo">06</span><span class="o">-</span><span class="mi">18</span><span class="n">T17</span><span class="o">:</span><span class="mi">17</span><span class="o">:</span><span class="mf">19.495</span><span class="o">+</span><span class="mi">0800</span> <span class="n">o</span><span class="p">.</span><span class="n">a</span><span class="p">.</span><span class="n">s</span><span class="p">.</span><span class="n">z</span><span class="p">.</span><span class="n">ClientCnxn</span> <span class="p">[</span><span class="n">INFO</span><span class="p">]</span> <span class="n">Session</span> <span class="n">establishment</span> <span class="n">complete</span> <span class="n">on</span> <span class="n">server</span> <span class="n">hd124</span><span class="o">/</span><span class="mf">192.168.91.124</span><span class="o">:</span><span class="mi">2181</span><span class="p">,</span> <span class="n">sessionid</span> <span class="o">=</span> <span class="mh">0x804de6f8a15a0000</span><span class="p">,</span> <span class="n">negotiated</span> <span class="n">timeout</span> <span class="o">=</span> <span class="mi">20000671</span> <span class="mi">2015</span><span class="o">-</span><span class="mo">06</span><span class="o">-</span><span class="mi">18</span><span class="n">T17</span><span class="o">:</span><span class="mi">17</span><span class="o">:</span><span class="mf">27.913</span><span class="o">+</span><span class="mi">0800</span> <span class="n">o</span><span class="p">.</span><span class="n">a</span><span class="p">.</span><span class="n">s</span><span class="p">.</span><span class="n">c</span><span class="p">.</span><span class="n">f</span><span class="p">.</span><span class="n">s</span><span class="p">.</span><span class="n">ConnectionStateManager</span> <span class="p">[</span><span class="n">INFO</span><span class="p">]</span> <span class="n">State</span> <span class="n">change</span><span class="o">:</span> <span class="n">SUSPENDED</span>
+<span class="mi">672</span> <span class="mi">2015</span><span class="o">-</span><span class="mo">06</span><span class="o">-</span><span class="mi">18</span><span class="n">T17</span><span class="o">:</span><span class="mi">17</span><span class="o">:</span><span class="mf">27.918</span><span class="o">+</span><span class="mi">0800</span> <span class="n">b</span><span class="p">.</span><span class="n">s</span><span class="p">.</span><span class="n">cluster</span> <span class="p">[</span><span class="n">WARN</span><span class="p">]</span> <span class="n">Received</span> <span class="n">event</span> <span class="o">:</span><span class="n">disconnected</span><span class="o">::</span><span class="n">none</span><span class="o">:</span> <span class="n">with</span> <span class="n">disconnected</span> <span class="n">Zookeeper</span><span class="p">.</span>
+<span class="mi">673</span> <span class="mi">2015</span><span class="o">-</span><span class="mo">06</span><span class="o">-</span><span class="mi">18</span><span class="n">T17</span><span class="o">:</span><span class="mi">17</span><span class="o">:</span><span class="mf">27.918</span><span class="o">+</span><span class="mi">0800</span> <span class="n">o</span><span class="p">.</span><span class="n">a</span><span class="p">.</span><span class="n">s</span><span class="p">.</span><span class="n">c</span><span class="p">.</span><span class="n">f</span><span class="p">.</span><span class="n">s</span><span class="p">.</span><span class="n">ConnectionStateManager</span> <span class="p">[</span><span class="n">INFO</span><span class="p">]</span> <span class="n">State</span> <span class="n">change</span><span class="o">:</span> <span class="n">RECONNECTED</span>
+
+<span class="p">...</span>
+
+<span class="mi">689</span> <span class="mi">2015</span><span class="o">-</span><span class="mo">06</span><span class="o">-</span><span class="mi">18</span><span class="n">T17</span><span class="o">:</span><span class="mi">18</span><span class="o">:</span><span class="mf">21.492</span><span class="o">+</span><span class="mi">0800</span> <span class="n">o</span><span class="p">.</span><span class="n">a</span><span class="p">.</span><span class="n">s</span><span class="p">.</span><span class="n">z</span><span class="p">.</span><span class="n">ClientCnxn</span> <span class="p">[</span><span class="n">INFO</span><span class="p">]</span> <span class="n">Unable</span> <span class="n">to</span> <span class="n">reconnect</span> <span class="n">to</span> <span class="n">ZooKeeper</span> <span class="n">service</span><span class="p">,</span> <span class="n">session</span> <span class="mh">0x804de6f8a15a0000</span> <span class="n">has</span> <span class="n">expired</span><span class="p">,</span> <span class="n">closing</span> <span class="n">socket</span> <span class="n">connection</span>
+<span class="mi">690</span> <span class="mi">2015</span><span class="o">-</span><span class="mo">06</span><span class="o">-</span><span class="mi">18</span><span class="n">T17</span><span class="o">:</span><span class="mi">18</span><span class="o">:</span><span class="mf">21.492</span><span class="o">+</span><span class="mi">0800</span> <span class="n">o</span><span class="p">.</span><span class="n">a</span><span class="p">.</span><span class="n">s</span><span class="p">.</span><span class="n">c</span><span class="p">.</span><span class="n">f</span><span class="p">.</span><span class="n">s</span><span class="p">.</span><span class="n">ConnectionStateManager</span> <span class="p">[</span><span class="n">INFO</span><span class="p">]</span> <span class="n">State</span> <span class="n">change</span><span class="o">:</span> <span class="n">LOST</span>
+</pre></div>
+
+
+<p>这个问题乍一看是网络问题，而且很多帖子也这么说，比如<a href="http://blog.csdn.net/jmppok/article/details/17073397]">http://blog.csdn.net/jmppok/article/details/17073397</a> 还有 SO 上面搜到的几篇答案说的都是 hosts 配置问题。不过这里的配置并没有问题，网络也没有问题，Storm 的元数据也正常。</p>
+<p>另外也有说是 JVM 配置问题（<a href="http://macrochen.iteye.com/blog/1428093">http://macrochen.iteye.com/blog/1428093</a>），但实际上机器的内存一直很稳定，而且 JVM 的日志记录也正常。由于我是在执行 DRPC 的时候出现问题的，还特意检查/重启了 DRPC 服务器，发现也不是 DRPC 的问题。</p>
+<p>这些都没问题，那就有可能是 CPU 的问题了，top 看一下（没有装 sar 和 iostat 就先这么凑合了）</p>
+<div class="highlight"><pre><span class="n">top</span> <span class="o">-</span> <span class="mi">09</span><span class="o">:</span><span class="mi">36</span><span class="o">:</span><span class="mi">52</span> <span class="n">up</span> <span class="mi">17</span> <span class="n">days</span><span class="p">,</span> <span class="mi">21</span><span class="o">:</span><span class="mi">16</span><span class="p">,</span>  <span class="mi">1</span> <span class="n">user</span><span class="p">,</span>  <span class="n">load</span> <span class="n">average</span><span class="o">:</span> <span class="mf">20.31</span><span class="p">,</span> <span class="mf">19.13</span><span class="p">,</span> <span class="mf">11.12</span>
+<span class="nl">Tasks:</span> <span class="mi">128</span> <span class="n">total</span><span class="p">,</span>   <span class="mi">6</span> <span class="n">running</span><span class="p">,</span> <span class="mi">122</span> <span class="n">sleeping</span><span class="p">,</span>   <span class="mi">0</span> <span class="n">stopped</span><span class="p">,</span>   <span class="mi">0</span> <span class="n">zombie</span>
+<span class="n">Cpu</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">:</span> <span class="mf">27.0</span><span class="o">%</span><span class="n">us</span><span class="p">,</span> <span class="mf">73.0</span><span class="o">%</span><span class="n">sy</span><span class="p">,</span>  <span class="mf">0.0</span><span class="o">%</span><span class="n">ni</span><span class="p">,</span>  <span class="mf">0.0</span><span class="o">%</span><span class="n">id</span><span class="p">,</span>  <span class="mf">0.0</span><span class="o">%</span><span class="n">wa</span><span class="p">,</span>  <span class="mf">0.0</span><span class="o">%</span><span class="n">hi</span><span class="p">,</span>  <span class="mf">0.0</span><span class="o">%</span><span class="n">si</span><span class="p">,</span>  <span class="mf">0.0</span><span class="o">%</span><span class="n">st</span>
+<span class="nl">Mem:</span>   <span class="mi">2075036</span><span class="n">k</span> <span class="n">total</span><span class="p">,</span>  <span class="mi">2021612</span><span class="n">k</span> <span class="n">used</span><span class="p">,</span>    <span class="mi">53424</span><span class="n">k</span> <span class="n">free</span><span class="p">,</span>   <span class="mi">131148</span><span class="n">k</span> <span class="n">buffers</span>
+<span class="nl">Swap:</span>  <span class="mi">4128760</span><span class="n">k</span> <span class="n">total</span><span class="p">,</span>       <span class="mi">68</span><span class="n">k</span> <span class="n">used</span><span class="p">,</span>  <span class="mi">4128692</span><span class="n">k</span> <span class="n">free</span><span class="p">,</span>   <span class="mi">722616</span><span class="n">k</span> <span class="n">cached</span>
+
+  <span class="n">PID</span> <span class="n">USER</span>      <span class="n">PR</span>  <span class="n">NI</span>  <span class="n">VIRT</span>  <span class="n">RES</span>  <span class="n">SHR</span> <span class="n">S</span> <span class="o">%</span><span class="n">CPU</span> <span class="o">%</span><span class="n">MEM</span>    <span class="n">TIME</span><span class="o">+</span>  <span class="n">COMMAND</span>                                                                                                                                             
+ <span class="mi">4950</span> <span class="n">root</span>      <span class="mi">18</span>   <span class="mi">0</span>  <span class="mi">698</span><span class="n">m</span> <span class="mi">573</span><span class="n">m</span>  <span class="mi">13</span><span class="n">m</span> <span class="n">S</span> <span class="mf">99.2</span> <span class="mf">28.3</span>  <span class="mi">10</span><span class="o">:</span><span class="mf">50.45</span> <span class="n">java</span>  
+</pre></div>
+
+
+<p>果然，99.2% 的 CPU 占用，系统不能长时间承受这么高的负载，就中断了 worker 进程。这个理由可以解释，因为确实我们在新版本应用里把吞吐量加大了一倍，从 Storm UI 中可以看出，在拓扑刚上线的时候，处理量较大的 bolt 的 capacity 会瞬间飙升到接近 1 的程度，虽然在后面数据流平稳下来之后可以慢慢降低，但是这个过程还是有很大的不确定性。所以，暂时需要先把吞吐量降下来，再考虑慢慢调整。不过，这个问题还没这么简单。因为我发现集群中同配置的另一个机器就没有这个问题，而且即使在这台机器 worker 挂掉，nimbus 将这台机器的 worker 分配到另外那台机器的情况下，那台机器上的 CPU 也只有 80+%。同样配置同样的网络运行同样的进程怎么会有这么大的差异？</p>
+<p>对这个问题苦思了半天不得其解，最后想想还是要看看 CPU 设备信息有没有什么问题。然后，就没有然后了，额，不对，说顺口了，然后应该就是出现真相的地方了</p>
+<div class="highlight"><pre><span class="p">[</span><span class="n">root</span><span class="err">@</span><span class="n">s2</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">storm</span><span class="o">/</span><span class="n">apache</span><span class="o">-</span><span class="n">storm</span><span class="o">-</span><span class="mf">0.9.3</span><span class="o">/</span><span class="n">logs</span><span class="p">]</span><span class="err">$</span><span class="o">&gt;</span><span class="n">cat</span> <span class="o">/</span><span class="n">proc</span><span class="o">/</span><span class="n">cpuinfo</span> 
+<span class="n">processor</span>   <span class="o">:</span> <span class="mi">0</span>
+<span class="n">vendor_id</span>   <span class="o">:</span> <span class="n">GenuineIntel</span>
+<span class="n">cpu</span> <span class="n">family</span>  <span class="o">:</span> <span class="mi">6</span>
+<span class="n">model</span>       <span class="o">:</span> <span class="mi">62</span>
+<span class="n">model</span> <span class="n">name</span>  <span class="o">:</span> <span class="n">Intel</span><span class="p">(</span><span class="n">R</span><span class="p">)</span> <span class="n">Xeon</span><span class="p">(</span><span class="n">R</span><span class="p">)</span> <span class="n">CPU</span> <span class="n">E5</span><span class="o">-</span><span class="mi">2620</span> <span class="n">v2</span> <span class="err">@</span> <span class="mf">2.10</span><span class="n">GHz</span>
+</pre></div>
+
+
+<p>这里只有一个 CPU。真是让人哭笑不得，我们的服务器都是用的分配的虚拟机，也不知道谁把这台机器只分了个单核的 CPU，数据流压力稍微高点当然会扛不住。但是也没办法，现在服务器资源还紧张，只能这么凑合着用，然后继续等着新服务器的申请什么时候能批下来……</p>
+<p>当然，除了硬件方面的问题之外，拓扑本身也还有可以优化的地方。一方面，从 Storm UI 上观察到的某些负载较大的 bolt 也确实需要调整下并发度；另一方面，数据流优先进入的部分 bolt 也需要优化下处理方法。这样双管齐下才能真正地解决好问题。</p>
+<hr />
+<blockquote>
+<p><strong>彩蛋</strong> # get 到的新技能
+- 在 worker 没有日志的时候可以手动执行 supervisor 中的启动命令（就是 “java xxx” 那个大长串）来启动 worker</p>
+</blockquote>
+<hr />
+<h1>Reference</h1>
+<ul>
+<li><a href="http://grokbase.com/t/gg/storm-user/131v9gv614/supervisor-is-not-able-to-start-worker-log-files-are-empty">http://grokbase.com/t/gg/storm-user/131v9gv614/supervisor-is-not-able-to-start-worker-log-files-are-empty</a></li>
+</ul>
+            </div>
+            <!-- /.entry-content -->
+    <hr />
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'weyo'; // required: replace example with your forum shortname
+            var disqus_identifier = 'storm-worker-die-with-exceptions';
+            var disqus_url = 'http://weyo.me/pages/techs/storm-worker-die-with-exceptions/';
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-lg-3 well well-sm" id="sidebar">
+
+<aside>
+    <section>
+        <ul class="list-group list-group-flush">
+                <li class="list-group-item"><h4><i class="icon-home icon-large"></i>Social</h4></li>
+                    <li class="list-group-item"><a href="https://github.com/weyo/"><i
+                            class="icon-github-sign icon-large"></i>Github
+                    </a></li>
+                    <li class="list-group-item"><a href="https://cn.linkedin.com/in/weiyong"><i
+                            class="icon-linkedin-sign icon-large"></i>LinkedIn
+                    </a></li>
+                <li class="list-group-item"><h4><i class="icon-link icon-large"></i>Links</h4></li>
+                    <li class="list-group-item"><a href="http://getpelican.com/"><i
+                            class="icon-Pelican-sign icon-large"></i>Pelican
+                    </a></li>
+                    <li class="list-group-item"><a href="#"><i
+                            class="icon-WeYo-sign icon-large"></i>WeYo
+                    </a></li>
+
+
+                <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
+                        <li class="list-group-item tag-1">
+                            <a href="http://weyo.me/tag/storm.html">
+                                Storm
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-1">
+                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
+                                分布式计算
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-2">
+                            <a href="http://weyo.me/tag/kafka.html">
+                                Kafka
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-2">
+                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
+                                环境搭建
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-2">
+                            <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
+                                实时计算
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-3">
+                            <a href="http://weyo.me/tag/linux.html">
+                                Linux
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/log4j.html">
+                                log4j
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/jedis.html">
+                                Jedis
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/java.html">
+                                Java
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/zookeeper.html">
+                                ZooKeeper
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/undefined.html">
+                                Undefined
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/shell.html">
+                                Shell
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/benchmark.html">
+                                Benchmark
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/rpc.html">
+                                RPC
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/flume.html">
+                                Flume
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/redis.html">
+                                Redis
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/yaml.html">
+                                Yaml
+                            </a>
+                        </li>
+        </ul>
+    </section>
+</aside>        </div>
+    </div>
+</div>
+<footer>
+    <div class="container">
+        <hr>
+        <p class="pull-right"><i class="icon-arrow-up"></i> <a href="#">Back to top</a></p>
+
+
+        <p>&copy; 2015 WeYo &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a></p>
+    </div>
+</footer>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="http://weyo.me/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="http://weyo.me/theme/js/respond.min.js"></script>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'weyo'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+
+
+</body>
+</html>
