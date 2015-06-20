@@ -1,5 +1,259 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Let There Be Light</title><link>http://weyo.me/</link><description></description><atom:link href="http://weyo.me/feeds/all.rss.xml" rel="self"></atom:link><lastBuildDate>Fri, 19 Jun 2015 21:45:33 +0800</lastBuildDate><item><title>Storm 官方文档翻译(7) —— Trident 教程</title><link>http://weyo.me/pages/techs/storm-translations-trident-tutorial/</link><description>&lt;h1&gt;Trident 教程&lt;/h1&gt;
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Let There Be Light</title><link>http://weyo.me/</link><description></description><atom:link href="http://weyo.me/feeds/all.rss.xml" rel="self"></atom:link><lastBuildDate>Sat, 20 Jun 2015 20:10:57 +0800</lastBuildDate><item><title>Storm 官方文档翻译(8) —— Trident API 概述</title><link>http://weyo.me/pages/techs/storm-translations-trident-api-overview/</link><description>&lt;h1&gt;Trident API 概述&lt;/h1&gt;
+&lt;p&gt;Trident 的核心数据模型是“流”（Stream），不过与普通的拓扑不同的是，这里的流是作为一系列数据块（batch）来处理的。数据流是分布在集群中的不同节点上运行的，并且对数据流的操作也是在数据流的每个小分区上并行运行的。&lt;/p&gt;
+&lt;p&gt;Trident 中有 5 类操作：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;针对每个小分区的本地操作，这类操作不会产生网络数据传输；&lt;/li&gt;
+&lt;li&gt;针对一个数据流的重新分区操作，这类操作不会改变数据流中的内容，但是会产生一定的网络传输；&lt;/li&gt;
+&lt;li&gt;通过网络数据传输进行的聚合操作；&lt;/li&gt;
+&lt;li&gt;针对数据流的分组操作；&lt;/li&gt;
+&lt;li&gt;融合与联结操作。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2&gt;本地分区操作&lt;/h2&gt;
+&lt;p&gt;本地分区操作是在每个分区块上独立运行的操作，其中不涉及网络数据传输。&lt;/p&gt;
+&lt;h3&gt;函数&lt;/h3&gt;
+&lt;p&gt;函数负责接收一个输入域的集合并选择输出或者不输出 tuple。输出 tuple 的域会被添加到原始数据流的输入域中。如果一个函数不输出 tuple，那么原始的输入 tuple 就会被直接过滤掉。否则，每个输出 tuple 都会复制一份输入 tuple 。假设你有下面这样的函数：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;public&lt;/span&gt; &lt;span class="n"&gt;class&lt;/span&gt; &lt;span class="n"&gt;MyFunction&lt;/span&gt; &lt;span class="n"&gt;extends&lt;/span&gt; &lt;span class="n"&gt;BaseFunction&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;public&lt;/span&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="n"&gt;execute&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;TridentTuple&lt;/span&gt; &lt;span class="n"&gt;tuple&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;TridentCollector&lt;/span&gt; &lt;span class="n"&gt;collector&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;for&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;tuple&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;getInteger&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="o"&gt;++&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+            &lt;span class="n"&gt;collector&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;emit&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Values&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
+        &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;再假设你有一个名为 “mystream” 的数据流，这个流中包含下面几个 tuple，每个 tuple 中包含有 “a”、“b”、“c” 三个域：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;[1, 2, 3]&lt;/span&gt;
+&lt;span class="k"&gt;[4, 1, 6]&lt;/span&gt;
+&lt;span class="k"&gt;[3, 0, 8]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;如果你运行这段代码：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;mystream&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;each&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Fields&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;b&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;new&lt;/span&gt; &lt;span class="n"&gt;MyFunction&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Fields&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;d&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;那么最终输出的结果 tuple 就会包含有 “a”、“b”、“c”、“d” 4 个域，就像下面这样：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;[1, 2, 3, 0]&lt;/span&gt;
+&lt;span class="k"&gt;[1, 2, 3, 1]&lt;/span&gt;
+&lt;span class="k"&gt;[4, 1, 6, 0]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;过滤器&lt;/h3&gt;
+&lt;p&gt;过滤器负责判断输入的 tuple 是否需要保留。以下面的过滤器为例：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;public&lt;/span&gt; &lt;span class="n"&gt;class&lt;/span&gt; &lt;span class="n"&gt;MyFilter&lt;/span&gt; &lt;span class="n"&gt;extends&lt;/span&gt; &lt;span class="n"&gt;BaseFilter&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;public&lt;/span&gt; &lt;span class="n"&gt;boolean&lt;/span&gt; &lt;span class="n"&gt;isKeep&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;TridentTuple&lt;/span&gt; &lt;span class="n"&gt;tuple&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;tuple&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;getInteger&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;tuple&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;getInteger&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;通过使用这段代码：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;mystream&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;each&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Fields&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;b&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;a&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;new&lt;/span&gt; &lt;span class="n"&gt;MyFilter&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;就可以将下面这样带有 “a”、“b”、“c” 三个域的 tuple&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;[1, 2, 3]&lt;/span&gt;
+&lt;span class="k"&gt;[2, 1, 1]&lt;/span&gt;
+&lt;span class="k"&gt;[2, 3, 4]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;最终转化成这样的结果 tuple：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;partitionAggregate&lt;/h3&gt;
+&lt;p&gt;&lt;code&gt;partitionAggregate&lt;/code&gt; 会在一批 tuple 的每个分区上执行一个指定的功能操作。与上面的函数不同，由 &lt;code&gt;partitionAggregate&lt;/code&gt; 发送出的 tuple 会将输入 tuple 的域替换。以下面这段代码为例：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;mystream&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;partitionAggregate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Fields&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;b&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Sum&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Fields&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;sum&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;假如输入流中包含有 “a”、“b” 两个域并且有以下几个 tuple 块：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;Partition&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;a&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;b&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+
+&lt;span class="n"&gt;Partition&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;a&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;c&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+
+&lt;span class="n"&gt;Partition&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;e&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;d&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;d&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;经过上面的代码之后，输出就会变成带有一个名为 “sum” 的域的数据流，其中的 tuple 就是这样的：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;Partition&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+
+&lt;span class="n"&gt;Partition&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;11&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+
+&lt;span class="n"&gt;Partition&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;20&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Storm 有三个用于定义聚合器的接口：&lt;code&gt;CombinerAggregator&lt;/code&gt;，&lt;code&gt;ReducerAggregator&lt;/code&gt; 以及 &lt;code&gt;Aggregator&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;这是 &lt;code&gt;CombinerAggregator&lt;/code&gt; 接口：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;public&lt;/span&gt; &lt;span class="nf"&gt;interface&lt;/span&gt; &lt;span class="nx"&gt;CombinerAggregator&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nb"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="nx"&gt;extends&lt;/span&gt; &lt;span class="nx"&gt;Serializable&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="nb"&gt;T&lt;/span&gt; &lt;span class="nb"&gt;init&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;TridentTuple&lt;/span&gt; &lt;span class="nx"&gt;tuple&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+    &lt;span class="nb"&gt;T&lt;/span&gt; &lt;span class="nx"&gt;combine&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;T&lt;/span&gt; &lt;span class="nx"&gt;val1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;T&lt;/span&gt; &lt;span class="nx"&gt;val2&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+    &lt;span class="nb"&gt;T&lt;/span&gt; &lt;span class="nx"&gt;zero&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;code&gt;CombinerAggregator&lt;/code&gt; 会将带有一个域的一个单独的 tuple 返回作为输出。&lt;code&gt;CombinerAggregator&lt;/code&gt; 会在每个输入 tuple 上运行初始化函数，然后使用组合函数来组合所有输入的值。如果在某个分区中没有 tuple， &lt;code&gt;CombinerAggregator&lt;/code&gt; 就会输出 &lt;code&gt;zero&lt;/code&gt; 方法的结果。例如，下面是 &lt;code&gt;Count&lt;/code&gt; 的实现代码：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;public&lt;/span&gt; &lt;span class="nf"&gt;class&lt;/span&gt; &lt;span class="nb"&gt;Count&lt;/span&gt; &lt;span class="nx"&gt;implements&lt;/span&gt; &lt;span class="nx"&gt;CombinerAggregator&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nx"&gt;Long&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;public&lt;/span&gt; &lt;span class="nf"&gt;Long&lt;/span&gt; &lt;span class="nb"&gt;init&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;TridentTuple&lt;/span&gt; &lt;span class="nx"&gt;tuple&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="nx"&gt;L&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="k"&gt;public&lt;/span&gt; &lt;span class="nf"&gt;Long&lt;/span&gt; &lt;span class="nx"&gt;combine&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;Long&lt;/span&gt; &lt;span class="nx"&gt;val1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;Long&lt;/span&gt; &lt;span class="nx"&gt;val2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nx"&gt;val1&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="nx"&gt;val2&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="k"&gt;public&lt;/span&gt; &lt;span class="nf"&gt;Long&lt;/span&gt; &lt;span class="nx"&gt;zero&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="nx"&gt;L&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;如果你使用 aggregate 方法来代替 partitionAggregate 方法，你就会发现 &lt;code&gt;CombinerAggregator&lt;/code&gt; 的好处了。在这种情况下，Trident 会在发送 tuple 之前通过分区聚合操作来优化计算过程。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;ReducerAggregator&lt;/code&gt; 的接口实现是这样的：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;public&lt;/span&gt; &lt;span class="nf"&gt;interface&lt;/span&gt; &lt;span class="nx"&gt;ReducerAggregator&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nb"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="nx"&gt;extends&lt;/span&gt; &lt;span class="nx"&gt;Serializable&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="nb"&gt;T&lt;/span&gt; &lt;span class="nb"&gt;init&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+    &lt;span class="nb"&gt;T&lt;/span&gt; &lt;span class="nx"&gt;reduce&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;T&lt;/span&gt; &lt;span class="nx"&gt;curr&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;TridentTuple&lt;/span&gt; &lt;span class="nx"&gt;tuple&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;code&gt;ReducerAggregator&lt;/code&gt; 会使用 &lt;code&gt;init&lt;/code&gt; 方法来产生一个初始化的值，然后使用该值对每个输入 tuple 进行遍历，并最终生成并输出一个单独的 tuple，这个 tuple 中就包含有我们需要的计算结果值。例如，下面是将 Count 定义为 &lt;code&gt;ReducerAggregator&lt;/code&gt; 的代码：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;public&lt;/span&gt; &lt;span class="nf"&gt;class&lt;/span&gt; &lt;span class="nb"&gt;Count&lt;/span&gt; &lt;span class="nx"&gt;implements&lt;/span&gt; &lt;span class="nx"&gt;ReducerAggregator&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nx"&gt;Long&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;public&lt;/span&gt; &lt;span class="nf"&gt;Long&lt;/span&gt; &lt;span class="nb"&gt;init&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="nx"&gt;L&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="k"&gt;public&lt;/span&gt; &lt;span class="nf"&gt;Long&lt;/span&gt; &lt;span class="nx"&gt;reduce&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;Long&lt;/span&gt; &lt;span class="nx"&gt;curr&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;TridentTuple&lt;/span&gt; &lt;span class="nx"&gt;tuple&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nx"&gt;curr&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;code&gt;ReducerAggregator&lt;/code&gt; 同样可以用于 persistentAggregate，你会在后面看到这一点。&lt;/p&gt;
+&lt;p&gt;最常用的聚合器接口还是下面的 &lt;code&gt;Aggregator&lt;/code&gt; 接口：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;public&lt;/span&gt; &lt;span class="nf"&gt;interface&lt;/span&gt; &lt;span class="nx"&gt;Aggregator&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nb"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="nx"&gt;extends&lt;/span&gt; &lt;span class="nx"&gt;Operation&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="nb"&gt;T&lt;/span&gt; &lt;span class="nb"&gt;init&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;Object&lt;/span&gt; &lt;span class="nx"&gt;batchId&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;TridentCollector&lt;/span&gt; &lt;span class="nx"&gt;collector&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+    &lt;span class="bp"&gt;void&lt;/span&gt; &lt;span class="nx"&gt;aggregate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;T&lt;/span&gt; &lt;span class="nx"&gt;state&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;TridentTuple&lt;/span&gt; &lt;span class="nx"&gt;tuple&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;TridentCollector&lt;/span&gt; &lt;span class="nx"&gt;collector&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+    &lt;span class="bp"&gt;void&lt;/span&gt; &lt;span class="nx"&gt;complete&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;T&lt;/span&gt; &lt;span class="nx"&gt;state&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;TridentCollector&lt;/span&gt; &lt;span class="nx"&gt;collector&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;code&gt;Aggregator&lt;/code&gt; 聚合器可以生成任意数量的 tuple，这些 tuple 也可以带有任意数量的域。聚合器可以在执行过程中的任意一点输出tuple，他们的执行过程是这样的：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;在处理一批数据之前先调用 init 方法。init 方法的返回值是一个代表着聚合状态的对象，这个对象接下来会被传入 aggregate 方法和 complete 方法中。&lt;/li&gt;
+&lt;li&gt;对于一个区块中的每个 tuple 都会调用 aggregate 方法。这个方法能够更新状态并且有选择地输出 tuple。&lt;/li&gt;
+&lt;li&gt;在区块中的所有 tuple 都被 aggregate 方法处理之后就会调用 complete 方法。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;下面是使用 Count 作为聚合器的代码：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;public&lt;/span&gt; &lt;span class="nf"&gt;class&lt;/span&gt; &lt;span class="nx"&gt;CountAgg&lt;/span&gt; &lt;span class="nx"&gt;extends&lt;/span&gt; &lt;span class="nx"&gt;BaseAggregator&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nx"&gt;CountState&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="nx"&gt;static&lt;/span&gt; &lt;span class="nb"&gt;class&lt;/span&gt; &lt;span class="nx"&gt;CountState&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="nx"&gt;long&lt;/span&gt; &lt;span class="n"&gt;count&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="k"&gt;public&lt;/span&gt; &lt;span class="nf"&gt;CountState&lt;/span&gt; &lt;span class="nb"&gt;init&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;Object&lt;/span&gt; &lt;span class="nx"&gt;batchId&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;TridentCollector&lt;/span&gt; &lt;span class="nx"&gt;collector&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nb"&gt;new&lt;/span&gt; &lt;span class="nx"&gt;CountState&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="k"&gt;public&lt;/span&gt; &lt;span class="nf"&gt;void&lt;/span&gt; &lt;span class="nx"&gt;aggregate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;CountState&lt;/span&gt; &lt;span class="nx"&gt;state&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;TridentTuple&lt;/span&gt; &lt;span class="nx"&gt;tuple&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;TridentCollector&lt;/span&gt; &lt;span class="nx"&gt;collector&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="nx"&gt;state.count&lt;/span&gt;&lt;span class="o"&gt;+=&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="k"&gt;public&lt;/span&gt; &lt;span class="nf"&gt;void&lt;/span&gt; &lt;span class="nx"&gt;complete&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;CountState&lt;/span&gt; &lt;span class="nx"&gt;state&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;TridentCollector&lt;/span&gt; &lt;span class="nx"&gt;collector&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="nx"&gt;collector.emit&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;new&lt;/span&gt; &lt;span class="nb"&gt;Values&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;state.count&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;有时你可能会需要同时执行多个聚合操作。这个过程叫做链式处理，可以使用下面这样的代码来实现：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;mystream&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;chainedAgg&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+        &lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;partitionAggregate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Count&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Fields&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;count&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+        &lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;partitionAggregate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Fields&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;b&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Sum&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Fields&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;sum&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+        &lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;chainEnd&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;这段代码会在每个分区上分别执行 Count 和 Sum 聚合器，而输出中只会包含一个带有 ["count", "sum"] 域的单独的 tuple。&lt;/p&gt;
+&lt;h3&gt;stateQuery 与 partitionPersist&lt;/h3&gt;
+&lt;p&gt;stateQuery 与 partitionPersist 会分别查询、更新 state 数据源。你可以参考 &lt;a href="http://storm.apache.org/documentation/Trident-state.html"&gt;Trident state doc&lt;/a&gt; 来了解如何使用它们。&lt;/p&gt;
+&lt;h3&gt;projection&lt;/h3&gt;
+&lt;p&gt;&lt;code&gt;projection&lt;/code&gt; 方法只会保留操作中指定的域。如果你有一个带有 ["a", "b", "c", "d"] 域的数据流，通过执行这段代码：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;mystream&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;project&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Fields&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;b&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;d&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;就会使得输出数据流中只包含有 ["b", "d"] 域。&lt;/p&gt;
+&lt;h2&gt;重分区操作&lt;/h2&gt;
+&lt;p&gt;重分区操作会执行一个用来改变在不同的任务间分配 tuple 的方式的函数。在重分区的过程中分区的数量也可能会发生变化（例如，重分区之后的并行度就有可能会增大）。重分区会产生一定的网络数据传输。下面是重分区操作的几个函数：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;shuffle：通过随机轮询算法来重新分配目标区块的所有 tuple。&lt;/li&gt;
+&lt;li&gt;broadcast：每个 tuple 都会被复制到所有的目标区块中。这个函数在 DRPC 中很有用 —— 比如，你可以使用这个函数来获取每个区块数据的查询结果。&lt;/li&gt;
+&lt;li&gt;partitionBy：该函数会接收一组域作为参数，并根据这些域来进行分区操作。可以通过对这些域进行哈希化，并对目标分区的数量取模的方法来选取目标区块。partitionBy 函数能够保证来自同一组域的结果总会被发送到相同的目标区间。&lt;/li&gt;
+&lt;li&gt;global：这种方式下所有的 tuple 都会被发送到同一个目标分区中，而且数据流中的所有的块都会由这个分区处理。&lt;/li&gt;
+&lt;li&gt;batchGlobal：同一个 batch 块中的所有 tuple 会被发送到同一个区块中。当然，在数据流中的不同区块仍然会分配到不同的区块中。&lt;/li&gt;
+&lt;li&gt;partition：这个函数使用自定义的分区方法，该方法会实现 &lt;code&gt;backtype.storm.grouping.CustomStreamGrouping&lt;/code&gt; 接口。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2&gt;聚类操作&lt;/h2&gt;
+&lt;p&gt;Trident 使用 aggregate 方法和 persistentAggregate 方法来对数据流进行聚类操作。其中，aggregate 方法会分别对数据流中的每个 batch 进行处理，而 persistentAggregate 方法则会对数据流中的所有 batch 执行聚类处理，并将结果存入某个 state 中。&lt;/p&gt;
+&lt;p&gt;在数据流上执行 aggregate 方法会执行一个全局的聚类操作。在你使用 &lt;code&gt;ReducerAggregator&lt;/code&gt; 或者 &lt;code&gt;Aggregator&lt;/code&gt; 时，数据流首先会被重新分区成一个单独的分区，然后聚类函数就会在该分区上执行操作。而在你使用 &lt;code&gt;CombinerAggregator&lt;/code&gt; 时，Trident 首先会计算每个分区的部分聚类结果，然后将这些结果重分区到一个单独的分区中，最后在网络数据传输完成之后结束这个聚类过程。&lt;code&gt;CombinerAggregator&lt;/code&gt; 比其他的聚合器的运行效率更高，在聚类时应该尽可能使用 &lt;code&gt;CombinerAggregator&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;下面是一个使用 aggregate 来获取一个 batch 的全局计数值的例子：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;mystream&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;aggregate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Count&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Fields&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;count&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;与 partitionAggregate 一样，aggregate 的聚合器也可以进行链式处理。然而，如果你在一个处理链中同时使用了 &lt;code&gt;CombinerAggregator&lt;/code&gt; 和非 &lt;code&gt;CombinerAggregator&lt;/code&gt;，Trident 就不能对部分聚类操作进行优化了。&lt;/p&gt;
+&lt;p&gt;想要了解更多使用 persistentAggregate 的方法，可以参考 &lt;a href="http://storm.apache.org/documentation/Trident-state.html"&gt;Trident state doc&lt;/a&gt; 一文。&lt;/p&gt;
+&lt;h2&gt;对分组数据流的操作&lt;/h2&gt;
+&lt;p&gt;通过对指定的域执行 partitionBy 操作，groupBy 操作可以将数据流进行重分区，使得相同的域的 tuple 分组可以聚集在一起。例如，下面是一个 groupBy 操作的示例：&lt;/p&gt;
+&lt;p&gt;&lt;img alt="groupBy" src="http://storm.apache.org/documentation/images/grouping.png" /&gt;&lt;/p&gt;
+&lt;p&gt;如果你在分组数据流上执行聚合操作，聚合器会在每个分组（而不是整个区块）上运行。persistentAggregate 同样可以在一个分组数据里上运行，这种情况下聚合结果会存储在 &lt;a href="https://github.com/apache/storm/blob/master/storm-core/src/jvm/storm/trident/state/map/MapState.java"&gt;MapState&lt;/a&gt; 中，其中的 key 就是分组的域名。&lt;/p&gt;
+&lt;p&gt;和其他操作一样，对分组数据流的聚合操作也可以以链式的方式执行。&lt;/p&gt;
+&lt;h2&gt;融合（Merge）与联结（join）&lt;/h2&gt;
+&lt;p&gt;Trident API 的最后一部分是联结不同的数据流的操作。联结数据流最简单的方式就是将所有的数据流融合到一个流中。你可以使用 TridentTopology 的 merge 方法实现该操作，比如这样：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;topology&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;merge&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;stream1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;stream2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;stream3&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Trident 会将融合后的新数据流的域命名为为第一个数据流的输出域。&lt;/p&gt;
+&lt;p&gt;联结数据流的另外一种方法是使用 join。像 SQL 那样的标准 join 操作只能用于有限的输入数据集，对于无限的数据集就没有用武之地了。Trident 中的 join 只会应用于每个从 spout 中输出的小 batch。&lt;/p&gt;
+&lt;p&gt;下面是两个流的 join 操作的示例，其中一个流含有 ["key", "val1", "val2"] 域，另外一个流含有 ["x", "val1"] 域：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;topology&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;join&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;stream1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Fields&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;key&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;stream2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Fields&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;x&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Fields&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;key&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;a&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;b&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;c&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;上面的例子会使用 “key” 和 “x” 作为 join 的域来联结 stream1 和 stream2。Trident 要求先定义好新流的输出域，因为输入流的域可能会覆盖新流的域名。从 join 中输出的 tuple 中会包含：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;join 域的列表。在这个例子里，输出的 “key” 域与 stream1 的 “key” 域以及 stream2 的 “x” 域对应。&lt;/li&gt;
+&lt;li&gt;来自所有流的非 join 域的列表。这个列表是按照传入 join 方法的流的顺序排列的。在这个例子里，“
+a” 和 “b” 域与 stream1 的 “val1” 和 “val2” 域对应；而 “c” 域则与 stream2 的 “val1” 域相对应。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;在对不同的 spout 发送出的流进行 join 时，这些 spout 上会按照他们发送 batch 的方式进行同步处理。也就是说，一个处理中的 batch 中含有每个 spout 发送出的 tuple。&lt;/p&gt;
+&lt;p&gt;到这里你大概仍然会对如何进行窗口 join 操作感到困惑。窗口操作（包括平滑窗口、滚动窗口等 —— 译者注）主要是指将当前的 tuple 与过去若干小时时间段内的 tuple 联结起来的过程。&lt;/p&gt;
+&lt;p&gt;你可以使用 partitionPersist 和 stateQuery 来实现这个过程。过去一段时间内的 tuple 会以 join 域为关键字被保存到一个 state 源中。然后就可以使用 stateQuery 查询 join 域来实现这个“联结”（join）的过程。&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Sat, 20 Jun 2015 20:10:57 +0800</pubDate><guid>tag:weyo.me,2015-06-20:pages/techs/storm-translations-trident-api-overview/</guid><category>Storm</category><category>Translation</category></item><item><title>Storm 官方文档翻译(7) —— Trident 教程</title><link>http://weyo.me/pages/techs/storm-translations-trident-tutorial/</link><description>&lt;h1&gt;Trident 教程&lt;/h1&gt;
 &lt;p&gt;Trident 是 Storm 的一种高度抽象的实时计算模型，它可以将高吞吐量（每秒百万级）数据输入、带状态的流式处理与低延时的分布式查询无缝结合起来。如果你了解 Pig 或者 Cascading 这样的高级批处理工具，你就会发现 Trident 的概念非常相似。Trident 同样有联结（join）、聚合（aggregation）、分组（grouping）、函数（function）以及过滤器（filter）这些功能。Trident 为数据库或者其他持久化存储上层的状态化、增量式处理提供了基础原语。由于 Trident 有着一致的、恰好一次的语义，因此推断出 Trident 拓扑的状态也是一件很容易的事。&lt;/p&gt;
 &lt;h2&gt;使用范例&lt;/h2&gt;
 &lt;p&gt;让我们先从一个 Trident 使用的例子开始。这个例子中做了两件事情：&lt;/p&gt;

@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:og="http://ogp.me/ns#"
+      xmlns:fb="https://www.facebook.com/2008/fbml">
+<head>
+    <title>Storm 官方文档翻译(8) —— Trident API 概述
+   - Let There Be Light
+</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel = "Shortcut Icon" href=https://raw.githubusercontent.com/weyo/weyo.github.com/master/images/photos/avatar.png>
+
+    <!-- Open Graph tags -->
+
+            <meta property="og:type" content="article"/>
+            <meta property="og:title" content="Storm 官方文档翻译(8) —— Trident API 概述"/>
+            <meta property="og:url" content="http://weyo.me/pages/techs/storm-translations-trident-api-overview/"/>
+            <meta property="og:description" content="Storm Trident API 的简单介绍。"/>
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="http://weyo.me/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="http://weyo.me/theme/css/font-awesome.min.css" rel="stylesheet">
+    <link href="http://weyo.me/theme/css/pygments.css" rel="stylesheet">
+    <link rel="stylesheet" href="http://weyo.me/theme/css/style.css" type="text/css"/>
+    <!-- JavaScript plugins (requires jQuery) -->
+    <script src="http://code.jquery.com/jquery.js"></script>
+
+        <link href="http://weyo.me/feeds/all.rss.xml" type="application/atom+xml" rel="alternate"
+              title="Let There Be Light RSS Feed"/>
+
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-46991080-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+
+    </script>
+</head>
+<body>
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="http://weyo.me" class="navbar-brand">Let There Be Light</a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="http://weyo.me/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="http://weyo.me/pages/gallery.html">
+                             Gallery
+                          </a></li>
+                        <li >
+                            <a href="http://weyo.me/category/essays.html">Essays</a>
+                        </li>
+                        <li class="active">
+                            <a href="http://weyo.me/category/techs.html">Techs</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="http://weyo.me/archives.html"><i class="icon-th-list"></i>Archives</a></li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</nav>
+<!-- /.navbar -->
+<div class="container">
+    <div class="row">
+        <div class="col-lg-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="http://weyo.me/pages/techs/storm-translations-trident-api-overview/"
+                       rel="bookmark"
+                       title="Permalink to Storm 官方文档翻译(8) —— Trident API 概述">
+                        Storm 官方文档翻译(8) —— Trident API 概述
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="icon-calendar"></i>2015-06-20
+    </span>
+	<span style="font-size:12px;">&nbsp;&nbsp;</span>
+    <!--     <span class="label label-default">By</span>
+    <a href="http://weyo.me/author/weyo.html"><i class="icon-user"></i>WeYo</a>
+	<span style="font-size:12px;">&nbsp;&nbsp;</span>
+ -->
+
+    <span class="label label-default">Category</span>
+    <a href="http://weyo.me/category/techs.html">Techs</a>
+	<span style="font-size:12px;">&nbsp;&nbsp;</span>
+
+
+<span class="label label-default">Tags</span>
+	<a href="http://weyo.me/tag/storm.html">Storm</a>
+        /
+	<a href="http://weyo.me/tag/translation.html">Translation</a>
+	
+	<br /><br />Posted by <span style="font-weight:bold;"><a href="http://github.com/weyo">WeYo</a></span>. 转载请注明出处：<a href="http://weyo.me/pages/techs/storm-translations-trident-api-overview/">http://weyo.me/pages/techs/storm-translations-trident-api-overview/</a>
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h1>Trident API 概述</h1>
+<p>Trident 的核心数据模型是“流”（Stream），不过与普通的拓扑不同的是，这里的流是作为一系列数据块（batch）来处理的。数据流是分布在集群中的不同节点上运行的，并且对数据流的操作也是在数据流的每个小分区上并行运行的。</p>
+<p>Trident 中有 5 类操作：</p>
+<ol>
+<li>针对每个小分区的本地操作，这类操作不会产生网络数据传输；</li>
+<li>针对一个数据流的重新分区操作，这类操作不会改变数据流中的内容，但是会产生一定的网络传输；</li>
+<li>通过网络数据传输进行的聚合操作；</li>
+<li>针对数据流的分组操作；</li>
+<li>融合与联结操作。</li>
+</ol>
+<h2>本地分区操作</h2>
+<p>本地分区操作是在每个分区块上独立运行的操作，其中不涉及网络数据传输。</p>
+<h3>函数</h3>
+<p>函数负责接收一个输入域的集合并选择输出或者不输出 tuple。输出 tuple 的域会被添加到原始数据流的输入域中。如果一个函数不输出 tuple，那么原始的输入 tuple 就会被直接过滤掉。否则，每个输出 tuple 都会复制一份输入 tuple 。假设你有下面这样的函数：</p>
+<div class="highlight"><pre><span class="n">public</span> <span class="n">class</span> <span class="n">MyFunction</span> <span class="n">extends</span> <span class="n">BaseFunction</span> <span class="p">{</span>
+    <span class="n">public</span> <span class="kt">void</span> <span class="n">execute</span><span class="p">(</span><span class="n">TridentTuple</span> <span class="n">tuple</span><span class="p">,</span> <span class="n">TridentCollector</span> <span class="n">collector</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">tuple</span><span class="p">.</span><span class="n">getInteger</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">collector</span><span class="p">.</span><span class="n">emit</span><span class="p">(</span><span class="n">new</span> <span class="n">Values</span><span class="p">(</span><span class="n">i</span><span class="p">));</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>再假设你有一个名为 “mystream” 的数据流，这个流中包含下面几个 tuple，每个 tuple 中包含有 “a”、“b”、“c” 三个域：</p>
+<div class="highlight"><pre><span class="k">[1, 2, 3]</span>
+<span class="k">[4, 1, 6]</span>
+<span class="k">[3, 0, 8]</span>
+</pre></div>
+
+
+<p>如果你运行这段代码：</p>
+<div class="highlight"><pre><span class="n">mystream</span><span class="p">.</span><span class="n">each</span><span class="p">(</span><span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;b&quot;</span><span class="p">),</span> <span class="n">new</span> <span class="n">MyFunction</span><span class="p">(),</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;d&quot;</span><span class="p">)))</span>
+</pre></div>
+
+
+<p>那么最终输出的结果 tuple 就会包含有 “a”、“b”、“c”、“d” 4 个域，就像下面这样：</p>
+<div class="highlight"><pre><span class="k">[1, 2, 3, 0]</span>
+<span class="k">[1, 2, 3, 1]</span>
+<span class="k">[4, 1, 6, 0]</span>
+</pre></div>
+
+
+<h3>过滤器</h3>
+<p>过滤器负责判断输入的 tuple 是否需要保留。以下面的过滤器为例：</p>
+<div class="highlight"><pre><span class="n">public</span> <span class="n">class</span> <span class="n">MyFilter</span> <span class="n">extends</span> <span class="n">BaseFilter</span> <span class="p">{</span>
+    <span class="n">public</span> <span class="n">boolean</span> <span class="n">isKeep</span><span class="p">(</span><span class="n">TridentTuple</span> <span class="n">tuple</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">tuple</span><span class="p">.</span><span class="n">getInteger</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="o">&amp;&amp;</span> <span class="n">tuple</span><span class="p">.</span><span class="n">getInteger</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>通过使用这段代码：</p>
+<div class="highlight"><pre><span class="n">mystream</span><span class="p">.</span><span class="n">each</span><span class="p">(</span><span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;b&quot;</span><span class="p">,</span> <span class="s">&quot;a&quot;</span><span class="p">),</span> <span class="n">new</span> <span class="n">MyFilter</span><span class="p">())</span>
+</pre></div>
+
+
+<p>就可以将下面这样带有 “a”、“b”、“c” 三个域的 tuple</p>
+<div class="highlight"><pre><span class="k">[1, 2, 3]</span>
+<span class="k">[2, 1, 1]</span>
+<span class="k">[2, 3, 4]</span>
+</pre></div>
+
+
+<p>最终转化成这样的结果 tuple：</p>
+<div class="highlight"><pre><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</pre></div>
+
+
+<h3>partitionAggregate</h3>
+<p><code>partitionAggregate</code> 会在一批 tuple 的每个分区上执行一个指定的功能操作。与上面的函数不同，由 <code>partitionAggregate</code> 发送出的 tuple 会将输入 tuple 的域替换。以下面这段代码为例：</p>
+<div class="highlight"><pre><span class="n">mystream</span><span class="p">.</span><span class="n">partitionAggregate</span><span class="p">(</span><span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;b&quot;</span><span class="p">),</span> <span class="n">new</span> <span class="n">Sum</span><span class="p">(),</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;sum&quot;</span><span class="p">))</span>
+</pre></div>
+
+
+<p>假如输入流中包含有 “a”、“b” 两个域并且有以下几个 tuple 块：</p>
+<div class="highlight"><pre><span class="n">Partition</span> <span class="mi">0</span><span class="o">:</span>
+<span class="p">[</span><span class="s">&quot;a&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="p">[</span><span class="s">&quot;b&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+
+<span class="n">Partition</span> <span class="mi">1</span><span class="o">:</span>
+<span class="p">[</span><span class="s">&quot;a&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+<span class="p">[</span><span class="s">&quot;c&quot;</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span>
+
+<span class="n">Partition</span> <span class="mi">2</span><span class="o">:</span>
+<span class="p">[</span><span class="s">&quot;e&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="p">[</span><span class="s">&quot;d&quot;</span><span class="p">,</span> <span class="mi">9</span><span class="p">]</span>
+<span class="p">[</span><span class="s">&quot;d&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span>
+</pre></div>
+
+
+<p>经过上面的代码之后，输出就会变成带有一个名为 “sum” 的域的数据流，其中的 tuple 就是这样的：</p>
+<div class="highlight"><pre><span class="n">Partition</span> <span class="mi">0</span><span class="o">:</span>
+<span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+
+<span class="n">Partition</span> <span class="mi">1</span><span class="o">:</span>
+<span class="p">[</span><span class="mi">11</span><span class="p">]</span>
+
+<span class="n">Partition</span> <span class="mi">2</span><span class="o">:</span>
+<span class="p">[</span><span class="mi">20</span><span class="p">]</span>
+</pre></div>
+
+
+<p>Storm 有三个用于定义聚合器的接口：<code>CombinerAggregator</code>，<code>ReducerAggregator</code> 以及 <code>Aggregator</code>。</p>
+<p>这是 <code>CombinerAggregator</code> 接口：</p>
+<div class="highlight"><pre><span class="k">public</span> <span class="nf">interface</span> <span class="nx">CombinerAggregator</span><span class="o">&lt;</span><span class="nb">T</span><span class="o">&gt;</span> <span class="nx">extends</span> <span class="nx">Serializable</span> <span class="p">{</span>
+    <span class="nb">T</span> <span class="nb">init</span><span class="p">(</span><span class="nx">TridentTuple</span> <span class="nx">tuple</span><span class="p">);</span>
+    <span class="nb">T</span> <span class="nx">combine</span><span class="p">(</span><span class="nb">T</span> <span class="nx">val1</span><span class="p">,</span> <span class="nb">T</span> <span class="nx">val2</span><span class="p">);</span>
+    <span class="nb">T</span> <span class="nx">zero</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p><code>CombinerAggregator</code> 会将带有一个域的一个单独的 tuple 返回作为输出。<code>CombinerAggregator</code> 会在每个输入 tuple 上运行初始化函数，然后使用组合函数来组合所有输入的值。如果在某个分区中没有 tuple， <code>CombinerAggregator</code> 就会输出 <code>zero</code> 方法的结果。例如，下面是 <code>Count</code> 的实现代码：</p>
+<div class="highlight"><pre><span class="k">public</span> <span class="nf">class</span> <span class="nb">Count</span> <span class="nx">implements</span> <span class="nx">CombinerAggregator</span><span class="o">&lt;</span><span class="nx">Long</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">public</span> <span class="nf">Long</span> <span class="nb">init</span><span class="p">(</span><span class="nx">TridentTuple</span> <span class="nx">tuple</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="mi">1</span><span class="nx">L</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="nf">Long</span> <span class="nx">combine</span><span class="p">(</span><span class="nx">Long</span> <span class="nx">val1</span><span class="p">,</span> <span class="nx">Long</span> <span class="nx">val2</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">val1</span> <span class="o">+</span> <span class="nx">val2</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="nf">Long</span> <span class="nx">zero</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="nx">L</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>如果你使用 aggregate 方法来代替 partitionAggregate 方法，你就会发现 <code>CombinerAggregator</code> 的好处了。在这种情况下，Trident 会在发送 tuple 之前通过分区聚合操作来优化计算过程。</p>
+<p><code>ReducerAggregator</code> 的接口实现是这样的：</p>
+<div class="highlight"><pre><span class="k">public</span> <span class="nf">interface</span> <span class="nx">ReducerAggregator</span><span class="o">&lt;</span><span class="nb">T</span><span class="o">&gt;</span> <span class="nx">extends</span> <span class="nx">Serializable</span> <span class="p">{</span>
+    <span class="nb">T</span> <span class="nb">init</span><span class="p">();</span>
+    <span class="nb">T</span> <span class="nx">reduce</span><span class="p">(</span><span class="nb">T</span> <span class="nx">curr</span><span class="p">,</span> <span class="nx">TridentTuple</span> <span class="nx">tuple</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p><code>ReducerAggregator</code> 会使用 <code>init</code> 方法来产生一个初始化的值，然后使用该值对每个输入 tuple 进行遍历，并最终生成并输出一个单独的 tuple，这个 tuple 中就包含有我们需要的计算结果值。例如，下面是将 Count 定义为 <code>ReducerAggregator</code> 的代码：</p>
+<div class="highlight"><pre><span class="k">public</span> <span class="nf">class</span> <span class="nb">Count</span> <span class="nx">implements</span> <span class="nx">ReducerAggregator</span><span class="o">&lt;</span><span class="nx">Long</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">public</span> <span class="nf">Long</span> <span class="nb">init</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="nx">L</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="nf">Long</span> <span class="nx">reduce</span><span class="p">(</span><span class="nx">Long</span> <span class="nx">curr</span><span class="p">,</span> <span class="nx">TridentTuple</span> <span class="nx">tuple</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">curr</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p><code>ReducerAggregator</code> 同样可以用于 persistentAggregate，你会在后面看到这一点。</p>
+<p>最常用的聚合器接口还是下面的 <code>Aggregator</code> 接口：</p>
+<div class="highlight"><pre><span class="k">public</span> <span class="nf">interface</span> <span class="nx">Aggregator</span><span class="o">&lt;</span><span class="nb">T</span><span class="o">&gt;</span> <span class="nx">extends</span> <span class="nx">Operation</span> <span class="p">{</span>
+    <span class="nb">T</span> <span class="nb">init</span><span class="p">(</span><span class="nb">Object</span> <span class="nx">batchId</span><span class="p">,</span> <span class="nx">TridentCollector</span> <span class="nx">collector</span><span class="p">);</span>
+    <span class="bp">void</span> <span class="nx">aggregate</span><span class="p">(</span><span class="nb">T</span> <span class="nx">state</span><span class="p">,</span> <span class="nx">TridentTuple</span> <span class="nx">tuple</span><span class="p">,</span> <span class="nx">TridentCollector</span> <span class="nx">collector</span><span class="p">);</span>
+    <span class="bp">void</span> <span class="nx">complete</span><span class="p">(</span><span class="nb">T</span> <span class="nx">state</span><span class="p">,</span> <span class="nx">TridentCollector</span> <span class="nx">collector</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p><code>Aggregator</code> 聚合器可以生成任意数量的 tuple，这些 tuple 也可以带有任意数量的域。聚合器可以在执行过程中的任意一点输出tuple，他们的执行过程是这样的：</p>
+<ol>
+<li>在处理一批数据之前先调用 init 方法。init 方法的返回值是一个代表着聚合状态的对象，这个对象接下来会被传入 aggregate 方法和 complete 方法中。</li>
+<li>对于一个区块中的每个 tuple 都会调用 aggregate 方法。这个方法能够更新状态并且有选择地输出 tuple。</li>
+<li>在区块中的所有 tuple 都被 aggregate 方法处理之后就会调用 complete 方法。</li>
+</ol>
+<p>下面是使用 Count 作为聚合器的代码：</p>
+<div class="highlight"><pre><span class="k">public</span> <span class="nf">class</span> <span class="nx">CountAgg</span> <span class="nx">extends</span> <span class="nx">BaseAggregator</span><span class="o">&lt;</span><span class="nx">CountState</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="nx">static</span> <span class="nb">class</span> <span class="nx">CountState</span> <span class="p">{</span>
+        <span class="nx">long</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="nf">CountState</span> <span class="nb">init</span><span class="p">(</span><span class="nb">Object</span> <span class="nx">batchId</span><span class="p">,</span> <span class="nx">TridentCollector</span> <span class="nx">collector</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nb">new</span> <span class="nx">CountState</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="nf">void</span> <span class="nx">aggregate</span><span class="p">(</span><span class="nx">CountState</span> <span class="nx">state</span><span class="p">,</span> <span class="nx">TridentTuple</span> <span class="nx">tuple</span><span class="p">,</span> <span class="nx">TridentCollector</span> <span class="nx">collector</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">state.count</span><span class="o">+=</span><span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="nf">void</span> <span class="nx">complete</span><span class="p">(</span><span class="nx">CountState</span> <span class="nx">state</span><span class="p">,</span> <span class="nx">TridentCollector</span> <span class="nx">collector</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">collector.emit</span><span class="p">(</span><span class="nb">new</span> <span class="nb">Values</span><span class="p">(</span><span class="nx">state.count</span><span class="p">));</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>有时你可能会需要同时执行多个聚合操作。这个过程叫做链式处理，可以使用下面这样的代码来实现：</p>
+<div class="highlight"><pre><span class="n">mystream</span><span class="p">.</span><span class="n">chainedAgg</span><span class="p">()</span>
+        <span class="p">.</span><span class="n">partitionAggregate</span><span class="p">(</span><span class="n">new</span> <span class="n">Count</span><span class="p">(),</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;count&quot;</span><span class="p">))</span>
+        <span class="p">.</span><span class="n">partitionAggregate</span><span class="p">(</span><span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;b&quot;</span><span class="p">),</span> <span class="n">new</span> <span class="n">Sum</span><span class="p">(),</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;sum&quot;</span><span class="p">))</span>
+        <span class="p">.</span><span class="n">chainEnd</span><span class="p">()</span>
+</pre></div>
+
+
+<p>这段代码会在每个分区上分别执行 Count 和 Sum 聚合器，而输出中只会包含一个带有 ["count", "sum"] 域的单独的 tuple。</p>
+<h3>stateQuery 与 partitionPersist</h3>
+<p>stateQuery 与 partitionPersist 会分别查询、更新 state 数据源。你可以参考 <a href="http://storm.apache.org/documentation/Trident-state.html">Trident state doc</a> 来了解如何使用它们。</p>
+<h3>projection</h3>
+<p><code>projection</code> 方法只会保留操作中指定的域。如果你有一个带有 ["a", "b", "c", "d"] 域的数据流，通过执行这段代码：</p>
+<div class="highlight"><pre><span class="n">mystream</span><span class="p">.</span><span class="n">project</span><span class="p">(</span><span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;b&quot;</span><span class="p">,</span> <span class="s">&quot;d&quot;</span><span class="p">))</span>
+</pre></div>
+
+
+<p>就会使得输出数据流中只包含有 ["b", "d"] 域。</p>
+<h2>重分区操作</h2>
+<p>重分区操作会执行一个用来改变在不同的任务间分配 tuple 的方式的函数。在重分区的过程中分区的数量也可能会发生变化（例如，重分区之后的并行度就有可能会增大）。重分区会产生一定的网络数据传输。下面是重分区操作的几个函数：</p>
+<ol>
+<li>shuffle：通过随机轮询算法来重新分配目标区块的所有 tuple。</li>
+<li>broadcast：每个 tuple 都会被复制到所有的目标区块中。这个函数在 DRPC 中很有用 —— 比如，你可以使用这个函数来获取每个区块数据的查询结果。</li>
+<li>partitionBy：该函数会接收一组域作为参数，并根据这些域来进行分区操作。可以通过对这些域进行哈希化，并对目标分区的数量取模的方法来选取目标区块。partitionBy 函数能够保证来自同一组域的结果总会被发送到相同的目标区间。</li>
+<li>global：这种方式下所有的 tuple 都会被发送到同一个目标分区中，而且数据流中的所有的块都会由这个分区处理。</li>
+<li>batchGlobal：同一个 batch 块中的所有 tuple 会被发送到同一个区块中。当然，在数据流中的不同区块仍然会分配到不同的区块中。</li>
+<li>partition：这个函数使用自定义的分区方法，该方法会实现 <code>backtype.storm.grouping.CustomStreamGrouping</code> 接口。</li>
+</ol>
+<h2>聚类操作</h2>
+<p>Trident 使用 aggregate 方法和 persistentAggregate 方法来对数据流进行聚类操作。其中，aggregate 方法会分别对数据流中的每个 batch 进行处理，而 persistentAggregate 方法则会对数据流中的所有 batch 执行聚类处理，并将结果存入某个 state 中。</p>
+<p>在数据流上执行 aggregate 方法会执行一个全局的聚类操作。在你使用 <code>ReducerAggregator</code> 或者 <code>Aggregator</code> 时，数据流首先会被重新分区成一个单独的分区，然后聚类函数就会在该分区上执行操作。而在你使用 <code>CombinerAggregator</code> 时，Trident 首先会计算每个分区的部分聚类结果，然后将这些结果重分区到一个单独的分区中，最后在网络数据传输完成之后结束这个聚类过程。<code>CombinerAggregator</code> 比其他的聚合器的运行效率更高，在聚类时应该尽可能使用 <code>CombinerAggregator</code>。</p>
+<p>下面是一个使用 aggregate 来获取一个 batch 的全局计数值的例子：</p>
+<div class="highlight"><pre><span class="n">mystream</span><span class="p">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">new</span> <span class="n">Count</span><span class="p">(),</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;count&quot;</span><span class="p">))</span>
+</pre></div>
+
+
+<p>与 partitionAggregate 一样，aggregate 的聚合器也可以进行链式处理。然而，如果你在一个处理链中同时使用了 <code>CombinerAggregator</code> 和非 <code>CombinerAggregator</code>，Trident 就不能对部分聚类操作进行优化了。</p>
+<p>想要了解更多使用 persistentAggregate 的方法，可以参考 <a href="http://storm.apache.org/documentation/Trident-state.html">Trident state doc</a> 一文。</p>
+<h2>对分组数据流的操作</h2>
+<p>通过对指定的域执行 partitionBy 操作，groupBy 操作可以将数据流进行重分区，使得相同的域的 tuple 分组可以聚集在一起。例如，下面是一个 groupBy 操作的示例：</p>
+<p><img alt="groupBy" src="http://storm.apache.org/documentation/images/grouping.png" /></p>
+<p>如果你在分组数据流上执行聚合操作，聚合器会在每个分组（而不是整个区块）上运行。persistentAggregate 同样可以在一个分组数据里上运行，这种情况下聚合结果会存储在 <a href="https://github.com/apache/storm/blob/master/storm-core/src/jvm/storm/trident/state/map/MapState.java">MapState</a> 中，其中的 key 就是分组的域名。</p>
+<p>和其他操作一样，对分组数据流的聚合操作也可以以链式的方式执行。</p>
+<h2>融合（Merge）与联结（join）</h2>
+<p>Trident API 的最后一部分是联结不同的数据流的操作。联结数据流最简单的方式就是将所有的数据流融合到一个流中。你可以使用 TridentTopology 的 merge 方法实现该操作，比如这样：</p>
+<div class="highlight"><pre><span class="n">topology</span><span class="p">.</span><span class="n">merge</span><span class="p">(</span><span class="n">stream1</span><span class="p">,</span> <span class="n">stream2</span><span class="p">,</span> <span class="n">stream3</span><span class="p">);</span>
+</pre></div>
+
+
+<p>Trident 会将融合后的新数据流的域命名为为第一个数据流的输出域。</p>
+<p>联结数据流的另外一种方法是使用 join。像 SQL 那样的标准 join 操作只能用于有限的输入数据集，对于无限的数据集就没有用武之地了。Trident 中的 join 只会应用于每个从 spout 中输出的小 batch。</p>
+<p>下面是两个流的 join 操作的示例，其中一个流含有 ["key", "val1", "val2"] 域，另外一个流含有 ["x", "val1"] 域：</p>
+<div class="highlight"><pre><span class="n">topology</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">stream1</span><span class="p">,</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;key&quot;</span><span class="p">),</span> <span class="n">stream2</span><span class="p">,</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;x&quot;</span><span class="p">),</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;key&quot;</span><span class="p">,</span> <span class="s">&quot;a&quot;</span><span class="p">,</span> <span class="s">&quot;b&quot;</span><span class="p">,</span> <span class="s">&quot;c&quot;</span><span class="p">));</span>
+</pre></div>
+
+
+<p>上面的例子会使用 “key” 和 “x” 作为 join 的域来联结 stream1 和 stream2。Trident 要求先定义好新流的输出域，因为输入流的域可能会覆盖新流的域名。从 join 中输出的 tuple 中会包含：</p>
+<ol>
+<li>join 域的列表。在这个例子里，输出的 “key” 域与 stream1 的 “key” 域以及 stream2 的 “x” 域对应。</li>
+<li>来自所有流的非 join 域的列表。这个列表是按照传入 join 方法的流的顺序排列的。在这个例子里，“
+a” 和 “b” 域与 stream1 的 “val1” 和 “val2” 域对应；而 “c” 域则与 stream2 的 “val1” 域相对应。</li>
+</ol>
+<p>在对不同的 spout 发送出的流进行 join 时，这些 spout 上会按照他们发送 batch 的方式进行同步处理。也就是说，一个处理中的 batch 中含有每个 spout 发送出的 tuple。</p>
+<p>到这里你大概仍然会对如何进行窗口 join 操作感到困惑。窗口操作（包括平滑窗口、滚动窗口等 —— 译者注）主要是指将当前的 tuple 与过去若干小时时间段内的 tuple 联结起来的过程。</p>
+<p>你可以使用 partitionPersist 和 stateQuery 来实现这个过程。过去一段时间内的 tuple 会以 join 域为关键字被保存到一个 state 源中。然后就可以使用 stateQuery 查询 join 域来实现这个“联结”（join）的过程。</p>
+            </div>
+            <!-- /.entry-content -->
+    <hr />
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'weyo'; // required: replace example with your forum shortname
+            var disqus_identifier = 'storm-translations-trident-api-overview';
+            var disqus_url = 'http://weyo.me/pages/techs/storm-translations-trident-api-overview/';
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-lg-3 well well-sm" id="sidebar">
+
+<aside>
+    <section>
+        <ul class="list-group list-group-flush">
+                <li class="list-group-item"><h4><i class="icon-home icon-large"></i>Social</h4></li>
+                    <li class="list-group-item"><a href="https://github.com/weyo/"><i
+                            class="icon-github-sign icon-large"></i>Github
+                    </a></li>
+                    <li class="list-group-item"><a href="https://cn.linkedin.com/in/weiyong"><i
+                            class="icon-linkedin-sign icon-large"></i>LinkedIn
+                    </a></li>
+                <li class="list-group-item"><h4><i class="icon-link icon-large"></i>Links</h4></li>
+                    <li class="list-group-item"><a href="http://getpelican.com/"><i
+                            class="icon-Pelican-sign icon-large"></i>Pelican
+                    </a></li>
+                    <li class="list-group-item"><a href="#"><i
+                            class="icon-WeYo-sign icon-large"></i>WeYo
+                    </a></li>
+
+
+                <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
+                        <li class="list-group-item tag-0">
+                            <a href="http://weyo.me/tag/storm.html">
+                                Storm
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-1">
+                            <a href="http://weyo.me/tag/translation.html">
+                                Translation
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-1">
+                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
+                                分布式计算
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-2">
+                            <a href="http://weyo.me/tag/kafka.html">
+                                Kafka
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-2">
+                            <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
+                                实时计算
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-2">
+                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
+                                环境搭建
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-3">
+                            <a href="http://weyo.me/tag/linux.html">
+                                Linux
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/benchmark.html">
+                                Benchmark
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/log4j.html">
+                                log4j
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/java.html">
+                                Java
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/jedis.html">
+                                Jedis
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/undefined.html">
+                                Undefined
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/yaml.html">
+                                Yaml
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/redis.html">
+                                Redis
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/zookeeper.html">
+                                ZooKeeper
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/rpc.html">
+                                RPC
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/shell.html">
+                                Shell
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/flume.html">
+                                Flume
+                            </a>
+                        </li>
+        </ul>
+    </section>
+</aside>        </div>
+    </div>
+</div>
+<footer>
+    <div class="container">
+        <hr>
+        <p class="pull-right"><i class="icon-arrow-up"></i> <a href="#">Back to top</a></p>
+
+
+        <p>&copy; 2015 WeYo &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a></p>
+    </div>
+</footer>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="http://weyo.me/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="http://weyo.me/theme/js/respond.min.js"></script>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'weyo'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+
+
+</body>
+</html>
