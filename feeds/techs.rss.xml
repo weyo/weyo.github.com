@@ -1,5 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Let There Be Light</title><link>http://weyo.me/</link><description></description><atom:link href="http://weyo.me/feeds/techs.rss.xml" rel="self"></atom:link><lastBuildDate>Sun, 21 Jun 2015 20:32:03 +0800</lastBuildDate><item><title>Storm 官方文档翻译(9) —— Trident State</title><link>http://weyo.me/pages/techs/storm-translations-trident-state/</link><description>&lt;h1&gt;Trident State&lt;/h1&gt;
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Let There Be Light</title><link>http://weyo.me/</link><description></description><atom:link href="http://weyo.me/feeds/techs.rss.xml" rel="self"></atom:link><lastBuildDate>Mon, 22 Jun 2015 11:10:27 +0800</lastBuildDate><item><title>Storm 官方文档翻译(10) —— Trident Spouts</title><link>http://weyo.me/pages/techs/storm-translations-trident-spouts/</link><description>&lt;h1&gt;Trident Spouts&lt;/h1&gt;
+&lt;p&gt;与一般的 Storm API 一样，spout 也是 Trident 拓扑的数据来源。不过，为了实现更复杂的功能服务，Trident Spout 在普通的 Storm Spout 之上另外提供了一些 API 接口。&lt;/p&gt;
+&lt;p&gt;数据源、数据流以及基于数据流更新 state（比如数据库）的操作，他们之间的耦合关系是不可避免的。&lt;a href="https://github.com/weyo/Storm-Documents/blob/master/Manual/zh/Trident-State.md"&gt;Trident State&lt;/a&gt; 一文中有这方面的详细解释，理解他们之间的这种联系对于理解 spout 的运作方式非常重要。&lt;/p&gt;
+&lt;p&gt;Trident 拓扑中的大部分 spout 都是非事务型 spout。在 Trident 拓扑中可以使用普通的 &lt;code&gt;IRichSpout&lt;/code&gt; 接口来创建数据流：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;TridentTopology&lt;/span&gt; &lt;span class="n"&gt;topology&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;new&lt;/span&gt; &lt;span class="n"&gt;TridentTopology&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;span class="n"&gt;topology&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;newStream&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;myspoutid&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;new&lt;/span&gt; &lt;span class="n"&gt;MyRichSpout&lt;/span&gt;&lt;span class="p"&gt;());&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Trident 拓扑中的所有 spout 都必须有一个唯一的标识，而且这个标识必须在整个 Storm 集群中都是唯一的。Trident 需要使用这个标识来存储 spout 从 ZooKeeper 中消费的元数据（metadata），包括 txid 以及其他相关的 spout 元数据。&lt;/p&gt;
+&lt;p&gt;你可以使用以下配置项来设置用于存储 spout 元数据的 ZooKeeper 地址（一般情况下不需要设置以下选项，因为 Storm 默认会直接使用集群的 ZooKeeper 服务器来存储数据 —— 译者注）：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;transactional.zookeeper.servers&lt;/code&gt;：ZooKeeper 的服务器列表&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;transactional.zookeeper.port&lt;/code&gt;：ZooKeeper 集群的端口&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;transactional.zookeeper.root&lt;/code&gt;：元数据在 ZooKeeper 中存储的根目录。元数据会直接存储在该设置目录下。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2&gt;管道&lt;/h2&gt;
+&lt;p&gt;默认情况下，Trident 每次处理只一个 batch，知道该 batch 处理成功或者失败之后才会开始处理其他的 batch。你可以通过将 batch 管道化来提高吞吐率，降低每个 batch 的处理延时。同时处理的 batch 的最大数量可以通过 &lt;code&gt;topology.max.spout.pending&lt;/code&gt; 来进行配置。&lt;/p&gt;
+&lt;p&gt;不过，即使在同时处理多个 batch 的情况下，Trident 也会按照 batch 的顺序来更新 state。例如，假如你正在处理一个将全局计数结果聚合并更新到数据库中的任务，那么在你向数据库中更新 batch1 的计数结果时，你同时可以继续处理 batch2、batch3 甚至 batch10 的计数工作。不过，Trident 只会在 batch1 的 state 更新结束之后才会处理后续 batch 的 state 更新操作。这是实现恰好一次处理的语义的必要基础，我们已经在 &lt;a href="https://github.com/weyo/Storm-Documents/blob/master/Manual/zh/Trident-State.md"&gt;Trident State&lt;/a&gt; 一文中讨论了这一点。&lt;/p&gt;
+&lt;h2&gt;Trident spout 类型&lt;/h2&gt;
+&lt;p&gt;下面列出了一些可用的 spout API 接口：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href="https://github.com/apache/storm/blob/master/storm-core/src/jvm/storm/trident/spout/ITridentSpout.java"&gt;ITridentSpout&lt;/a&gt;：这是最常用的 API，支持事务型和模糊事务型的语义实现。不过一般会根据需要使用它的某个已有的实现，而不是直接实现该接口。&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/apache/storm/blob/master/storm-core/src/jvm/storm/trident/spout/IBatchSpout.java"&gt;IBatchSpout&lt;/a&gt;：非事务型 spout，每次会输出一个 batch 的 tuple。&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/apache/storm/blob/master/storm-core/src/jvm/storm/trident/spout/IPartitionedTridentSpout.java"&gt;IPartitionedTridentSpout&lt;/a&gt;：可以从分布式数据源（比如一个集群或者 Kafka 服务器）读取数据的事务型 spout。&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/apache/storm/blob/master/storm-core/src/jvm/storm/trident/spout/IOpaquePartitionedTridentSpout.java"&gt;OpaquePartitionedTridentSpout&lt;/a&gt;：可以从分布式数据源读取数据的模糊事务型 spout。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;当然，正如这篇教程的开头提到的，除了这些 API 之外，你还可以使用普通的 &lt;code&gt;IRichSpout&lt;/code&gt;。&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Mon, 22 Jun 2015 11:10:27 +0800</pubDate><guid>tag:weyo.me,2015-06-22:pages/techs/storm-translations-trident-spouts/</guid><category>Storm</category><category>Translation</category></item><item><title>Storm 官方文档翻译(9) —— Trident State</title><link>http://weyo.me/pages/techs/storm-translations-trident-state/</link><description>&lt;h1&gt;Trident State&lt;/h1&gt;
 &lt;p&gt;Trident 中含有对状态化（stateful）的数据源进行读取和写入操作的一级抽象封装工具。这个所谓的状态（state）既可以保存在拓扑内部（保存在内存中并通过 HDFS 来实现备份），也可以存入像 Memcached 或者 Cassandra 这样的外部数据库中。而对于 Trident API 而言，这两种机制并没有任何区别。&lt;/p&gt;
 &lt;p&gt;Trident 使用一种容错性的方式实现对 state 的管理，这样，即使在发生操作失败或者重试的情况下状态的更新操作仍然是幂等的。基于这个机制，每条消息都可以看作被恰好处理了一次，然后你就可以很容易地推断出 Trident 拓扑的状态。&lt;/p&gt;
 &lt;p&gt;State 的更新过程支持多级容错性保证机制。在讨论这一点之前，我们先来看一个例子，这个例子展示了如何实现恰好一次的语义的技术。假定你正在对数据流进行一个计数聚合操作，并打算将计数结果存入数据库中。在这个例子里，你存入数据库的就是一个对应计数结果的值，每次处理新 tuple 的时候就会增加这个值。&lt;/p&gt;

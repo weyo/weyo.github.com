@@ -3,7 +3,7 @@
       xmlns:og="http://ogp.me/ns#"
       xmlns:fb="https://www.facebook.com/2008/fbml">
 <head>
-    <title>神奇的三门问题
+    <title>Storm 官方文档翻译(10) —— Trident Spouts
    - Let There Be Light
 </title>
     <!-- Using the latest rendering mode for IE -->
@@ -15,9 +15,9 @@
     <!-- Open Graph tags -->
 
             <meta property="og:type" content="article"/>
-            <meta property="og:title" content="神奇的三门问题"/>
-            <meta property="og:url" content="http://weyo.me/pages/essays/monty-hall-problem/"/>
-            <meta property="og:description" content="三门问题实验的结果让人感觉与直觉相悖的原因在于，三门问题是预先确定好换与不换的策略，所以最终自然是换的概率更大；更理想的实验应该是让对这个问题没有任何了解且心理素质差不多的人在第二次选择换与不换，理论上自然是两种选择各占50%的概率，而且会产生相等的中奖结果，综合起来最终还是50%的结果。"/>
+            <meta property="og:title" content="Storm 官方文档翻译(10) —— Trident Spouts"/>
+            <meta property="og:url" content="http://weyo.me/pages/techs/storm-translations-trident-spouts/"/>
+            <meta property="og:description" content="Trident spout 概述。"/>
 
     <!-- Bootstrap -->
         <link rel="stylesheet" href="http://weyo.me/theme/css/bootstrap.min.css" type="text/css"/>
@@ -67,10 +67,10 @@
                          <li><a href="http://weyo.me/pages/gallery.html">
                              Gallery
                           </a></li>
-                        <li class="active">
+                        <li >
                             <a href="http://weyo.me/category/essays.html">Essays</a>
                         </li>
-                        <li >
+                        <li class="active">
                             <a href="http://weyo.me/category/techs.html">Techs</a>
                         </li>
             </ul>
@@ -89,10 +89,10 @@
         <article>
             <header class="page-header">
                 <h1>
-                    <a href="http://weyo.me/pages/essays/monty-hall-problem/"
+                    <a href="http://weyo.me/pages/techs/storm-translations-trident-spouts/"
                        rel="bookmark"
-                       title="Permalink to 神奇的三门问题">
-                        神奇的三门问题
+                       title="Permalink to Storm 官方文档翻译(10) —— Trident Spouts">
+                        Storm 官方文档翻译(10) —— Trident Spouts
                     </a>
                 </h1>
             </header>
@@ -102,7 +102,7 @@
 <footer class="post-info">
     <span class="label label-default">Date</span>
     <span class="published">
-        <i class="icon-calendar"></i>2015-05-13
+        <i class="icon-calendar"></i>2015-06-22
     </span>
 	<span style="font-size:12px;">&nbsp;&nbsp;</span>
     <!--     <span class="label label-default">By</span>
@@ -111,73 +111,46 @@
  -->
 
     <span class="label label-default">Category</span>
-    <a href="http://weyo.me/category/essays.html">Essays</a>
+    <a href="http://weyo.me/category/techs.html">Techs</a>
 	<span style="font-size:12px;">&nbsp;&nbsp;</span>
 
 
 <span class="label label-default">Tags</span>
-	<a href="http://weyo.me/tag/undefined.html">Undefined</a>
+	<a href="http://weyo.me/tag/storm.html">Storm</a>
+        /
+	<a href="http://weyo.me/tag/translation.html">Translation</a>
 	
-	<br /><br />Posted by <span style="font-weight:bold;"><a href="http://github.com/weyo">WeYo</a></span>. 转载请注明出处：<a href="http://weyo.me/pages/essays/monty-hall-problem/">http://weyo.me/pages/essays/monty-hall-problem/</a>
+	<br /><br />Posted by <span style="font-weight:bold;"><a href="http://github.com/weyo">WeYo</a></span>. 转载请注明出处：<a href="http://weyo.me/pages/techs/storm-translations-trident-spouts/">http://weyo.me/pages/techs/storm-translations-trident-spouts/</a>
 </footer><!-- /.post-info -->                    </div>
                 </div>
-                <p>前几天遇到这么一道智力题：
-在一场游戏中，主持人拿出了三个完全一样的密封盒子，其中一个盒子内有奖品，另外两个为空盒子。主持人首先让你挑选一个你认为有奖品的盒子。然后，主持人在剩下的两个盒子中拿走一个必然为空的盒子。现在，主持人问：你愿不愿意用你手中的盒子和主持人手中的盒子交换？你手中的盒子和主持人手中的盒子里面有奖品的概率各有多少？</p>
-<p>这其实就是大名鼎鼎的 <strong>三门问题</strong> 了。</p>
-<p><img src=http://images.cnitblog.com/blog/329852/201311/24200658-c442dec3691a4e929938ba98a52d78c5.png width="60%" height="60%"  /></p>
-<p>“<a href="http://baike.baidu.com/link?url=YMqqL9eOdMp1PRh7jqKHEexoqjYWS-fd-ZwJ1tyzho9ZCQX5esy4etWvBRLy1KPjiGf0gAXnfPmsgyk9wpAm7q"><strong>三门问题-百度百科</strong></a>” 中对这个问题有详细的描述，这里我就不重复了。随便在网上搜一下“三门问题”、“三个盒子 主持人 奖品”之类的关键词就会发现有很多很多争议的帖子，而且这个问题甚至成了果壳的年经话题。不过，虽然争议的人很多，但是争议的结论无非是两个：
-- 答案一：选择更换盒子，会有更高（2/3）中奖的概率；
-- 答案二：换不换无所谓，都是相等（50%）的中奖概率。</p>
-<p>对这个问题的第一反应我是倾向于第二个结论的。直觉上来说，去掉一个空盒子，不就变成了两个盒子中选一个，概率当然应该是一半一半。但有时候事情往往是反直觉的，在我准备写模拟程序验证的时候就感觉有点不对劲，当时，我大概写了四五行代码：</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
-2
-3
-4
-5
-6</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">while</span> <span class="o">(</span><span class="n">i</span><span class="o">++</span> <span class="o">&lt;</span> <span class="n">N</span><span class="o">)</span> <span class="o">{</span>
-    <span class="kt">boolean</span><span class="o">[]</span> <span class="n">boxes</span> <span class="o">=</span> <span class="n">randomBoxes</span><span class="o">();</span>
-    <span class="kt">int</span> <span class="n">chosen</span> <span class="o">=</span> <span class="n">getRandoBox</span><span class="o">(</span><span class="n">boxes</span><span class="o">);</span>
-    <span class="kt">int</span> <span class="n">removed</span> <span class="o">=</span> <span class="n">removeEmptyBox</span><span class="o">(</span><span class="n">boxes</span><span class="o">);</span>
-    <span class="o">...</span>
-<span class="o">}</span>
+                <h1>Trident Spouts</h1>
+<p>与一般的 Storm API 一样，spout 也是 Trident 拓扑的数据来源。不过，为了实现更复杂的功能服务，Trident Spout 在普通的 Storm Spout 之上另外提供了一些 API 接口。</p>
+<p>数据源、数据流以及基于数据流更新 state（比如数据库）的操作，他们之间的耦合关系是不可避免的。<a href="https://github.com/weyo/Storm-Documents/blob/master/Manual/zh/Trident-State.md">Trident State</a> 一文中有这方面的详细解释，理解他们之间的这种联系对于理解 spout 的运作方式非常重要。</p>
+<p>Trident 拓扑中的大部分 spout 都是非事务型 spout。在 Trident 拓扑中可以使用普通的 <code>IRichSpout</code> 接口来创建数据流：</p>
+<div class="highlight"><pre><span class="n">TridentTopology</span> <span class="n">topology</span> <span class="o">=</span> <span class="n">new</span> <span class="n">TridentTopology</span><span class="p">();</span>
+<span class="n">topology</span><span class="p">.</span><span class="n">newStream</span><span class="p">(</span><span class="s">&quot;myspoutid&quot;</span><span class="p">,</span> <span class="n">new</span> <span class="n">MyRichSpout</span><span class="p">());</span>
 </pre></div>
-</td></tr></table>
 
-<p>写到这里，忽然发现不管程序接下来会有什么样的操作，第一次选择的盒子中奖概率是永远不会变的，因为在一开始的时候就已经选定了盒子，中奖率自然就是1/3。实际上，这个问题就是一个盒子与两个盒子的概率对比问题，毫无疑问，两个盒子的中奖概率永远是一个盒子的两倍的。</p>
-<p>到了这里，这个问题似乎可以结束了，因为不仅有可以验证的逻辑解释，更有严格的数学证明（就是条件概率的问题，可以用贝叶斯公式证明，详见百度百科）。但是，那个该死的50%的直觉到底是怎么回事？作为一个强迫症患者是绝对不能接受这样的答案的。</p>
-<blockquote>
-<p><em>子曰：有问题就要解决。</em></p>
-</blockquote>
-<p>于是到各大论坛里面找三门问题的帖子，但是翻来覆去只有上面提到的两个答案，不过明显答案一的支持者更多一点。为了验证自己的结论，支持答案一的同学还实际做了实验（扑克牌选择，重复100次），而且不管是仿真还是实际的实验结果都是支持更换之后2/3的概率的，这一点也让答案二的支持者无话可说。不过，坚持答案二的同学同样也有理论支撑：在一个独立重复的选择实验中，概率当然是50%了；因此在空盒子拿走之后，分属于剩下两个盒子的概率都会从1/3增加到1/2。这种解释看上去也是科学的。那么，问题到底出在哪里？</p>
-<p>在反复翻阅各种帖子之后，突然看到了一个更新颖的实验：</p>
-<blockquote>
-<p><em>引用 500 楼 juven201314 的回复:</em></p>
-<p>这个我亲自做过实验，也不复杂，大家自己可以试下，结果如下：<br />
-一直坚持不换：中奖接近1/3<br />
-一直坚持换：中奖接近2/3<br />
-随便换或不换：中奖接近1/2<br /></p>
-</blockquote>
-<p>怎么会有“随便换或不换”的场景呢？仔细想了想，还真的有这种场景，而且这就是这个问题产生如此大的争议的关键！</p>
-<p>我们再还原一下现场：如果让你预先（在主持人第二次操作之前）决定好换不换的话，不管你的决定是一定要换还是一定不换，本质上都是选择一个盒子还是选择两个盒子的问题，而且这与主持人知不知道奖品位置<strong>无关</strong>；但是如果让你在主持人操作之后再做一次选择的话，由于你的选择是一个独立重复事件，会自动产生一次概率分配（即选择换与不换的概率各为50%），所以在选择之后最终概率也变成了50%（=2/3×50% + 1/3×50%）。</p>
-<p>可以看出，这个问题的结果实际上完全取决于第二次是否做选择，如果做选择，那么胜负的概率结果必然是1/2；如果不做选择，那就是明确的1/3或2/3。这一点相对不大好理解，这也是很多人感到困惑的地方。</p>
-<p>还有很多坚持换的同学会举100000000个盒子的极端情况的例子，随机选择一个盒子的中奖概率自然是只有1/100000000，拿掉99999998个空盒子之后，先前选择的中奖概率仍然是1/100000000，不会改变，这也是这些同学坚信概率不相等的一个依据。这种做法确实也有一定的道理，但是，换个角度来看，如果每拿掉一个空盒子的时候都做一次选择，或者更极端一点，只在最后空盒子都拿掉之后做一次选择，其中奖概率都是50%，因为每一次选择都是一个独立事件，本来概率很高的盒子的概率被人为的选择拉低了。</p>
-<p>很多人为2/3还是1/2争论的本质还是在于讨论的场景不同，2/3的同学坚决要换，而1/2的同学在自己心里做了一次选择……所以两群人说的都是对的；但是既然不管换不换是50%，坚持换是2/3，当然还是换好，结果总会≥50%……其实这里我还是混淆概念了 :)</p>
-<p>很多选择换与不换都一样的同学最终发现结果只有惨兮兮的1/3的概率的原因在于，在知道换与不换结果相同的情况下在心理上就有意无意地排除了更换的选项。尤其是像我这样的懒癌晚期患者，在知道无论换与不换的结果都一样之后都会毅然决然地选择不换（换不换都一样，干嘛要这么多此一举），然而这实际上就会把问题转化成了“选择坚持不换”，结果当然就由1/2变成了惨淡的1/3。</p>
-<hr />
-<h2>总结</h2>
-<p>综上，这个问题的终极答案是：</p>
+
+<p>Trident 拓扑中的所有 spout 都必须有一个唯一的标识，而且这个标识必须在整个 Storm 集群中都是唯一的。Trident 需要使用这个标识来存储 spout 从 ZooKeeper 中消费的元数据（metadata），包括 txid 以及其他相关的 spout 元数据。</p>
+<p>你可以使用以下配置项来设置用于存储 spout 元数据的 ZooKeeper 地址（一般情况下不需要设置以下选项，因为 Storm 默认会直接使用集群的 ZooKeeper 服务器来存储数据 —— 译者注）：</p>
 <ol>
-<li>“我换”，那么中奖的概率是2/3；</li>
-<li>“我不换”，那么中奖的概率是1/3；</li>
-<li>“我选择换”，那么中奖的概率是50%；</li>
-<li>是的，答案就是坑爹的不确定 :)</li>
+<li><code>transactional.zookeeper.servers</code>：ZooKeeper 的服务器列表</li>
+<li><code>transactional.zookeeper.port</code>：ZooKeeper 集群的端口</li>
+<li><code>transactional.zookeeper.root</code>：元数据在 ZooKeeper 中存储的根目录。元数据会直接存储在该设置目录下。</li>
 </ol>
-<hr />
-<blockquote>
-<p><em>致谢</em></p>
-<p><em>感谢 <strong><a href="http://bbs.csdn.net/topics/350030757?page=11#post-351229731">Juvan201314</a></strong> 网友启发。</em></p>
-</blockquote>
-<hr />
+<h2>管道</h2>
+<p>默认情况下，Trident 每次处理只一个 batch，知道该 batch 处理成功或者失败之后才会开始处理其他的 batch。你可以通过将 batch 管道化来提高吞吐率，降低每个 batch 的处理延时。同时处理的 batch 的最大数量可以通过 <code>topology.max.spout.pending</code> 来进行配置。</p>
+<p>不过，即使在同时处理多个 batch 的情况下，Trident 也会按照 batch 的顺序来更新 state。例如，假如你正在处理一个将全局计数结果聚合并更新到数据库中的任务，那么在你向数据库中更新 batch1 的计数结果时，你同时可以继续处理 batch2、batch3 甚至 batch10 的计数工作。不过，Trident 只会在 batch1 的 state 更新结束之后才会处理后续 batch 的 state 更新操作。这是实现恰好一次处理的语义的必要基础，我们已经在 <a href="https://github.com/weyo/Storm-Documents/blob/master/Manual/zh/Trident-State.md">Trident State</a> 一文中讨论了这一点。</p>
+<h2>Trident spout 类型</h2>
+<p>下面列出了一些可用的 spout API 接口：</p>
+<ol>
+<li><a href="https://github.com/apache/storm/blob/master/storm-core/src/jvm/storm/trident/spout/ITridentSpout.java">ITridentSpout</a>：这是最常用的 API，支持事务型和模糊事务型的语义实现。不过一般会根据需要使用它的某个已有的实现，而不是直接实现该接口。</li>
+<li><a href="https://github.com/apache/storm/blob/master/storm-core/src/jvm/storm/trident/spout/IBatchSpout.java">IBatchSpout</a>：非事务型 spout，每次会输出一个 batch 的 tuple。</li>
+<li><a href="https://github.com/apache/storm/blob/master/storm-core/src/jvm/storm/trident/spout/IPartitionedTridentSpout.java">IPartitionedTridentSpout</a>：可以从分布式数据源（比如一个集群或者 Kafka 服务器）读取数据的事务型 spout。</li>
+<li><a href="https://github.com/apache/storm/blob/master/storm-core/src/jvm/storm/trident/spout/IOpaquePartitionedTridentSpout.java">OpaquePartitionedTridentSpout</a>：可以从分布式数据源读取数据的模糊事务型 spout。</li>
+</ol>
+<p>当然，正如这篇教程的开头提到的，除了这些 API 之外，你还可以使用普通的 <code>IRichSpout</code>。</p>
             </div>
             <!-- /.entry-content -->
     <hr />
@@ -187,8 +160,8 @@
         <script type="text/javascript">
             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
             var disqus_shortname = 'weyo'; // required: replace example with your forum shortname
-            var disqus_identifier = 'monty-hall-problem';
-            var disqus_url = 'http://weyo.me/pages/essays/monty-hall-problem/';
+            var disqus_identifier = 'storm-translations-trident-spouts';
+            var disqus_url = 'http://weyo.me/pages/techs/storm-translations-trident-spouts/';
 
             /* * * DON'T EDIT BELOW THIS LINE * * */
             (function () {
