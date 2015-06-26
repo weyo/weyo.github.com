@@ -1,5 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Let There Be Light</title><link>http://weyo.me/</link><description></description><atom:link href="http://weyo.me/feeds/techs.rss.xml" rel="self"></atom:link><lastBuildDate>Tue, 23 Jun 2015 20:12:13 +0800</lastBuildDate><item><title>Storm 官方文档翻译(11) —— Storm 常用模式</title><link>http://weyo.me/pages/techs/storm-translations-common-topoloty-patterns/</link><description>&lt;h1&gt;Storm 常用模式&lt;/h1&gt;
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Let There Be Light</title><link>http://weyo.me/</link><description></description><atom:link href="http://weyo.me/feeds/techs.rss.xml" rel="self"></atom:link><lastBuildDate>Fri, 26 Jun 2015 23:38:03 +0800</lastBuildDate><item><title>MR 中定义 Writable 对象的坑</title><link>http://weyo.me/pages/techs/mr-writable-coding-problem/</link><description>&lt;p&gt;最近的一个新的 MR job 中需要定义一个表征状态的 Writable 对象，于是大手一挥，刷刷写出了下面的实现：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Status&lt;/span&gt; &lt;span class="kd"&gt;implements&lt;/span&gt; &lt;span class="n"&gt;WritableComparable&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Status&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="kd"&gt;private&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;first&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+    &lt;span class="kd"&gt;private&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;second&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+
+    &lt;span class="nd"&gt;@Override&lt;/span&gt;
+    &lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;write&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;DataOutput&lt;/span&gt; &lt;span class="n"&gt;out&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="kd"&gt;throws&lt;/span&gt; &lt;span class="n"&gt;IOException&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;out&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;write&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;first&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+        &lt;span class="n"&gt;out&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;write&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;second&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+
+    &lt;span class="nd"&gt;@Override&lt;/span&gt;
+    &lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;readFields&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;DataInput&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="kd"&gt;throws&lt;/span&gt; &lt;span class="n"&gt;IOException&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;first&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;readInt&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+        &lt;span class="n"&gt;second&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;readInt&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;这里由于 Status 中有两个表征计数的变量 &lt;code&gt;first&lt;/code&gt; 与 &lt;code&gt;second&lt;/code&gt;，所以 &lt;code&gt;write&lt;/code&gt; 和 &lt;code&gt;readFields&lt;/code&gt; 方法中均需要写/读两次。&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;不过写完之后运行时在 &lt;code&gt;readFields&lt;/code&gt; 方法中读取总会出错，跳出一个莫名其妙的 &lt;code&gt;EOFException&lt;/code&gt;，查代码查资料查了半天也没发现是什么问题。&lt;/p&gt;
+&lt;p&gt;没办法，关键时刻还得靠自己。冷静下来再认真看了看 &lt;code&gt;DataOutput&lt;/code&gt; 的 API 文档，才发现是犯了个低级错误被 Java 坑了：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;interface&lt;/span&gt; &lt;span class="nc"&gt;DataOutput&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="cm"&gt;/**&lt;/span&gt;
+&lt;span class="cm"&gt;     * Writes to the output stream the eight&lt;/span&gt;
+&lt;span class="cm"&gt;     * low-order bits of the argument &amp;lt;code&amp;gt;b&amp;lt;/code&amp;gt;.&lt;/span&gt;
+&lt;span class="cm"&gt;     * The 24 high-order  bits of &amp;lt;code&amp;gt;b&amp;lt;/code&amp;gt;&lt;/span&gt;
+&lt;span class="cm"&gt;     * are ignored.&lt;/span&gt;
+&lt;span class="cm"&gt;     *&lt;/span&gt;
+&lt;span class="cm"&gt;     * @param      b   the byte to be written.&lt;/span&gt;
+&lt;span class="cm"&gt;     * @throws     IOException  if an I/O error occurs.&lt;/span&gt;
+&lt;span class="cm"&gt;     */&lt;/span&gt;
+    &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;write&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="kd"&gt;throws&lt;/span&gt; &lt;span class="n"&gt;IOException&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+
+    &lt;span class="cm"&gt;/**&lt;/span&gt;
+&lt;span class="cm"&gt;     * Writes an &amp;lt;code&amp;gt;int&amp;lt;/code&amp;gt; value, which is&lt;/span&gt;
+&lt;span class="cm"&gt;     * comprised of four bytes, to the output stream.&lt;/span&gt;
+&lt;span class="cm"&gt;     * The byte values to be written, in the  order&lt;/span&gt;
+&lt;span class="cm"&gt;     * shown, are:&lt;/span&gt;
+&lt;span class="cm"&gt;     * &amp;lt;p&amp;gt;&amp;lt;pre&amp;gt;&amp;lt;code&amp;gt;&lt;/span&gt;
+&lt;span class="cm"&gt;     * (byte)(0xff &amp;amp;amp; (v &amp;amp;gt;&amp;amp;gt; 24))&lt;/span&gt;
+&lt;span class="cm"&gt;     * (byte)(0xff &amp;amp;amp; (v &amp;amp;gt;&amp;amp;gt; 16))&lt;/span&gt;
+&lt;span class="cm"&gt;     * (byte)(0xff &amp;amp;amp; (v &amp;amp;gt;&amp;amp;gt; &amp;amp;#32; &amp;amp;#32;8))&lt;/span&gt;
+&lt;span class="cm"&gt;     * (byte)(0xff &amp;amp;amp; v)&lt;/span&gt;
+&lt;span class="cm"&gt;     * &amp;lt;/code&amp;gt;&amp;lt;/pre&amp;gt;&amp;lt;p&amp;gt;&lt;/span&gt;
+&lt;span class="cm"&gt;     * The bytes written by this method may be read&lt;/span&gt;
+&lt;span class="cm"&gt;     * by the &amp;lt;code&amp;gt;readInt&amp;lt;/code&amp;gt; method of interface&lt;/span&gt;
+&lt;span class="cm"&gt;     * &amp;lt;code&amp;gt;DataInput&amp;lt;/code&amp;gt; , which will then&lt;/span&gt;
+&lt;span class="cm"&gt;     * return an &amp;lt;code&amp;gt;int&amp;lt;/code&amp;gt; equal to &amp;lt;code&amp;gt;v&amp;lt;/code&amp;gt;.&lt;/span&gt;
+&lt;span class="cm"&gt;     *&lt;/span&gt;
+&lt;span class="cm"&gt;     * @param      v   the &amp;lt;code&amp;gt;int&amp;lt;/code&amp;gt; value to be written.&lt;/span&gt;
+&lt;span class="cm"&gt;     * @throws     IOException  if an I/O error occurs.&lt;/span&gt;
+&lt;span class="cm"&gt;     */&lt;/span&gt;
+    &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;writeInt&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;v&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="kd"&gt;throws&lt;/span&gt; &lt;span class="n"&gt;IOException&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;code&gt;write(int b)&lt;/code&gt; 方法只读取 int 参数的低 8 位值，而直接抛弃高 24 位；真正用于读取整型数字的还是 &lt;code&gt;writeInt(int v)&lt;/code&gt; 方法，所以，对象实现的 &lt;code&gt;write&lt;/code&gt; 方法应该改成：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;    &lt;span class="nd"&gt;@Override&lt;/span&gt;
+    &lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;write&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;DataOutput&lt;/span&gt; &lt;span class="n"&gt;out&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="kd"&gt;throws&lt;/span&gt; &lt;span class="n"&gt;IOException&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;out&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;writeInt&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;first&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+        &lt;span class="n"&gt;out&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;writeInt&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;second&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;结果就是这么简单……&lt;/p&gt;
+&lt;p&gt;Over.&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Fri, 26 Jun 2015 23:38:03 +0800</pubDate><guid>tag:weyo.me,2015-06-26:pages/techs/mr-writable-coding-problem/</guid><category>Hadoop</category><category>MapReduce</category></item><item><title>Storm 官方文档翻译(11) —— Storm 常用模式</title><link>http://weyo.me/pages/techs/storm-translations-common-topoloty-patterns/</link><description>&lt;h1&gt;Storm 常用模式&lt;/h1&gt;
 &lt;p&gt;本文列出了 Storm 拓扑中使用的一些常见模式，包括：&lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;数据流的 join&lt;/li&gt;
@@ -2313,7 +2383,7 @@ java.lang.NoClassDefFoundError: Could not initialize class org.apache.log4j.Log4
 &lt;li&gt;每个机器(supervisor)上最好只部署一个worker&lt;/li&gt;
 &lt;li&gt;应该在一开始使用较少的大聚合器，并且最好在每个有 worker 进程的机器上分配一个&lt;/li&gt;
 &lt;li&gt;使用独立的调度器(scheduler)&lt;/li&gt;
-&lt;li&gt;每个 worker 上只配置使用一个 acker —— 这是 0.9.x 版本的默认特性，但在早起版本中有所不同；&lt;/li&gt;
+&lt;li&gt;每个 worker 上只配置使用一个 acker —— 这是 0.9.x 版本的默认特性，但在早期版本中有所不同；&lt;/li&gt;
 &lt;li&gt;在配置文件中开启 GC 日志记录；如果一切正常，日志中的 major GC 应该会非常少；&lt;/li&gt;
 &lt;li&gt;将 trident 的 batch interval 配置为大约50%的端到端平均时延大小的千分之一&lt;/li&gt;
 &lt;li&gt;开始时设置一个很小的 &lt;code&gt;TOPOLOGY_MAX_SPOUT_PENDING&lt;/code&gt;（对于 trident 可以设置为1，对于一般的 topology 可以设置为 executor 的数量），然后逐渐增大，直到数据流不再发生变化。这时你可能会发现结果大约等于 &lt;code&gt;“2 × 吞吐率(每秒收到的消息数) × 端到端时延”&lt;/code&gt; （最小的额定容量的2倍）。&lt;/li&gt;

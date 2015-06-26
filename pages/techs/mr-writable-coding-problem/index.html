@@ -3,7 +3,7 @@
       xmlns:og="http://ogp.me/ns#"
       xmlns:fb="https://www.facebook.com/2008/fbml">
 <head>
-    <title>Storm 官方文档翻译(2) —— 配置
+    <title>MR 中定义 Writable 对象的坑
    - Let There Be Light
 </title>
     <!-- Using the latest rendering mode for IE -->
@@ -15,9 +15,9 @@
     <!-- Open Graph tags -->
 
             <meta property="og:type" content="article"/>
-            <meta property="og:title" content="Storm 官方文档翻译(2) —— 配置"/>
-            <meta property="og:url" content="http://weyo.me/pages/techs/storm-translations-configuration/"/>
-            <meta property="og:description" content="Storm 的配置。"/>
+            <meta property="og:title" content="MR 中定义 Writable 对象的坑"/>
+            <meta property="og:url" content="http://weyo.me/pages/techs/mr-writable-coding-problem/"/>
+            <meta property="og:description" content="第一次编写自定义 Writable 对象遇到的小问题。"/>
 
     <!-- Bootstrap -->
         <link rel="stylesheet" href="http://weyo.me/theme/css/bootstrap.min.css" type="text/css"/>
@@ -89,10 +89,10 @@
         <article>
             <header class="page-header">
                 <h1>
-                    <a href="http://weyo.me/pages/techs/storm-translations-configuration/"
+                    <a href="http://weyo.me/pages/techs/mr-writable-coding-problem/"
                        rel="bookmark"
-                       title="Permalink to Storm 官方文档翻译(2) —— 配置">
-                        Storm 官方文档翻译(2) —— 配置
+                       title="Permalink to MR 中定义 Writable 对象的坑">
+                        MR 中定义 Writable 对象的坑
                     </a>
                 </h1>
             </header>
@@ -102,7 +102,7 @@
 <footer class="post-info">
     <span class="label label-default">Date</span>
     <span class="published">
-        <i class="icon-calendar"></i>2015-06-14
+        <i class="icon-calendar"></i>2015-06-26
     </span>
 	<span style="font-size:12px;">&nbsp;&nbsp;</span>
     <!--     <span class="label label-default">By</span>
@@ -116,37 +116,84 @@
 
 
 <span class="label label-default">Tags</span>
-	<a href="http://weyo.me/tag/storm.html">Storm</a>
+	<a href="http://weyo.me/tag/hadoop.html">Hadoop</a>
         /
-	<a href="http://weyo.me/tag/translation.html">Translation</a>
+	<a href="http://weyo.me/tag/mapreduce.html">MapReduce</a>
 	
-	<br /><br />Posted by <span style="font-weight:bold;"><a href="http://github.com/weyo">WeYo</a></span>. 转载请注明出处：<a href="http://weyo.me/pages/techs/storm-translations-configuration/">http://weyo.me/pages/techs/storm-translations-configuration/</a>
+	<br /><br />Posted by <span style="font-weight:bold;"><a href="http://github.com/weyo">WeYo</a></span>. 转载请注明出处：<a href="http://weyo.me/pages/techs/mr-writable-coding-problem/">http://weyo.me/pages/techs/mr-writable-coding-problem/</a>
 </footer><!-- /.post-info -->                    </div>
                 </div>
-                <h1>配置</h1>
-<p>Storm 有大量配置项用于调整 nimbus、supervisors 和拓扑的行为。有些配置项是系统级的配置项，在拓扑中不能修改，另外一些配置项则是可以在拓扑中修改的。</p>
-<p>每一个配置项都在 Storm 代码库的 <a href="https://github.com/apache/storm/blob/master/conf/defaults.yaml">defaults.yaml</a> 中有一个默认值。可以通过在 Nimbus 和 Supervisors 的环境变量中定义一个 storm.yaml 来覆盖默认值。最后，在使用 <a href="http://storm.apache.org/javadoc/apidocs/backtype/storm/StormSubmitter.html">StormSubmitter</a> 提交拓扑时也可以定义基于具体拓扑的配置项。但是，基于拓扑的配置项仅仅能够覆盖那些以 “TOPOLOGY” 作为前缀的配置项。</p>
-<p>Storm 0.7.0 以上版本支持覆写每个 Bolt/Spout 的配置信息。不过，使用这种方式只能修改以下几个配置项：</p>
-<ol>
-<li>"topology.debug"</li>
-<li>"topology.max.spout.pending"</li>
-<li>"topology.max.task.parallelism"</li>
-<li>"topology.kryo.register"：由于序列化对拓扑中的所有组件都是可见的，这一项与其他几项稍微有一些不同，详细信息可以参考 <a href="http://storm.apache.org/documentation/Serialization.html">Serialization</a></li>
-</ol>
-<p>Storm 的 Java API 支持两种自定义组件配置信息的方式：</p>
-<ol>
-<li>内置型：在需要配置的 Spout/Bolt 中覆写 <code>getComponentConfiguration</code> 方法，使其返回特定组件的配置表；</li>
-<li>外置型：<code>TopologyBuilder</code> 中的 <code>setSpout</code> 与 <code>setBolt</code> 方法会返回一个带有 <code>addConfiguration</code> 方法的 <code>ComponentConfigurationDeclarer</code> 对象，通过 <code>addConfiguration</code> 方法就可以覆写对应组件的配置项（同时也可以添加自定义的配置信息——译者注）。</li>
-</ol>
-<p>配置信息的优先级依次为：defaults.yaml &lt; storm.yaml &lt; 拓扑配置 &lt; 内置型组件信息配置 &lt; 外置型组件信息配置。</p>
-<p><strong>相关资料</strong></p>
-<ul>
-<li><a href="http://storm.apache.org/javadoc/apidocs/backtype/storm/Config.html">Config</a>：此类包含所有可配置项的列表，对于创建拓扑配置信息很有帮助</li>
-<li><a href="https://github.com/apache/storm/blob/master/conf/defaults.yaml">defaults.yaml</a>：所有配置项的默认值</li>
-<li><a href="http://storm.apache.org/documentation/Setting-up-a-Storm-cluster.html">配置 Storm 集群</a>：说明了如何创建、配置一个 Storm 集群</li>
-<li><a href="http://storm.apache.org/documentation/Running-topologies-on-a-production-cluster.html">在生产环境中运行拓扑</a>：列出了在集群中运行拓扑的一些有用的配置项</li>
-<li><a href="http://storm.apache.org/documentation/Local-mode.html">本地模式</a>：列出了使用本地模式时比较有用的配置项</li>
-</ul>
+                <p>最近的一个新的 MR job 中需要定义一个表征状态的 Writable 对象，于是大手一挥，刷刷写出了下面的实现：</p>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Status</span> <span class="kd">implements</span> <span class="n">WritableComparable</span><span class="o">&lt;</span><span class="n">Status</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">first</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">second</span><span class="o">;</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">write</span><span class="o">(</span><span class="n">DataOutput</span> <span class="n">out</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
+        <span class="n">out</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">first</span><span class="o">);</span>
+        <span class="n">out</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">second</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">readFields</span><span class="o">(</span><span class="n">DataInput</span> <span class="n">in</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
+        <span class="n">first</span> <span class="o">=</span> <span class="n">in</span><span class="o">.</span><span class="na">readInt</span><span class="o">();</span>
+        <span class="n">second</span> <span class="o">=</span> <span class="n">in</span><span class="o">.</span><span class="na">readInt</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<blockquote>
+<p><em>这里由于 Status 中有两个表征计数的变量 <code>first</code> 与 <code>second</code>，所以 <code>write</code> 和 <code>readFields</code> 方法中均需要写/读两次。</em></p>
+</blockquote>
+<p>不过写完之后运行时在 <code>readFields</code> 方法中读取总会出错，跳出一个莫名其妙的 <code>EOFException</code>，查代码查资料查了半天也没发现是什么问题。</p>
+<p>没办法，关键时刻还得靠自己。冷静下来再认真看了看 <code>DataOutput</code> 的 API 文档，才发现是犯了个低级错误被 Java 坑了：</p>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">DataOutput</span> <span class="o">{</span>
+    <span class="cm">/**</span>
+<span class="cm">     * Writes to the output stream the eight</span>
+<span class="cm">     * low-order bits of the argument &lt;code&gt;b&lt;/code&gt;.</span>
+<span class="cm">     * The 24 high-order  bits of &lt;code&gt;b&lt;/code&gt;</span>
+<span class="cm">     * are ignored.</span>
+<span class="cm">     *</span>
+<span class="cm">     * @param      b   the byte to be written.</span>
+<span class="cm">     * @throws     IOException  if an I/O error occurs.</span>
+<span class="cm">     */</span>
+    <span class="kt">void</span> <span class="nf">write</span><span class="o">(</span><span class="kt">int</span> <span class="n">b</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span><span class="o">;</span>
+
+    <span class="cm">/**</span>
+<span class="cm">     * Writes an &lt;code&gt;int&lt;/code&gt; value, which is</span>
+<span class="cm">     * comprised of four bytes, to the output stream.</span>
+<span class="cm">     * The byte values to be written, in the  order</span>
+<span class="cm">     * shown, are:</span>
+<span class="cm">     * &lt;p&gt;&lt;pre&gt;&lt;code&gt;</span>
+<span class="cm">     * (byte)(0xff &amp;amp; (v &amp;gt;&amp;gt; 24))</span>
+<span class="cm">     * (byte)(0xff &amp;amp; (v &amp;gt;&amp;gt; 16))</span>
+<span class="cm">     * (byte)(0xff &amp;amp; (v &amp;gt;&amp;gt; &amp;#32; &amp;#32;8))</span>
+<span class="cm">     * (byte)(0xff &amp;amp; v)</span>
+<span class="cm">     * &lt;/code&gt;&lt;/pre&gt;&lt;p&gt;</span>
+<span class="cm">     * The bytes written by this method may be read</span>
+<span class="cm">     * by the &lt;code&gt;readInt&lt;/code&gt; method of interface</span>
+<span class="cm">     * &lt;code&gt;DataInput&lt;/code&gt; , which will then</span>
+<span class="cm">     * return an &lt;code&gt;int&lt;/code&gt; equal to &lt;code&gt;v&lt;/code&gt;.</span>
+<span class="cm">     *</span>
+<span class="cm">     * @param      v   the &lt;code&gt;int&lt;/code&gt; value to be written.</span>
+<span class="cm">     * @throws     IOException  if an I/O error occurs.</span>
+<span class="cm">     */</span>
+    <span class="kt">void</span> <span class="nf">writeInt</span><span class="o">(</span><span class="kt">int</span> <span class="n">v</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span><span class="o">;</span>
+</pre></div>
+
+
+<p><code>write(int b)</code> 方法只读取 int 参数的低 8 位值，而直接抛弃高 24 位；真正用于读取整型数字的还是 <code>writeInt(int v)</code> 方法，所以，对象实现的 <code>write</code> 方法应该改成：</p>
+<div class="highlight"><pre>    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">write</span><span class="o">(</span><span class="n">DataOutput</span> <span class="n">out</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
+        <span class="n">out</span><span class="o">.</span><span class="na">writeInt</span><span class="o">(</span><span class="n">first</span><span class="o">);</span>
+        <span class="n">out</span><span class="o">.</span><span class="na">writeInt</span><span class="o">(</span><span class="n">second</span><span class="o">);</span>
+    <span class="o">}</span>
+</pre></div>
+
+
+<p>结果就是这么简单……</p>
+<p>Over.</p>
             </div>
             <!-- /.entry-content -->
     <hr />
@@ -156,8 +203,8 @@
         <script type="text/javascript">
             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
             var disqus_shortname = 'weyo'; // required: replace example with your forum shortname
-            var disqus_identifier = 'storm-translations-configuration';
-            var disqus_url = 'http://weyo.me/pages/techs/storm-translations-configuration/';
+            var disqus_identifier = 'mr-writable-coding-problem';
+            var disqus_url = 'http://weyo.me/pages/techs/mr-writable-coding-problem/';
 
             /* * * DON'T EDIT BELOW THIS LINE * * */
             (function () {

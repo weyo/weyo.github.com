@@ -171,7 +171,7 @@
 <li>每个机器(supervisor)上最好只部署一个worker</li>
 <li>应该在一开始使用较少的大聚合器，并且最好在每个有 worker 进程的机器上分配一个</li>
 <li>使用独立的调度器(scheduler)</li>
-<li>每个 worker 上只配置使用一个 acker —— 这是 0.9.x 版本的默认特性，但在早起版本中有所不同；</li>
+<li>每个 worker 上只配置使用一个 acker —— 这是 0.9.x 版本的默认特性，但在早期版本中有所不同；</li>
 <li>在配置文件中开启 GC 日志记录；如果一切正常，日志中的 major GC 应该会非常少；</li>
 <li>将 trident 的 batch interval 配置为大约50%的端到端平均时延大小的千分之一</li>
 <li>开始时设置一个很小的 <code>TOPOLOGY_MAX_SPOUT_PENDING</code>（对于 trident 可以设置为1，对于一般的 topology 可以设置为 executor 的数量），然后逐渐增大，直到数据流不再发生变化。这时你可能会发现结果大约等于 <code>“2 × 吞吐率(每秒收到的消息数) × 端到端时延”</code> （最小的额定容量的2倍）。</li>
@@ -234,13 +234,13 @@
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
                         <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/translation.html">
-                                Translation
+                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
+                                分布式计算
                             </a>
                         </li>
                         <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
-                                分布式计算
+                            <a href="http://weyo.me/tag/translation.html">
+                                Translation
                             </a>
                         </li>
                         <li class="list-group-item tag-1">
@@ -249,8 +249,8 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
-                                环境搭建
+                            <a href="http://weyo.me/tag/kafka.html">
+                                Kafka
                             </a>
                         </li>
                         <li class="list-group-item tag-2">
@@ -259,8 +259,8 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/kafka.html">
-                                Kafka
+                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
+                                环境搭建
                             </a>
                         </li>
                         <li class="list-group-item tag-3">
@@ -269,8 +269,8 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/undefined.html">
-                                Undefined
+                            <a href="http://weyo.me/tag/flume.html">
+                                Flume
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -279,38 +279,8 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/flume.html">
-                                Flume
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/jedis.html">
-                                Jedis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/shell.html">
-                                Shell
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/redis.html">
-                                Redis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/yaml.html">
-                                Yaml
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/java.html">
-                                Java
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/benchmark.html">
-                                Benchmark
+                            <a href="http://weyo.me/tag/hadoop.html">
+                                Hadoop
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -319,8 +289,48 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/jedis.html">
+                                Jedis
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/mapreduce.html">
+                                MapReduce
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/undefined.html">
+                                Undefined
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/yaml.html">
+                                Yaml
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/shell.html">
+                                Shell
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/benchmark.html">
+                                Benchmark
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/redis.html">
+                                Redis
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
                             <a href="http://weyo.me/tag/rpc.html">
                                 RPC
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/java.html">
+                                Java
                             </a>
                         </li>
         </ul>
