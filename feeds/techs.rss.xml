@@ -1,5 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Let There Be Light</title><link>http://weyo.me/</link><description></description><atom:link href="http://weyo.me/feeds/techs.rss.xml" rel="self"></atom:link><lastBuildDate>Sun, 28 Jun 2015 23:10:35 +0800</lastBuildDate><item><title>Storm 官方文档翻译(13) —— FAQ</title><link>http://weyo.me/pages/techs/storm-translations-faq/</link><description>&lt;h1&gt;FAQ&lt;/h1&gt;
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Let There Be Light</title><link>http://weyo.me/</link><description></description><atom:link href="http://weyo.me/feeds/techs.rss.xml" rel="self"></atom:link><lastBuildDate>Mon, 29 Jun 2015 00:00:00 +0800</lastBuildDate><item><title>高分辨率下 Gnome 的优化</title><link>http://weyo.me/pages/techs/make-gnome-look-good-on-high-resolution-displays/</link><description>&lt;p&gt;这两天给 Surface Pro 装了个 VirtualBox 虚拟机，系统镜像是 Fedora 22。安装过程一切顺利（纯傻瓜式操作，不得不承认，O 家虽然还是法务部门最牛X，但开(shou)源(gou)的产品做得也还是很不错的），而且即使在只分配了 1G 内存的情况下系统运行也挺顺畅。唯一不满意的就是那可恶的小窗口了。&lt;/p&gt;
+&lt;p&gt;一开始只是 VirtualBox 中虚拟机系统窗口很小：&lt;/p&gt;
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt="pic1" src="../../../images/pics/make-gnome-look-good-on-high-resolution-displays/fig1.png" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p&gt;在按照 &lt;a href="http://blog.csdn.net/xubinlxb/article/details/18092297"&gt;VirtualBox虚拟机 Ubuntu分辨率太小的解决方案&lt;/a&gt; 中所说的“安装增强功能”之后，这个问题没有了，系统终于可以真正地全屏了：&lt;/p&gt;
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt="pic2" src="../../../images/pics/make-gnome-look-good-on-high-resolution-displays/fig2.png" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p&gt;但是这样更新之后系统的实际显示字体还是很小。（到这里就想吐槽下 Win 系的桌面，由于 SP3 是 2160×1440 的高分辨率，而很多应用程序（包括 MS 自身的很多软件）都没有为这种分辨率进行优化，导致系统的正常使用极为别扭，即使调整了显示倍数还是有很多软件的界面不是太大就是太小，严重降低了用户体验。）在 &lt;a href="http://www.pcworld.com/article/2911509/how-to-make-linuxs-desktop-look-good-on-high-resolution-displays.html"&gt;How to make Linux's desktop look good on high-resolution displays&lt;/a&gt; 的建议下，安装 Gnome 的 tweak-tool&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;sudo&lt;/span&gt; &lt;span class="n"&gt;yum&lt;/span&gt; &lt;span class="n"&gt;install&lt;/span&gt; &lt;span class="n"&gt;gnome&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;tweak&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;tool&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;然后在 tweak-tool 里将 “Windows” --&amp;gt; “HiDPI” 的值由 1 设置为 2，确认之后，就会发现这个世界还是很美好的 :-)&lt;/p&gt;
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt="pic3" src="../../../images/pics/make-gnome-look-good-on-high-resolution-displays/fig3.png" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;hr /&gt;
+&lt;p&gt;BTW，Fedora 的壁纸还是很赞的。
+&lt;br /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt="pic4" src="../../../images/pics/make-gnome-look-good-on-high-resolution-displays/fig4.png" /&gt;&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Mon, 29 Jun 2015 00:00:00 +0800</pubDate><guid>tag:weyo.me,2015-06-29:pages/techs/make-gnome-look-good-on-high-resolution-displays/</guid><category>Gnome</category></item><item><title>Storm 官方文档翻译(13) —— FAQ</title><link>http://weyo.me/pages/techs/storm-translations-faq/</link><description>&lt;h1&gt;FAQ&lt;/h1&gt;
 &lt;h2&gt;Storm 最佳实践&lt;/h2&gt;
 &lt;h3&gt;关于配置 Storm + Trident 的建议&lt;/h3&gt;
 &lt;ul&gt;
