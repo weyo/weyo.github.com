@@ -3,7 +3,9 @@
       xmlns:og="http://ogp.me/ns#"
       xmlns:fb="https://www.facebook.com/2008/fbml">
 <head>
-    <title>Let There Be Light - ZooKeeper</title>
+    <title>Not able to use latest Kafka Consumer API
+   - Let There Be Light
+</title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8">
@@ -12,10 +14,10 @@
 
     <!-- Open Graph tags -->
 
-            <meta property="og:type" content="website"/>
-            <meta property="og:title" content="Let There Be Light"/>
-            <meta property="og:url" content="http://weyo.me"/>
-            <meta property="og:description" content="Let There Be Light"/>
+            <meta property="og:type" content="article"/>
+            <meta property="og:title" content="Not able to use latest Kafka Consumer API"/>
+            <meta property="og:url" content="http://weyo.me/pages/techs/not-able-to-use-latest-kafka-consumer-api/"/>
+            <meta property="og:description" content="Bad news of Kafka."/>
 
     <!-- Bootstrap -->
         <link rel="stylesheet" href="http://weyo.me/theme/css/bootstrap.min.css" type="text/css"/>
@@ -68,7 +70,7 @@
                         <li >
                             <a href="http://weyo.me/category/essays.html">Essays</a>
                         </li>
-                        <li >
+                        <li class="active">
                             <a href="http://weyo.me/category/techs.html">Techs</a>
                         </li>
             </ul>
@@ -83,13 +85,126 @@
 <div class="container">
     <div class="row">
         <div class="col-lg-9">
-            <article>
-                <h2><a href="http://weyo.me/pages/techs/storm-with-zookeeper/">Storm 与 ZooKeeper —— 分布式实时计算提升篇(一)</a></h2>
-                <div class="summary"><p>结合 Storm 在 ZooKeeper 中的目录结构分析 Storm 系统的运行逻辑。</p>
-                    <a class="btn btn-default btn-xs" href="http://weyo.me/pages/techs/storm-with-zookeeper/">more ...</a>
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="http://weyo.me/pages/techs/not-able-to-use-latest-kafka-consumer-api/"
+                       rel="bookmark"
+                       title="Permalink to Not able to use latest Kafka Consumer API">
+                        Not able to use latest Kafka Consumer API
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="icon-calendar"></i>2015-07-01
+    </span>
+	<span style="font-size:12px;">&nbsp;&nbsp;</span>
+    <!--     <span class="label label-default">By</span>
+    <a href="http://weyo.me/author/weyo.html"><i class="icon-user"></i>WeYo</a>
+	<span style="font-size:12px;">&nbsp;&nbsp;</span>
+ -->
+
+    <span class="label label-default">Category</span>
+    <a href="http://weyo.me/category/techs.html">Techs</a>
+	<span style="font-size:12px;">&nbsp;&nbsp;</span>
+
+
+<span class="label label-default">Tags</span>
+	<a href="http://weyo.me/tag/kafka.html">Kafka</a>
+	
+	<br /><br />Posted by <span style="font-weight:bold;"><a href="http://github.com/weyo">WeYo</a></span>. 转载请注明出处：<a href="http://weyo.me/pages/techs/not-able-to-use-latest-kafka-consumer-api/">http://weyo.me/pages/techs/not-able-to-use-latest-kafka-consumer-api/</a>
+</footer><!-- /.post-info -->                    </div>
                 </div>
-            </article>
-            <hr/>
+                <p>Days ago I was to get start with the newest Kafka document <a href="http://kafka.apache.org/documentation.html">http://kafka.apache.org/documentation.html</a> to learn about Kafka. But I meet some problem when I try to use the new Consumer API. I'd done the job with following steps:</p>
+<p><strong>1. Add a new dependency</strong></p>
+<div class="highlight"><pre><span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.apache.kafka<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>kafka-clients<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>0.8.2.1<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+
+
+<p><strong>2. Add configurations</strong></p>
+<p>Latest documents did not contains such configurable things, it took me a while to figure out how <code>KafkaProducer</code> works, and I used some similar configurations to set the config map</p>
+<div class="highlight"><pre>    <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="n">config</span> <span class="o">=</span> <span class="n">new</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span> <span class="n">Object</span><span class="o">&gt;</span><span class="p">();</span>
+    <span class="n">config</span><span class="p">.</span><span class="n">put</span><span class="p">(</span><span class="n">ConsumerConfig</span><span class="p">.</span><span class="n">BOOTSTRAP_SERVERS_CONFIG</span><span class="p">,</span>
+            <span class="s">&quot;host:9092&quot;</span><span class="p">);</span>
+    <span class="n">config</span><span class="p">.</span><span class="n">put</span><span class="p">(</span><span class="n">ConsumerConfig</span><span class="p">.</span><span class="n">GROUP_ID_CONFIG</span><span class="p">,</span> <span class="s">&quot;test&quot;</span><span class="p">);</span>
+    <span class="n">config</span><span class="p">.</span><span class="n">put</span><span class="p">(</span><span class="n">ConsumerConfig</span><span class="p">.</span><span class="n">KEY_DESERIALIZER_CLASS_CONFIG</span><span class="p">,</span>
+            <span class="n">StringDeserializer</span><span class="p">.</span><span class="n">class</span><span class="p">.</span><span class="n">getName</span><span class="p">());</span>
+    <span class="n">config</span><span class="p">.</span><span class="n">put</span><span class="p">(</span><span class="n">ConsumerConfig</span><span class="p">.</span><span class="n">VALUE_DESERIALIZER_CLASS_CONFIG</span><span class="p">,</span>
+            <span class="n">StringDeserializer</span><span class="p">.</span><span class="n">class</span><span class="p">.</span><span class="n">getName</span><span class="p">());</span>
+    <span class="n">config</span><span class="p">.</span><span class="n">put</span><span class="p">(</span><span class="n">ConsumerConfig</span><span class="p">.</span><span class="n">PARTITION_ASSIGNMENT_STRATEGY</span><span class="p">,</span> <span class="s">&quot;range&quot;</span><span class="p">);</span>
+</pre></div>
+
+
+<p><strong>3. Use KafkaConsumer API</strong></p>
+<div class="highlight"><pre><span class="n">KafkaConsumer</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">consumer</span> <span class="o">=</span> <span class="n">new</span> <span class="n">KafkaConsumer</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span> <span class="n">String</span><span class="o">&gt;</span><span class="p">(</span><span class="n">config</span><span class="p">);</span>
+<span class="n">consumer</span><span class="p">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s">&quot;topic&quot;</span><span class="p">);</span>
+</pre></div>
+
+
+<p>However, when I try to poll message from the broker, I got nothing but null:</p>
+<div class="highlight"><pre><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span> <span class="n">ConsumerRecords</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span> <span class="n">String</span><span class="o">&gt;&gt;</span> <span class="n">records</span> <span class="o">=</span> <span class="n">consumer</span><span class="p">.</span><span class="n">poll</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">records</span> <span class="o">!=</span> <span class="n">null</span><span class="p">)</span>
+    <span class="n">process</span><span class="p">(</span><span class="n">records</span><span class="p">);</span>
+<span class="k">else</span>
+    <span class="n">System</span><span class="p">.</span><span class="n">err</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;null&quot;</span><span class="p">);</span>
+</pre></div>
+
+
+<p>And then I know what's wrong with the consumer after I checked the source code:</p>
+<div class="highlight"><pre><span class="err">@</span><span class="n">Override</span>
+<span class="n">public</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span> <span class="n">ConsumerRecords</span><span class="o">&lt;</span><span class="n">K</span><span class="p">,</span><span class="n">V</span><span class="o">&gt;&gt;</span> <span class="n">poll</span><span class="p">(</span><span class="kt">long</span> <span class="n">timeout</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// TODO Auto-generated method stub</span>
+    <span class="k">return</span> <span class="n">null</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>To make matters worse, I couldnot find any other useful information about the 0.8.2 API, since all usages about Kafka were not compatible with the latest version. I had to ask a <a href="https://stackoverflow.com/questions/30857650/how-to-use-consumer-api-of-kafka-0-8-2">question</a> on SO, wishing to get some helpful advice.</p>
+<p>Unfortunately, I could only get a bad news after ten days waiting:</p>
+<blockquote>
+<p>--- <em><a href="https://stackoverflow.com/users/595943/habsq">@habsq</a></em> ---<br />
+The new KafkaConsumer API will only be available in 0.8.3 <a href="https://cwiki.apache.org/confluence/display/KAFKA/Future+release+plan">cwiki.apache.org/confluence/display/KAFKA/Future+release+plan</a>. Apparently there are some implementation in the trunk, although I have no clue about the state. For the time being I'm using the old consumer implementation.</p>
+</blockquote>
+<p>Oops, documents could also lie, that's so sad (x﹏x)</p>
+<hr />
+            </div>
+            <!-- /.entry-content -->
+    <hr />
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'weyo'; // required: replace example with your forum shortname
+            var disqus_identifier = 'not-able-to-use-latest-kafka-consumer-api';
+            var disqus_url = 'http://weyo.me/pages/techs/not-able-to-use-latest-kafka-consumer-api/';
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
 
         </div>
         <div class="col-lg-3 well well-sm" id="sidebar">
