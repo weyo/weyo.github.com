@@ -127,24 +127,24 @@
 	<br /><br />Posted by <span style="font-weight:bold;"><a href="http://github.com/weyo">WeYo</a></span>. 转载请注明出处：<a href="http://weyo.me/pages/techs/flume-kafka-integration/">http://weyo.me/pages/techs/flume-kafka-integration/</a>
 </footer><!-- /.post-info -->                    </div>
                 </div>
-                <h3>前言</h3>
+                <h1>前言</h1>
 <p>数据采集与数据传输是大数据/分布式计算技术的两项基本需求。对应于这两项需求，开源社区有很多成熟的解决方案，例如 Scribe，Flume，Chukwa，Kafka，各类MQ等等，基于不同的业务场景可以灵活选择。考虑到我们的实际业务模式与技术特点，在分布式计算系统中需要选择轻量级、可定制性好、扩展性强、易于维护的数据采集与传输单元。其中，采集单元选用模块化程度极高的 Flume-ng，传输单元选择高吞吐率的 Kafka，将两者结合共同构成分布式计算集群的基础数据输入组件。</p>
 <hr />
-<h3>0. 材料准备</h3>
+<h1>0. 材料准备</h1>
 <ul>
 <li>Flume 安装程序（版本：Flume-ng 1.5.3）</li>
 <li>Kafka 安装程序（版本：Kafka 0.8.2）</li>
 <li>Flume-Kafka 插件</li>
 </ul>
 <hr />
-<h3>1. 配置 Flume</h3>
+<h1>1. 配置 Flume</h1>
 <div class="highlight"><pre><span class="cp"># 配置 flume agent</span>
 <span class="n">vi</span> <span class="n">conf</span><span class="o">/</span><span class="n">flume</span><span class="o">-</span><span class="n">conf</span><span class="p">.</span><span class="n">properties</span>
 </pre></div>
 
 
 <div class="highlight"><pre><span class="cp">## 定义 agent</span>
-<span class="cp"># 本agent的名称为“agent181”</span>
+<span class="cp"># 本agent的名称为 “agent181”</span>
 <span class="n">agent181</span><span class="p">.</span><span class="n">sources</span> <span class="o">=</span> <span class="n">src1</span>
 <span class="n">agent181</span><span class="p">.</span><span class="n">channels</span> <span class="o">=</span> <span class="n">ch1</span>
 <span class="n">agent181</span><span class="p">.</span><span class="n">sinks</span> <span class="o">=</span> <span class="n">k1</span>
@@ -152,19 +152,19 @@
 <span class="cp">## 定义 sources</span>
 <span class="n">agent181</span><span class="p">.</span><span class="n">sources</span><span class="p">.</span><span class="n">src1</span><span class="p">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">avro</span>
 <span class="n">agent181</span><span class="p">.</span><span class="n">sources</span><span class="p">.</span><span class="n">src1</span><span class="p">.</span><span class="n">channels</span> <span class="o">=</span> <span class="n">ch1</span>
-<span class="cp"># 本地flume服务器地址，需要在hosts中注册</span>
+<span class="cp"># 本地 flume 服务器地址，需要在 hosts 中注册</span>
 <span class="n">agent181</span><span class="p">.</span><span class="n">sources</span><span class="p">.</span><span class="n">src1</span><span class="p">.</span><span class="n">bind</span> <span class="o">=</span> <span class="n">hd181</span>
 <span class="cp"># source 绑定端口</span>
 <span class="n">agent181</span><span class="p">.</span><span class="n">sources</span><span class="p">.</span><span class="n">src1</span><span class="p">.</span><span class="n">port</span> <span class="o">=</span> <span class="mi">41414</span>
 
 <span class="cp">## 定义 sinks</span>
 <span class="n">agent181</span><span class="p">.</span><span class="n">sinks</span><span class="p">.</span><span class="n">k1</span><span class="p">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">com</span><span class="p">.</span><span class="n">thilinamb</span><span class="p">.</span><span class="n">flume</span><span class="p">.</span><span class="n">sink</span><span class="p">.</span><span class="n">KafkaSink</span>
-<span class="cp"># 需要连接的topic名称</span>
-<span class="cp"># 注意：如果此topic不存在（即在Kafka集群中未创建）则默认连接到一个名为“default-flume-topic”的topic</span>
+<span class="cp"># 需要连接的 topic 名称</span>
+<span class="cp"># 注意：如果此 topic 不存在（即在 Kafka 集群中未创建）则默认连接到一个名为 “default-flume-topic” 的 topic</span>
 <span class="n">agent181</span><span class="p">.</span><span class="n">sinks</span><span class="p">.</span><span class="n">k1</span><span class="p">.</span><span class="n">custom</span><span class="o">-</span><span class="n">topic</span> <span class="o">=</span> <span class="n">flumeTopic</span>
 <span class="n">agent181</span><span class="p">.</span><span class="n">sinks</span><span class="p">.</span><span class="n">k1</span><span class="p">.</span><span class="n">preprocessor</span> <span class="o">=</span> <span class="n">com</span><span class="p">.</span><span class="n">thilinamb</span><span class="p">.</span><span class="n">flume</span><span class="p">.</span><span class="n">sink</span><span class="p">.</span><span class="n">example</span><span class="p">.</span><span class="n">SimpleMessagePreprocessor</span>
-<span class="cp"># 需要连接到的Kafka服务器地址与端口（这里是hd182）</span>
-<span class="n">agent181</span><span class="p">.</span><span class="n">sinks</span><span class="p">.</span><span class="n">k1</span><span class="p">.</span><span class="n">kafka</span><span class="p">.</span><span class="n">metadata</span><span class="p">.</span><span class="n">broker</span><span class="p">.</span><span class="n">list</span><span class="o">=</span><span class="n">hd182</span><span class="o">:</span><span class="mi">9092</span>
+<span class="cp"># 需要连接到的 Kafka 服务器地址与端口（这里是 kafka182 ）</span>
+<span class="n">agent181</span><span class="p">.</span><span class="n">sinks</span><span class="p">.</span><span class="n">k1</span><span class="p">.</span><span class="n">kafka</span><span class="p">.</span><span class="n">metadata</span><span class="p">.</span><span class="n">broker</span><span class="p">.</span><span class="n">list</span><span class="o">=</span><span class="n">kafka182</span><span class="o">:</span><span class="mi">9092</span>
 <span class="n">agent181</span><span class="p">.</span><span class="n">sinks</span><span class="p">.</span><span class="n">k1</span><span class="p">.</span><span class="n">kafka</span><span class="p">.</span><span class="n">serializer</span><span class="p">.</span><span class="n">class</span> <span class="o">=</span> <span class="n">kafka</span><span class="p">.</span><span class="n">serializer</span><span class="p">.</span><span class="n">StringEncoder</span>
 <span class="n">agent181</span><span class="p">.</span><span class="n">sinks</span><span class="p">.</span><span class="n">k1</span><span class="p">.</span><span class="n">kafka</span><span class="p">.</span><span class="n">request</span><span class="p">.</span><span class="n">required</span><span class="p">.</span><span class="n">acks</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="n">agent181</span><span class="p">.</span><span class="n">sinks</span><span class="p">.</span><span class="n">k1</span><span class="p">.</span><span class="n">channel</span> <span class="o">=</span> <span class="n">ch1</span>
@@ -176,7 +176,7 @@
 
 
 <hr />
-<h3>2. 准备 flume-kafka 插件</h3>
+<h1>2. 准备 flume-kafka 插件</h1>
 <p><strong>下载插件</strong>：（该插件即将集成到1.6版本的 Flume 官方程序中，但在1.5及以下的版本中仍然需要手动配置）</p>
 <p><a href="https://github.com/thilinamb/flume-ng-kafka-sink">https://github.com/thilinamb/flume-ng-kafka-sink</a></p>
 <p><strong>编译</strong>：<code>mvn clean install</code> 或者 <code>mvn package</code></p>
@@ -201,29 +201,41 @@
 
 
 <blockquote>
-<h4>TIPS</h4>
+<h2>NOTES</h2>
 <ul>
-<li>上述 Flume 配置文件中提到的<strong>"默认连接到一个名为‘default-flume-topic’的topic"</strong>实际上是在<code>flume-ng-kafka-sink</code>项目中定义的，如果需要修改默认名称等属性，可以修改 <code>Constants</code> 与 <code>MessagePreprocessor</code> 接口实现类的 <code>extractTopic</code> 方法。Key 和 Message 的处理也可以根据需要通过 <code>MessagePreprocessor</code> 接口的另外两个方法类似实现。由于插件作者写的 <code>SimpleMessagePreprocessor</code> 中定义了属性名为 <code>custom-topic</code> 的 topic名称，会对使用者造成一定的混淆，同时额外的 example module 也不便于集成到编译后的插件中，因此，我在原始插件代码的基础上做了一点修改，并更新到 <a href="https://github.com/weyo/flume-ng-kafka-sink">weyo/flume-ng-kafka-sink</a> 项目中，可以直接下载并使用 Maven 编译生成需要的插件。</li>
+<li>上述 Flume 配置文件中提到的 <strong>"默认连接到一个名为 ‘default-flume-topic’ 的 topic"</strong> 实际上是在<code>flume-ng-kafka-sink</code>项目中定义的，如果需要修改默认名称等属性，可以修改 <code>Constants</code> 与 <code>MessagePreprocessor</code> 接口实现类的 <code>extractTopic</code> 方法。Key 和 Message 的处理也可以根据需要通过 <code>MessagePreprocessor</code> 接口的另外两个方法类似实现。由于插件作者写的 <code>SimpleMessagePreprocessor</code> 中定义了属性名为 <code>custom-topic</code> 的 topic名称，会对使用者造成一定的混淆，同时额外的 example module 也不便于集成到编译后的插件中，因此，我在原始插件代码的基础上做了一点修改，并更新到 <a href="https://github.com/weyo/flume-ng-kafka-sink">weyo/flume-ng-kafka-sink</a> 项目中，可以直接下载并使用 Maven 编译生成需要的插件。</li>
 </ul>
 </blockquote>
 <hr />
-<h3>3. 运行</h3>
+<h1>3. 运行</h1>
 <ul>
-<li>启动 Kafka server（每个 flume agent 对应的 Kafka broker，本例中为 hd182）</li>
+<li>启动 Kafka server（每个 flume agent 对应的 Kafka broker，本例中为 kafka182）  </li>
 </ul>
-<p><code>bin/kafka-server-start.sh config/server.properties &amp;</code></p>
+<div class="highlight"><pre><span class="n">bin</span><span class="o">/</span><span class="n">kafka</span><span class="o">-</span><span class="n">server</span><span class="o">-</span><span class="n">start</span><span class="p">.</span><span class="n">sh</span> <span class="n">config</span><span class="o">/</span><span class="n">server</span><span class="p">.</span><span class="n">properties</span> <span class="o">&amp;</span> 
+</pre></div>
+
+
 <ul>
-<li>创建 Kafka topic（上面 Flume 配置文件中对应的topic名称）</li>
+<li>创建 Kafka topic（上面 Flume 配置文件中对应的topic名称）  </li>
 </ul>
-<p><code>bin/kafka-topics.sh --create --zookeeper hd181:2181 --replication 1 --partition 1 --topic flumeTopic</code></p>
+<div class="highlight"><pre><span class="n">bin</span><span class="o">/</span><span class="n">kafka</span><span class="o">-</span><span class="n">topics</span><span class="p">.</span><span class="n">sh</span> <span class="o">--</span><span class="n">create</span> <span class="o">--</span><span class="n">zookeeper</span> <span class="n">zk1</span><span class="o">:</span><span class="mi">2181</span> <span class="o">--</span><span class="n">replication</span> <span class="mi">1</span> <span class="o">--</span><span class="n">partition</span> <span class="mi">1</span> <span class="o">--</span><span class="n">topic</span> <span class="n">flumeTopic</span> 
+</pre></div>
+
+
 <ul>
-<li>启动 Kafka consumer</li>
+<li>启动 Kafka consumer  </li>
 </ul>
-<p><code>bin/kafka-console-consumer.sh --zookeeper hd182:2181 --topic flumeTopic --from-beginning</code></p>
+<div class="highlight"><pre><span class="n">bin</span><span class="o">/</span><span class="n">kafka</span><span class="o">-</span><span class="n">console</span><span class="o">-</span><span class="n">consumer</span><span class="p">.</span><span class="n">sh</span> <span class="o">--</span><span class="n">zookeeper</span> <span class="n">zk1</span><span class="o">:</span><span class="mi">2181</span> <span class="o">--</span><span class="n">topic</span> <span class="n">flumeTopic</span> <span class="o">--</span><span class="n">from</span><span class="o">-</span><span class="n">beginning</span>
+</pre></div>
+
+
 <ul>
-<li>启动 Flume （本例中为 agent181）</li>
+<li>启动 Flume （本例中为 agent181）  </li>
 </ul>
-<p><code>flume-ng agent -c /home/flume/conf/ -f /home/flume/conf/flume-conf.properties -n agent181 &amp;</code> </p>
+<div class="highlight"><pre><span class="n">flume</span><span class="o">-</span><span class="n">ng</span> <span class="n">agent</span> <span class="o">-</span><span class="n">c</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">flume</span><span class="o">/</span><span class="n">conf</span><span class="o">/</span> <span class="o">-</span><span class="n">f</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">flume</span><span class="o">/</span><span class="n">conf</span><span class="o">/</span><span class="n">flume</span><span class="o">-</span><span class="n">conf</span><span class="p">.</span><span class="n">properties</span> <span class="o">-</span><span class="n">n</span> <span class="n">agent181</span> <span class="o">&amp;</span>
+</pre></div>
+
+
 <blockquote>
 <h4>TIPS</h4>
 <ul>
@@ -232,10 +244,10 @@
 </blockquote>
 <ul>
 <li>
-<p>启动 Flume 数据源发送数据</p>
+<p>启动 Flume 数据源发送数据  </p>
 </li>
 <li>
-<p>在 Kafka consumer 客户端观察数据接收情况</p>
+<p>在 Kafka consumer 客户端观察数据接收情况  </p>
 </li>
 </ul>
 <hr />
@@ -275,12 +287,14 @@
     <section>
         <ul class="list-group list-group-flush">
                 <li class="list-group-item"><h4><i class="icon-home icon-large"></i>Social</h4></li>
-                    <li class="list-group-item"><a href="https://github.com/weyo/"><i
-                            class="icon-github-sign icon-large"></i>Github
-                    </a></li>
-                    <li class="list-group-item"><a href="https://cn.linkedin.com/in/weiyong"><i
-                            class="icon-linkedin-sign icon-large"></i>LinkedIn
-                    </a></li>
+                    <li class="list-group-item">
+					    <i class="icon-github-sign icon-large"></i>
+					    <a href="https://github.com/weyo/">Github</a>
+				    </li>
+                    <li class="list-group-item">
+					    <i class="icon-linkedin-sign icon-large"></i>
+					    <a href="https://cn.linkedin.com/in/weiyong">LinkedIn</a>
+				    </li>
                 <li class="list-group-item"><h4><i class="icon-link icon-large"></i>Links</h4></li>
                     <li class="list-group-item"><a href="http://getpelican.com/"><i
                             class="icon-Pelican-sign icon-large"></i>Pelican
@@ -292,6 +306,11 @@
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
                         <li class="list-group-item tag-1">
+                            <a href="http://weyo.me/tag/storm.html">
+                                Storm
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-1">
                             <a href="http://weyo.me/tag/translation.html">
                                 Translation
                             </a>
@@ -299,16 +318,6 @@
                         <li class="list-group-item tag-1">
                             <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
                                 分布式计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/storm.html">
-                                Storm
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
-                                实时计算
                             </a>
                         </li>
                         <li class="list-group-item tag-2">
@@ -319,6 +328,11 @@
                         <li class="list-group-item tag-2">
                             <a href="http://weyo.me/tag/kafka.html">
                                 Kafka
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-2">
+                            <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
+                                实时计算
                             </a>
                         </li>
                         <li class="list-group-item tag-3">
@@ -332,18 +346,48 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-3">
+                            <a href="http://weyo.me/tag/java.html">
+                                Java
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-3">
                             <a href="http://weyo.me/tag/linux.html">
                                 Linux
                             </a>
                         </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/java.html">
-                                Java
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/gnome.html">
+                                Gnome
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/zookeeper.html">
+                                ZooKeeper
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/benchmark.html">
+                                Benchmark
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/log4j.html">
+                                log4j
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/shell.html">
+                                Shell
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
                             <a href="http://weyo.me/tag/rpc.html">
                                 RPC
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/redis.html">
+                                Redis
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -357,43 +401,13 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/zookeeper.html">
-                                ZooKeeper
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/undefined.html">
-                                Undefined
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/redis.html">
-                                Redis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/log4j.html">
-                                log4j
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
                             <a href="http://weyo.me/tag/jedis.html">
                                 Jedis
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/shell.html">
-                                Shell
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/benchmark.html">
-                                Benchmark
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/gnome.html">
-                                Gnome
+                            <a href="http://weyo.me/tag/undefined.html">
+                                Undefined
                             </a>
                         </li>
         </ul>

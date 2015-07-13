@@ -4,6 +4,7 @@ body {
 
 #sidebar .list-group, #sidebar .list-group-item {
     background-color: transparent;
+	line-height: 16px;
 }
 
 .list-group-item {
@@ -58,7 +59,7 @@ a:hover, a:focus {
     border-bottom: 1px dotted;
 }
 
-.entry-content a:hover, a:focus {
+.entry-content a:hover {
     color: #30a7fc;
     text-decoration: none;
     border-bottom: 1px solid;

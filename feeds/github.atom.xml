@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>here we go</title><link href="http://weyo.github.com/" rel="alternate"></link><link href="http://weyo.github.com/feeds/github.atom.xml" rel="self"></link><id>http://weyo.github.com/</id><updated>2014-01-10T00:00:00+01:00</updated><entry><title>test2</title><link href="http://weyo.github.com/pages/2014/01/10/test2/" rel="alternate"></link><updated>2014-01-10T00:00:00+01:00</updated><author><name>Weyo</name></author><id>tag:weyo.github.com,2014-01-10:pages/2014/01/10/test2/</id><summary type="html">&lt;h2&gt;Blog Intro&lt;/h2&gt;
-&lt;h4&gt;This is my secong blog article.&lt;/h4&gt;
-&lt;h1&gt;Welcome!&lt;/h1&gt;
-&lt;p&gt;==end&lt;/p&gt;</summary><category term="pelican"></category><category term="markdown"></category><category term="github"></category></entry></feed>

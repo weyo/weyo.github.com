@@ -2149,7 +2149,7 @@ java.lang.NoClassDefFoundError: Could not initialize class org.apache.log4j.Log4
 &lt;li&gt;&lt;a href="http://storm.apache.org/documentation/Setting-up-a-Storm-cluster.html"&gt;配置 Storm 集群&lt;/a&gt;：说明了如何创建、配置一个 Storm 集群&lt;/li&gt;
 &lt;li&gt;&lt;a href="http://storm.apache.org/documentation/Running-topologies-on-a-production-cluster.html"&gt;在生产环境中运行拓扑&lt;/a&gt;：列出了在集群中运行拓扑的一些有用的配置项&lt;/li&gt;
 &lt;li&gt;&lt;a href="http://storm.apache.org/documentation/Local-mode.html"&gt;本地模式&lt;/a&gt;：列出了使用本地模式时比较有用的配置项&lt;/li&gt;
-&lt;/ul&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Sun, 14 Jun 2015 00:00:00 +0800</pubDate><guid>tag:weyo.me,2015-06-14:pages/techs/storm-translations-configuration/</guid><category>Storm</category><category>Translation</category></item><item><title>Storm 官方文档翻译(1) —— 基础概念</title><link>http://weyo.me/pages/techs/storm-translations-concepts/</link><description>&lt;h1&gt;基础概念&lt;/h1&gt;
+&lt;/ul&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Sun, 14 Jun 2015 19:15:55 +0800</pubDate><guid>tag:weyo.me,2015-06-14:pages/techs/storm-translations-configuration/</guid><category>Storm</category><category>Translation</category></item><item><title>Storm 官方文档翻译(1) —— 基础概念</title><link>http://weyo.me/pages/techs/storm-translations-concepts/</link><description>&lt;h1&gt;基础概念&lt;/h1&gt;
 &lt;p&gt;Storm 系统中包含以下几个基本概念：&lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;拓扑（Topologies）&lt;/li&gt;
@@ -3991,24 +3991,24 @@ nimbus.host: "111.222.333.444"&lt;/p&gt;
 &lt;li&gt;http://blog.csdn.net/wind19/article/details/4986458&lt;/li&gt;
 &lt;/ol&gt;
 &lt;/blockquote&gt;
-&lt;hr /&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Sun, 12 Apr 2015 00:00:00 +0800</pubDate><guid>tag:weyo.me,2015-04-12:pages/techs/storm-basis/</guid><category>Storm</category><category>环境搭建</category><category>分布式计算</category><category>实时计算</category></item><item><title>Flume-Kafka 集成部署</title><link>http://weyo.me/pages/techs/flume-kafka-integration/</link><description>&lt;h3&gt;前言&lt;/h3&gt;
+&lt;hr /&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Sun, 12 Apr 2015 00:00:00 +0800</pubDate><guid>tag:weyo.me,2015-04-12:pages/techs/storm-basis/</guid><category>Storm</category><category>环境搭建</category><category>分布式计算</category><category>实时计算</category></item><item><title>Flume-Kafka 集成部署</title><link>http://weyo.me/pages/techs/flume-kafka-integration/</link><description>&lt;h1&gt;前言&lt;/h1&gt;
 &lt;p&gt;数据采集与数据传输是大数据/分布式计算技术的两项基本需求。对应于这两项需求，开源社区有很多成熟的解决方案，例如 Scribe，Flume，Chukwa，Kafka，各类MQ等等，基于不同的业务场景可以灵活选择。考虑到我们的实际业务模式与技术特点，在分布式计算系统中需要选择轻量级、可定制性好、扩展性强、易于维护的数据采集与传输单元。其中，采集单元选用模块化程度极高的 Flume-ng，传输单元选择高吞吐率的 Kafka，将两者结合共同构成分布式计算集群的基础数据输入组件。&lt;/p&gt;
 &lt;hr /&gt;
-&lt;h3&gt;0. 材料准备&lt;/h3&gt;
+&lt;h1&gt;0. 材料准备&lt;/h1&gt;
 &lt;ul&gt;
 &lt;li&gt;Flume 安装程序（版本：Flume-ng 1.5.3）&lt;/li&gt;
 &lt;li&gt;Kafka 安装程序（版本：Kafka 0.8.2）&lt;/li&gt;
 &lt;li&gt;Flume-Kafka 插件&lt;/li&gt;
 &lt;/ul&gt;
 &lt;hr /&gt;
-&lt;h3&gt;1. 配置 Flume&lt;/h3&gt;
+&lt;h1&gt;1. 配置 Flume&lt;/h1&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="cp"&gt;# 配置 flume agent&lt;/span&gt;
 &lt;span class="n"&gt;vi&lt;/span&gt; &lt;span class="n"&gt;conf&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;flume&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;conf&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;properties&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="cp"&gt;## 定义 agent&lt;/span&gt;
-&lt;span class="cp"&gt;# 本agent的名称为“agent181”&lt;/span&gt;
+&lt;span class="cp"&gt;# 本agent的名称为 “agent181”&lt;/span&gt;
 &lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sources&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;src1&lt;/span&gt;
 &lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;channels&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ch1&lt;/span&gt;
 &lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sinks&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;k1&lt;/span&gt;
@@ -4016,19 +4016,19 @@ nimbus.host: "111.222.333.444"&lt;/p&gt;
 &lt;span class="cp"&gt;## 定义 sources&lt;/span&gt;
 &lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sources&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;src1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;type&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;avro&lt;/span&gt;
 &lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sources&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;src1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;channels&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ch1&lt;/span&gt;
-&lt;span class="cp"&gt;# 本地flume服务器地址，需要在hosts中注册&lt;/span&gt;
+&lt;span class="cp"&gt;# 本地 flume 服务器地址，需要在 hosts 中注册&lt;/span&gt;
 &lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sources&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;src1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;bind&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;hd181&lt;/span&gt;
 &lt;span class="cp"&gt;# source 绑定端口&lt;/span&gt;
 &lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sources&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;src1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;port&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;41414&lt;/span&gt;
 
 &lt;span class="cp"&gt;## 定义 sinks&lt;/span&gt;
 &lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sinks&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;k1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;type&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;com&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;thilinamb&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;flume&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sink&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;KafkaSink&lt;/span&gt;
-&lt;span class="cp"&gt;# 需要连接的topic名称&lt;/span&gt;
-&lt;span class="cp"&gt;# 注意：如果此topic不存在（即在Kafka集群中未创建）则默认连接到一个名为“default-flume-topic”的topic&lt;/span&gt;
+&lt;span class="cp"&gt;# 需要连接的 topic 名称&lt;/span&gt;
+&lt;span class="cp"&gt;# 注意：如果此 topic 不存在（即在 Kafka 集群中未创建）则默认连接到一个名为 “default-flume-topic” 的 topic&lt;/span&gt;
 &lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sinks&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;k1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;custom&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;topic&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;flumeTopic&lt;/span&gt;
 &lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sinks&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;k1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;preprocessor&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;com&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;thilinamb&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;flume&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sink&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;example&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;SimpleMessagePreprocessor&lt;/span&gt;
-&lt;span class="cp"&gt;# 需要连接到的Kafka服务器地址与端口（这里是hd182）&lt;/span&gt;
-&lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sinks&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;k1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;kafka&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;metadata&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;broker&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;list&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;hd182&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;9092&lt;/span&gt;
+&lt;span class="cp"&gt;# 需要连接到的 Kafka 服务器地址与端口（这里是 kafka182 ）&lt;/span&gt;
+&lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sinks&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;k1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;kafka&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;metadata&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;broker&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;list&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;kafka182&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;9092&lt;/span&gt;
 &lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sinks&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;k1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;kafka&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;serializer&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;class&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;kafka&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;serializer&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;StringEncoder&lt;/span&gt;
 &lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sinks&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;k1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;kafka&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;request&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;required&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;acks&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
 &lt;span class="n"&gt;agent181&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sinks&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;k1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;channel&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ch1&lt;/span&gt;
@@ -4040,7 +4040,7 @@ nimbus.host: "111.222.333.444"&lt;/p&gt;
 
 
 &lt;hr /&gt;
-&lt;h3&gt;2. 准备 flume-kafka 插件&lt;/h3&gt;
+&lt;h1&gt;2. 准备 flume-kafka 插件&lt;/h1&gt;
 &lt;p&gt;&lt;strong&gt;下载插件&lt;/strong&gt;：（该插件即将集成到1.6版本的 Flume 官方程序中，但在1.5及以下的版本中仍然需要手动配置）&lt;/p&gt;
 &lt;p&gt;&lt;a href="https://github.com/thilinamb/flume-ng-kafka-sink"&gt;https://github.com/thilinamb/flume-ng-kafka-sink&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;编译&lt;/strong&gt;：&lt;code&gt;mvn clean install&lt;/code&gt; 或者 &lt;code&gt;mvn package&lt;/code&gt;&lt;/p&gt;
@@ -4065,29 +4065,41 @@ nimbus.host: "111.222.333.444"&lt;/p&gt;
 
 
 &lt;blockquote&gt;
-&lt;h4&gt;TIPS&lt;/h4&gt;
+&lt;h2&gt;NOTES&lt;/h2&gt;
 &lt;ul&gt;
-&lt;li&gt;上述 Flume 配置文件中提到的&lt;strong&gt;"默认连接到一个名为‘default-flume-topic’的topic"&lt;/strong&gt;实际上是在&lt;code&gt;flume-ng-kafka-sink&lt;/code&gt;项目中定义的，如果需要修改默认名称等属性，可以修改 &lt;code&gt;Constants&lt;/code&gt; 与 &lt;code&gt;MessagePreprocessor&lt;/code&gt; 接口实现类的 &lt;code&gt;extractTopic&lt;/code&gt; 方法。Key 和 Message 的处理也可以根据需要通过 &lt;code&gt;MessagePreprocessor&lt;/code&gt; 接口的另外两个方法类似实现。由于插件作者写的 &lt;code&gt;SimpleMessagePreprocessor&lt;/code&gt; 中定义了属性名为 &lt;code&gt;custom-topic&lt;/code&gt; 的 topic名称，会对使用者造成一定的混淆，同时额外的 example module 也不便于集成到编译后的插件中，因此，我在原始插件代码的基础上做了一点修改，并更新到 &lt;a href="https://github.com/weyo/flume-ng-kafka-sink"&gt;weyo/flume-ng-kafka-sink&lt;/a&gt; 项目中，可以直接下载并使用 Maven 编译生成需要的插件。&lt;/li&gt;
+&lt;li&gt;上述 Flume 配置文件中提到的 &lt;strong&gt;"默认连接到一个名为 ‘default-flume-topic’ 的 topic"&lt;/strong&gt; 实际上是在&lt;code&gt;flume-ng-kafka-sink&lt;/code&gt;项目中定义的，如果需要修改默认名称等属性，可以修改 &lt;code&gt;Constants&lt;/code&gt; 与 &lt;code&gt;MessagePreprocessor&lt;/code&gt; 接口实现类的 &lt;code&gt;extractTopic&lt;/code&gt; 方法。Key 和 Message 的处理也可以根据需要通过 &lt;code&gt;MessagePreprocessor&lt;/code&gt; 接口的另外两个方法类似实现。由于插件作者写的 &lt;code&gt;SimpleMessagePreprocessor&lt;/code&gt; 中定义了属性名为 &lt;code&gt;custom-topic&lt;/code&gt; 的 topic名称，会对使用者造成一定的混淆，同时额外的 example module 也不便于集成到编译后的插件中，因此，我在原始插件代码的基础上做了一点修改，并更新到 &lt;a href="https://github.com/weyo/flume-ng-kafka-sink"&gt;weyo/flume-ng-kafka-sink&lt;/a&gt; 项目中，可以直接下载并使用 Maven 编译生成需要的插件。&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/blockquote&gt;
 &lt;hr /&gt;
-&lt;h3&gt;3. 运行&lt;/h3&gt;
+&lt;h1&gt;3. 运行&lt;/h1&gt;
 &lt;ul&gt;
-&lt;li&gt;启动 Kafka server（每个 flume agent 对应的 Kafka broker，本例中为 hd182）&lt;/li&gt;
+&lt;li&gt;启动 Kafka server（每个 flume agent 对应的 Kafka broker，本例中为 kafka182）  &lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;&lt;code&gt;bin/kafka-server-start.sh config/server.properties &amp;amp;&lt;/code&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;bin&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;kafka&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;server&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;start&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sh&lt;/span&gt; &lt;span class="n"&gt;config&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;server&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;properties&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt; 
+&lt;/pre&gt;&lt;/div&gt;
+
+
 &lt;ul&gt;
-&lt;li&gt;创建 Kafka topic（上面 Flume 配置文件中对应的topic名称）&lt;/li&gt;
+&lt;li&gt;创建 Kafka topic（上面 Flume 配置文件中对应的topic名称）  &lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;&lt;code&gt;bin/kafka-topics.sh --create --zookeeper hd181:2181 --replication 1 --partition 1 --topic flumeTopic&lt;/code&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;bin&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;kafka&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;topics&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sh&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;create&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;zookeeper&lt;/span&gt; &lt;span class="n"&gt;zk1&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;2181&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;replication&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;partition&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;topic&lt;/span&gt; &lt;span class="n"&gt;flumeTopic&lt;/span&gt; 
+&lt;/pre&gt;&lt;/div&gt;
+
+
 &lt;ul&gt;
-&lt;li&gt;启动 Kafka consumer&lt;/li&gt;
+&lt;li&gt;启动 Kafka consumer  &lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;&lt;code&gt;bin/kafka-console-consumer.sh --zookeeper hd182:2181 --topic flumeTopic --from-beginning&lt;/code&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;bin&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;kafka&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;console&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;consumer&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sh&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;zookeeper&lt;/span&gt; &lt;span class="n"&gt;zk1&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;2181&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;topic&lt;/span&gt; &lt;span class="n"&gt;flumeTopic&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;from&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;beginning&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
 &lt;ul&gt;
-&lt;li&gt;启动 Flume （本例中为 agent181）&lt;/li&gt;
+&lt;li&gt;启动 Flume （本例中为 agent181）  &lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;&lt;code&gt;flume-ng agent -c /home/flume/conf/ -f /home/flume/conf/flume-conf.properties -n agent181 &amp;amp;&lt;/code&gt; &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;flume&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;ng&lt;/span&gt; &lt;span class="n"&gt;agent&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;c&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;home&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;flume&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;conf&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;f&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;home&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;flume&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;conf&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;flume&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;conf&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;properties&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="n"&gt;agent181&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
 &lt;blockquote&gt;
 &lt;h4&gt;TIPS&lt;/h4&gt;
 &lt;ul&gt;
@@ -4096,10 +4108,10 @@ nimbus.host: "111.222.333.444"&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;ul&gt;
 &lt;li&gt;
-&lt;p&gt;启动 Flume 数据源发送数据&lt;/p&gt;
+&lt;p&gt;启动 Flume 数据源发送数据  &lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
-&lt;p&gt;在 Kafka consumer 客户端观察数据接收情况&lt;/p&gt;
+&lt;p&gt;在 Kafka consumer 客户端观察数据接收情况  &lt;/p&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
 &lt;hr /&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Fri, 10 Apr 2015 00:00:00 +0800</pubDate><guid>tag:weyo.me,2015-04-10:pages/techs/flume-kafka-integration/</guid><category>Flume</category><category>Kafka</category><category>环境搭建</category><category>分布式计算</category></item><item><title>Bash Shell 获取进程 PID</title><link>http://weyo.me/pages/techs/linux-get-pid/</link><description>&lt;blockquote&gt;
