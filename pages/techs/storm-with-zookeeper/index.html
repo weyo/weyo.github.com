@@ -131,82 +131,82 @@
 <p><em>本文主要参考自 xumingming 的博文 <a href="http://xumingming.sinaapp.com/466/twitter-storm-code-analysis-zookeeper-dirs/"><strong>Twitter Storm源代码分析之ZooKeeper中的目录结构</strong></a>。由于新版本的 Storm 在架构上有了较大的变化，相应的目录结构也有了一些改变。本文主要针对 0.9.x 版本的 Storm 的相关结构做了一些说明。</em></p>
 </blockquote>
 <p>Storm 的集群运行与状态记录都是由其依赖的 ZooKeeper 完成的。在 ZooKeeper 的客户端可以直接查看相关节点信息。</p>
-<div class="highlight"><pre><span class="p">[</span><span class="n">zk</span><span class="o">:</span> <span class="n">localhost</span><span class="o">:</span><span class="mi">2181</span><span class="p">(</span><span class="n">CONNECTED</span><span class="p">)</span> <span class="mi">1</span><span class="p">]</span> <span class="n">ls</span> <span class="o">/</span><span class="n">storm</span>
-<span class="p">[</span><span class="n">workerbeats</span><span class="p">,</span> <span class="n">errors</span><span class="p">,</span> <span class="n">supervisors</span><span class="p">,</span> <span class="n">storms</span><span class="p">,</span> <span class="n">assignments</span><span class="p">]</span>
+<div class="highlight"><pre><span></span>[zk: localhost:2181(CONNECTED) 1] ls /storm
+[workerbeats, errors, supervisors, storms, assignments]
 </pre></div>
 
 
 <p>从这里可以看出 Storm 在 ZooKeeper 的根节点下记录了5个集群相关属性节点: workerbeats, errors, supervisors, storms, assignments。具体的节点信息如下所示：</p>
-<div class="highlight"><pre><span class="o">/-</span><span class="n">storm</span>                     <span class="o">--</span> <span class="n">storm</span><span class="err">在</span><span class="n">zookeeper</span><span class="err">上的根目录</span>
-  <span class="o">|</span>
-  <span class="o">|-/</span><span class="n">assignments</span>            <span class="o">--</span> <span class="n">topology</span><span class="err">的任务分配信息</span>
-  <span class="o">|</span>   <span class="o">|</span>
-  <span class="o">|</span>   <span class="o">|-/</span><span class="p">{</span><span class="n">topology</span><span class="o">-</span><span class="n">id</span><span class="p">}</span>      <span class="o">--</span> <span class="err">这个下面保存的是每个</span>
-  <span class="o">|</span>                            <span class="n">topology</span><span class="err">的</span><span class="n">assignments</span>
-  <span class="o">|</span>                            <span class="err">信息包括：</span> <span class="err">对应的</span>
-  <span class="o">|</span>                            <span class="n">nimbus</span><span class="err">上的代码目录</span><span class="p">,</span><span class="err">所有</span>
-  <span class="o">|</span>                            <span class="n">task</span><span class="err">的启动时间</span><span class="p">,</span>
-  <span class="o">|</span>                            <span class="err">每个</span><span class="n">task</span><span class="err">与机器、端口的映射</span>
-  <span class="o">|</span>
-  <span class="o">|-/</span><span class="n">storms</span>                 <span class="o">--</span> <span class="err">这个目录保存所有正在运行</span>
-  <span class="o">|</span>   <span class="o">|</span>                        <span class="err">的</span><span class="n">topology</span><span class="err">的</span><span class="n">id</span>
-  <span class="o">|</span>   <span class="o">|</span>
-  <span class="o">|</span>   <span class="o">|-/</span><span class="p">{</span><span class="n">topology</span><span class="o">-</span><span class="n">id</span><span class="p">}</span>      <span class="o">--</span> <span class="err">这个文件保存这个</span><span class="n">topology</span>
-  <span class="o">|</span>                            <span class="err">的一些信息，包括</span><span class="n">topology</span><span class="err">的</span>
-  <span class="o">|</span>                            <span class="err">名字，</span><span class="n">topology</span><span class="err">开始运行的时</span>
-  <span class="o">|</span>                            <span class="err">间以及这个</span><span class="n">topology</span><span class="err">的状态</span>
-  <span class="o">|</span>                            <span class="p">(</span><span class="err">具体看</span><span class="n">StormBase</span><span class="err">类</span><span class="p">)</span>
-  <span class="o">|</span>
-  <span class="o">|-/</span><span class="n">supervisors</span>            <span class="o">--</span> <span class="err">这个目录保存所有的</span><span class="n">supervisor</span>
-  <span class="o">|</span>   <span class="o">|</span>                        <span class="err">的心跳信息</span>
-  <span class="o">|</span>   <span class="o">|</span>
-  <span class="o">|</span>   <span class="o">|-/</span><span class="p">{</span><span class="n">supervisor</span><span class="o">-</span><span class="n">id</span><span class="p">}</span>    <span class="o">--</span> <span class="err">这个文件保存的是</span><span class="n">supervisor</span>
-  <span class="o">|</span>                            <span class="err">的心跳信息包括</span><span class="o">:</span><span class="err">心跳时间，主</span>
-  <span class="o">|</span>                            <span class="err">机名，这个</span><span class="n">supervisor</span><span class="err">上</span><span class="n">worker</span>
-  <span class="o">|</span>                            <span class="err">的端口号运行时间</span>
-  <span class="o">|</span>                            <span class="p">(</span><span class="err">具体看</span><span class="n">SupervisorInfo</span><span class="err">类</span><span class="p">)</span>
-  <span class="o">|</span>
-  <span class="o">|-/</span><span class="n">workerbeats</span>            <span class="o">--</span> <span class="err">所有</span><span class="n">worker</span><span class="err">的心跳</span>
-  <span class="o">|</span>   <span class="o">|</span>
-  <span class="o">|</span>   <span class="o">|-/</span><span class="p">{</span><span class="n">topology</span><span class="o">-</span><span class="n">id</span><span class="p">}</span>      <span class="o">--</span> <span class="err">这个目录保存这个</span><span class="n">topology</span><span class="err">的所</span>
-  <span class="o">|</span>       <span class="o">|</span>                    <span class="err">有的</span><span class="n">worker</span><span class="err">的心跳信息</span>
-  <span class="o">|</span>       <span class="o">|</span>
-  <span class="o">|</span>       <span class="o">|-/</span><span class="p">{</span><span class="n">worker</span><span class="o">-</span><span class="n">id</span><span class="p">}</span>    <span class="o">--</span> <span class="n">worker</span><span class="err">的心跳信息</span>
-  <span class="o">|</span>
-  <span class="o">|-/</span><span class="n">errors</span>                 <span class="o">--</span> <span class="err">所有</span><span class="n">component</span><span class="err">所产生的</span><span class="n">error</span><span class="err">信息</span>
-      <span class="o">|</span>
-      <span class="o">|-/</span><span class="p">{</span><span class="n">topology</span><span class="o">-</span><span class="n">id</span><span class="p">}</span>      <span class="o">--</span> <span class="err">这个目录保存这个</span><span class="n">topology</span><span class="err">下面</span>
-          <span class="o">|</span>                    <span class="err">所有</span><span class="n">component</span><span class="err">的出错信息</span><span class="p">(</span><span class="err">包括</span>
-          <span class="o">|</span>                    <span class="n">topology</span><span class="err">的所有</span><span class="n">component</span><span class="err">与系</span>
-          <span class="o">|</span>                    <span class="err">统的“</span><span class="n">_acker</span><span class="err">”</span>
-          <span class="o">|</span>
-          <span class="o">|-/</span><span class="p">{</span><span class="n">component</span><span class="o">-</span><span class="n">id</span><span class="p">}</span> <span class="o">--</span> <span class="err">这个</span><span class="n">component</span><span class="err">的出错信息</span>
+<div class="highlight"><pre><span></span>/-storm                     -- storm在zookeeper上的根目录
+  |
+  |-/assignments            -- topology的任务分配信息
+  |   |
+  |   |-/{topology-id}      -- 这个下面保存的是每个
+  |                            topology的assignments
+  |                            信息包括： 对应的
+  |                            nimbus上的代码目录,所有
+  |                            task的启动时间,
+  |                            每个task与机器、端口的映射
+  |
+  |-/storms                 -- 这个目录保存所有正在运行
+  |   |                        的topology的id
+  |   |
+  |   |-/{topology-id}      -- 这个文件保存这个topology
+  |                            的一些信息，包括topology的
+  |                            名字，topology开始运行的时
+  |                            间以及这个topology的状态
+  |                            (具体看StormBase类)
+  |
+  |-/supervisors            -- 这个目录保存所有的supervisor
+  |   |                        的心跳信息
+  |   |
+  |   |-/{supervisor-id}    -- 这个文件保存的是supervisor
+  |                            的心跳信息包括:心跳时间，主
+  |                            机名，这个supervisor上worker
+  |                            的端口号运行时间
+  |                            (具体看SupervisorInfo类)
+  |
+  |-/workerbeats            -- 所有worker的心跳
+  |   |
+  |   |-/{topology-id}      -- 这个目录保存这个topology的所
+  |       |                    有的worker的心跳信息
+  |       |
+  |       |-/{worker-id}    -- worker的心跳信息
+  |
+  |-/errors                 -- 所有component所产生的error信息
+      |
+      |-/{topology-id}      -- 这个目录保存这个topology下面
+          |                    所有component的出错信息(包括
+          |                    topology的所有component与系
+          |                    统的“_acker”
+          |
+          |-/{component-id} -- 这个component的出错信息
 </pre></div>
 
 
 <p>对比原先的目录结构与现在的目录结构可以发现，最大变化的是将记录 task 信息改为了记录 worker 与 component 的信息。这种改变体现在 Storm 系统设计上就是实时计算组件的功能分离简化，将 Storm 集群的最小任务单元(task)剥离了工作线程的功能，使得 task 可以聚焦于实时数据处理任务，同时使集群负载调整更加灵活。有趣的是，Hadoop 也通过 Yarn 实现了集群组件功能的分离简化，这也是分布式计算系统的一个发展方向。</p>
 <p>可以查看 ZooKeeper 中记录的具体的 topology 信息如下</p>
-<div class="highlight"><pre><span class="n">lojure</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">APersistentMapx</span><span class="err">��</span><span class="n">c</span><span class="err">�</span><span class="n">SpI_hashI_hasheqxp</span><span class="err">��������</span>  <span class="n">ppsr0clojure</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">PersistentHashMap</span><span class="err">$</span><span class="n">BitmapIndexedNode</span><span class="err">�</span><span class="p">.</span><span class="err">��&#39;�</span><span class="n">uI</span><span class="err"></span><span class="n">bitmap</span><span class="p">[</span><span class="n">arrayt</span><span class="err"></span><span class="p">[</span><span class="n">Ljava</span><span class="o">/</span><span class="n">lang</span><span class="o">/</span><span class="n">Object</span><span class="p">;</span><span class="n">L</span><span class="err"></span><span class="n">editt</span><span class="o">-</span><span class="n">Ljava</span><span class="o">/</span><span class="n">util</span><span class="o">/</span><span class="n">concurrent</span><span class="o">/</span><span class="n">atomic</span><span class="o">/</span><span class="n">AtomicReference</span><span class="p">;</span><span class="n">xp</span><span class="err">@�</span><span class="n">ur</span><span class="err"></span><span class="p">[</span><span class="n">Ljava</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">Object</span><span class="p">;</span><span class="err">��</span><span class="n">X</span><span class="err">�</span><span class="n">s</span><span class="p">)</span><span class="n">lxptother</span><span class="o">-</span><span class="n">operatorsrjava</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">Long</span><span class="p">;</span><span class="err">��̏#�</span><span class="n">Jvaluexr</span><span class="err"></span><span class="n">java</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">Number</span><span class="err">���</span>
-                                                                                                                                   <span class="err">���</span><span class="n">xp</span><span class="err"></span><span class="n">t</span>
-                                                                                                                                              <span class="n">distributionsr</span><span class="err"></span><span class="n">java</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">Integer</span><span class="err">⠤���</span><span class="mi">8</span><span class="err"></span><span class="n">Ivaluexq</span><span class="o">~</span><span class="err"></span><span class="n">t</span>
-<span class="n">rand</span><span class="o">-</span><span class="n">spoutsq</span><span class="o">~</span><span class="err"></span><span class="n">puq</span><span class="o">~</span>
-                  <span class="n">t</span>
-                   <span class="n">kafka</span><span class="o">-</span><span class="n">spoutq</span><span class="o">~</span><span class="err"></span><span class="n">tspeed</span><span class="o">-</span><span class="n">operatorq</span><span class="o">~</span><span class="err"></span><span class="n">ppppsr</span><span class="o">+</span><span class="n">java</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">concurrent</span><span class="p">.</span><span class="n">atomic</span><span class="p">.</span><span class="n">AtomicReference</span><span class="err">�</span><span class="n">Wq</span><span class="err">�</span><span class="n">UxT</span><span class="err">�</span><span class="n">Lvalueq</span><span class="o">~</span><span class="err"></span><span class="n">xppt</span>
-                                                                                                                               <span class="n">ch</span><span class="o">-</span><span class="n">operatorq</span><span class="o">~</span><span class="err"></span><span class="n">__systemsq</span><span class="o">~</span><span class="err"></span><span class="n">psq</span><span class="err">�</span><span class="n">uq</span><span class="o">~</span>
-                                                                                                                                                                <span class="n">t__ackerq</span><span class="o">~</span><span class="err"></span><span class="n">consumersq</span><span class="o">~</span><span class="err"></span><span class="n">ppppq</span><span class="o">~</span><span class="n">sq</span><span class="o">~</span><span class="n">sq</span><span class="o">~</span><span class="err"></span><span class="n">UA</span><span class="err">�</span><span class="n">sq</span><span class="o">~</span><span class="n">sr</span><span class="n">clojure</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">PersistentArrayMap</span><span class="err">�</span><span class="p">(</span><span class="mi">6</span><span class="err">�</span><span class="o">!</span><span class="err">�</span><span class="n">L_metaq</span><span class="o">~</span><span class="err"></span><span class="p">[</span><span class="n">arrayq</span><span class="o">~</span>    <span class="n">xq</span><span class="o">~</span><span class="err">��������</span><span class="n">puq</span><span class="o">~</span>
-                                                                                        <span class="n">sr</span><span class="err"></span><span class="n">clojure</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">Keyword91</span><span class="err">�</span><span class="n">bzYI</span><span class="err"></span><span class="n">hashL</span><span class="err"></span><span class="n">_strt</span><span class="err"></span><span class="n">Ljava</span><span class="o">/</span><span class="n">lang</span><span class="o">/</span><span class="n">String</span><span class="p">;</span><span class="n">Lsymt</span><span class="err"></span><span class="n">Lclojure</span><span class="o">/</span><span class="n">lang</span><span class="o">/</span><span class="n">Symbol</span><span class="p">;</span><span class="n">xpJ</span><span class="err">��</span><span class="n">t</span><span class="o">:</span><span class="n">typesr</span><span class="err"></span><span class="n">clojure</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">Symbol</span><span class="err">���</span><span class="err">�</span><span class="n">D</span><span class="err">�</span><span class="n">I</span><span class="err"></span><span class="n">hashL_metaq</span><span class="o">~</span><span class="err"></span><span class="n">L</span><span class="err"></span><span class="n">_strq</span><span class="o">~</span><span class="p">,</span><span class="n">L</span><span class="err"></span><span class="n">nameq</span><span class="o">~</span><span class="p">,</span><span class="n">Lnsq</span><span class="o">~</span><span class="p">,</span><span class="n">xp</span><span class="err">��</span><span class="n">c</span><span class="o">=</span><span class="n">pt</span><span class="err"></span><span class="n">typeq</span><span class="o">~</span><span class="mi">2</span><span class="n">psq</span><span class="o">~+</span><span class="err">�ߵ</span><span class="n">t</span><span class="o">:</span><span class="n">activesq</span><span class="o">~</span><span class="mi">0</span><span class="err">��</span><span class="n">e</span><span class="err">�</span><span class="n">pt</span><span class="err"></span><span class="n">activeq</span><span class="o">~</span><span class="mi">6</span><span class="n">pttopology</span><span class="o">-</span><span class="n">alpha</span>
-<span class="n">cZxid</span> <span class="o">=</span> <span class="mh">0x4000d58d2</span>
-<span class="n">ctime</span> <span class="o">=</span> <span class="n">Thu</span> <span class="n">Apr</span> <span class="mi">10</span> <span class="mi">16</span><span class="o">:</span><span class="mi">41</span><span class="o">:</span><span class="mo">07</span> <span class="n">CST</span> <span class="mi">2015</span>
-<span class="n">mZxid</span> <span class="o">=</span> <span class="mh">0x4000d58d2</span>
-<span class="n">mtime</span> <span class="o">=</span> <span class="n">Thu</span> <span class="n">Apr</span> <span class="mi">10</span> <span class="mi">16</span><span class="o">:</span><span class="mi">41</span><span class="o">:</span><span class="mo">07</span> <span class="n">CST</span> <span class="mi">2015</span>
-<span class="n">pZxid</span> <span class="o">=</span> <span class="mh">0x4000d58d2</span>
-<span class="n">cversion</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="n">dataVersion</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="n">aclVersion</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="n">ephemeralOwner</span> <span class="o">=</span> <span class="mh">0x0</span>
-<span class="n">dataLength</span> <span class="o">=</span> <span class="mi">1503</span>
-<span class="n">numChildren</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="p">[</span><span class="n">zk</span><span class="o">:</span> <span class="n">localhost</span><span class="o">:</span><span class="mi">2181</span><span class="p">(</span><span class="n">CONNECTED</span><span class="p">)</span> <span class="mi">39</span><span class="p">]</span> <span class="n">get</span> <span class="o">/</span><span class="n">storm</span><span class="o">/</span><span class="n">storms</span><span class="o">/</span><span class="n">topology</span><span class="o">-</span><span class="n">alpha</span><span class="o">-</span><span class="mi">3</span><span class="o">-</span><span class="mi">1430383278</span>
+<div class="highlight"><pre><span></span><span class="x">lojure.lang.APersistentMapx��c�SpI_hashI_hasheqxp��������  ppsr0clojure.lang.PersistentHashMap</span><span class="p">$</span><span class="nv">BitmapIndexedNode</span><span class="x">�.��&#39;�uIbitmap[arrayt[Ljava/lang/Object;Leditt-Ljava/util/concurrent/atomic/AtomicReference;xp@�ur[Ljava.lang.Object;��X�s)lxptother-operatorsrjava.lang.Long;��̏</span><span class="err">#</span><span class="x">�Jvaluexrjava.lang.Number���</span>
+<span class="x">                                                                                                                                   ���xpt</span>
+<span class="x">                                                                                                                                              distributionsrjava.lang.Integer⠤���8Ivaluexq~t</span>
+<span class="x">rand-spoutsq~puq~</span>
+<span class="x">                  t</span>
+<span class="x">                   kafka-spoutq~tspeed-operatorq~ppppsr+java.util.concurrent.atomic.AtomicReference�Wq�UxT�Lvalueq~xppt</span>
+<span class="x">                                                                                                                               ch-operatorq~__systemsq~psq�uq~</span>
+<span class="x">                                                                                                                                                                t__ackerq~consumersq~ppppq~sq~sq~UA�sq~srclojure.lang.PersistentArrayMap�(6�!�L_metaq~[arrayq~    xq~��������puq~</span>
+<span class="x">                                                                                        srclojure.lang.Keyword91�bzYIhashL_strtLjava/lang/String;LsymtLclojure/lang/Symbol;xpJ��t:typesrclojure.lang.Symbol����D�IhashL_metaq~L_strq~,Lnameq~,Lnsq~,xp��c=pttypeq~2psq~+�ߵt:activesq~0��e�ptactiveq~6pttopology-alpha</span>
+<span class="x">cZxid = 0x4000d58d2</span>
+<span class="x">ctime = Thu Apr 10 16:41:07 CST 2015</span>
+<span class="x">mZxid = 0x4000d58d2</span>
+<span class="x">mtime = Thu Apr 10 16:41:07 CST 2015</span>
+<span class="x">pZxid = 0x4000d58d2</span>
+<span class="x">cversion = 0</span>
+<span class="x">dataVersion = 0</span>
+<span class="x">aclVersion = 0</span>
+<span class="x">ephemeralOwner = 0x0</span>
+<span class="x">dataLength = 1503</span>
+<span class="x">numChildren = 0</span>
+<span class="x">[zk: localhost:2181(CONNECTED) 39] get /storm/storms/topology-alpha-3-1430383278</span>
 </pre></div>
 
 
@@ -269,121 +269,6 @@
 
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
-                                分布式计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/storm.html">
-                                Storm
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/translation.html">
-                                Translation
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
-                                环境搭建
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/kafka.html">
-                                Kafka
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
-                                实时计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/linux.html">
-                                Linux
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/java.html">
-                                Java
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/mapreduce.html">
-                                MapReduce
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/hadoop.html">
-                                Hadoop
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/flume.html">
-                                Flume
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/redis.html">
-                                Redis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/shell.html">
-                                Shell
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/virtualbox.html">
-                                VirtualBox
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/undefined.html">
-                                Undefined
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/benchmark.html">
-                                Benchmark
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/rpc.html">
-                                RPC
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/log4j.html">
-                                log4j
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/jedis.html">
-                                Jedis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/yaml.html">
-                                Yaml
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/zookeeper.html">
-                                ZooKeeper
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/windows.html">
-                                Windows
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/gnome.html">
-                                Gnome
-                            </a>
-                        </li>
         </ul>
     </section>
 </aside>        </div>

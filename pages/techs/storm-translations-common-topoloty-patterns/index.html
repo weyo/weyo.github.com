@@ -137,7 +137,7 @@
 <h2>Joins</h2>
 <p>数据流的 join 一般指的是通过共有的域来聚合两个或多个数据流的过程。与一般的数据库中 join 操作要求有限的输入与清晰的语义不同，数据流 join 的输入往往是无限的数据集，而且并不具备明确的语义。</p>
 <p>join 的类型一般是由应用的需求决定的。有些应用需要将两个流在某个固定时间内的所有 tuple 进行 join，另外一些应用却可能要求对每个 join 域的 join 操作过程的两侧只保留一个 tuple，而其他的应用也许还有一些其他需求。不过这些 join 类型一般都会有一个基本的模式，那就是将多个输入流进行分区。Storm 可以很容易地使用域分组的方法将多个输入流聚集到一个联结 bolt 中，比如下面这样：</p>
-<div class="highlight"><pre><span class="n">builder</span><span class="o">.</span><span class="na">setBolt</span><span class="o">(</span><span class="s">&quot;join&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">MyJoiner</span><span class="o">(),</span> <span class="n">parallelism</span><span class="o">)</span>
+<div class="highlight"><pre><span></span><span class="n">builder</span><span class="o">.</span><span class="na">setBolt</span><span class="o">(</span><span class="s">&quot;join&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">MyJoiner</span><span class="o">(),</span> <span class="n">parallelism</span><span class="o">)</span>
   <span class="o">.</span><span class="na">fieldsGrouping</span><span class="o">(</span><span class="s">&quot;1&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">Fields</span><span class="o">(</span><span class="s">&quot;joinfield1&quot;</span><span class="o">,</span> <span class="s">&quot;joinfield2&quot;</span><span class="o">))</span>
   <span class="o">.</span><span class="na">fieldsGrouping</span><span class="o">(</span><span class="s">&quot;2&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">Fields</span><span class="o">(</span><span class="s">&quot;joinfield1&quot;</span><span class="o">,</span> <span class="s">&quot;joinfield2&quot;</span><span class="o">))</span>
   <span class="o">.</span><span class="na">fieldsGrouping</span><span class="o">(</span><span class="s">&quot;3&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">Fields</span><span class="o">(</span><span class="s">&quot;joinfield1&quot;</span><span class="o">,</span> <span class="s">&quot;joinfield2&quot;</span><span class="o">));</span>
@@ -153,12 +153,12 @@
 <p>Bolt 处理 tuple 的一种基本模式是在 <code>execute</code> 方法中读取输入 tuple、发送出基于输入 tuple 的新 tuple，然后在方法末尾对 tuple 进行应答（ack）。符合这种模式的 bolt 一般是一种函数或者过滤器。对于这种基本的处理模式，Storm 提供了 <code>IBasicBolt</code> 接口来自动实现这个过程。更多内容请参考<a href="https://github.com/weyo/Storm-Documents/blob/master/Manual/zh/Guaranteeing-Message-Processing.md">消息的可靠性保障</a>一文。</p>
 <h2>内存缓存与域分组的结合</h2>
 <p>在 Storm 的 bolt 中保存一定的缓存也是一种比较常见的方式。尤其是在于域分组结合的时候，缓存的作用特别显著。例如，假如你有一个用于将短链接（short URLs，例如 bit.ly, t.co，等等）转化成长链接（龙 URLs）的 bolt。你可以通过一个将短链接映射到长链接的 LRU 缓存来提高系统的性能，避免反复的 HTTP 请求操作。假如现在有一个名为 “urls” 的组件用于发送短链接，另外有一个 “expand” 组件用于将短链接扩展为长链接，并且在 “expand” 内部保留一个缓存。让我们来看看下面两段代码有什么不同：</p>
-<div class="highlight"><pre><span class="n">builder</span><span class="o">.</span><span class="na">setBolt</span><span class="o">(</span><span class="s">&quot;expand&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">ExpandUrl</span><span class="o">(),</span> <span class="n">parallelism</span><span class="o">)</span>
+<div class="highlight"><pre><span></span><span class="n">builder</span><span class="o">.</span><span class="na">setBolt</span><span class="o">(</span><span class="s">&quot;expand&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">ExpandUrl</span><span class="o">(),</span> <span class="n">parallelism</span><span class="o">)</span>
   <span class="o">.</span><span class="na">shuffleGrouping</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
 </pre></div>
 
 
-<div class="highlight"><pre><span class="n">builder</span><span class="o">.</span><span class="na">setBolt</span><span class="o">(</span><span class="s">&quot;expand&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">ExpandUrl</span><span class="o">(),</span> <span class="n">parallelism</span><span class="o">)</span>
+<div class="highlight"><pre><span></span><span class="n">builder</span><span class="o">.</span><span class="na">setBolt</span><span class="o">(</span><span class="s">&quot;expand&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">ExpandUrl</span><span class="o">(),</span> <span class="n">parallelism</span><span class="o">)</span>
   <span class="o">.</span><span class="na">fieldsGrouping</span><span class="o">(</span><span class="s">&quot;urls&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">Fields</span><span class="o">(</span><span class="s">&quot;url&quot;</span><span class="o">));</span>
 </pre></div>
 
@@ -167,7 +167,7 @@
 <h2>Top N</h2>
 <p>Storm 中一种常见的连续计算模式是计算数据流中某种形式的 Top N 结果。假如现在有一个可以以 ["value", "count"] 的形式发送 tuple 的 bolt，并且你需要一个可以根据 count 计算结果输出前 N 个 tuple 的 bolt。实现这个操作的最简单的方法就是使用一个对数据流进行全局分组的 bolt，并且在内存中维护一个包含 top N 结果的列表。</p>
 <p>这种方法并不适用于大规模数据流，因为整个数据流都会发往同一个 task，会造成该 task 的内存负载过高。更好的做法是将数据流分区，同时对每个分区计算 top N 结果，然后将这些结果汇总来得到最终的全局 top N 结果。下面是这个模式的代码：</p>
-<div class="highlight"><pre><span class="n">builder</span><span class="o">.</span><span class="na">setBolt</span><span class="o">(</span><span class="s">&quot;rank&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">RankObjects</span><span class="o">(),</span> <span class="n">parallelism</span><span class="o">)</span>
+<div class="highlight"><pre><span></span><span class="n">builder</span><span class="o">.</span><span class="na">setBolt</span><span class="o">(</span><span class="s">&quot;rank&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">RankObjects</span><span class="o">(),</span> <span class="n">parallelism</span><span class="o">)</span>
   <span class="o">.</span><span class="na">fieldsGrouping</span><span class="o">(</span><span class="s">&quot;objects&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">Fields</span><span class="o">(</span><span class="s">&quot;value&quot;</span><span class="o">));</span>
 <span class="n">builder</span><span class="o">.</span><span class="na">setBolt</span><span class="o">(</span><span class="s">&quot;merge&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">MergeObjects</span><span class="o">())</span>
   <span class="o">.</span><span class="na">globalGrouping</span><span class="o">(</span><span class="s">&quot;rank&quot;</span><span class="o">);</span>
@@ -176,7 +176,7 @@
 
 <p>这个方法之所以可行是因为第一个 bolt 的域分组操作确保了每个小分区在语义上的正确性。你可以在 <a href="https://github.com/apache/storm/blob/master/examples/storm-starter/src/jvm/storm/starter/RollingTopWords.java">storm-starter</a> 里看到使用这个模式的一个例子。</p>
 <p>当然，如果待处理的数据集存在较严重的数据倾斜，那么还是应该使用 partialKeyGrouping 来代替 fieldsGrouping，因为 partialKeyGrouping 可以通过两个下游 bolt 分散每个 key 的负载。</p>
-<div class="highlight"><pre><span class="n">builder</span><span class="o">.</span><span class="na">setBolt</span><span class="o">(</span><span class="s">&quot;count&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">CountObjects</span><span class="o">(),</span> <span class="n">parallelism</span><span class="o">)</span>
+<div class="highlight"><pre><span></span><span class="n">builder</span><span class="o">.</span><span class="na">setBolt</span><span class="o">(</span><span class="s">&quot;count&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">CountObjects</span><span class="o">(),</span> <span class="n">parallelism</span><span class="o">)</span>
   <span class="o">.</span><span class="na">partialKeyGrouping</span><span class="o">(</span><span class="s">&quot;objects&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">Fields</span><span class="o">(</span><span class="s">&quot;value&quot;</span><span class="o">));</span>
 <span class="n">builder</span><span class="o">.</span><span class="na">setBolt</span><span class="o">(</span><span class="s">&quot;rank&quot;</span> <span class="k">new</span> <span class="n">AggregateCountsAndRank</span><span class="o">(),</span> <span class="n">parallelism</span><span class="o">)</span>
   <span class="o">.</span><span class="na">fieldsGrouping</span><span class="o">(</span><span class="s">&quot;count&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">Fields</span><span class="o">(</span><span class="s">&quot;key&quot;</span><span class="o">))</span>
@@ -247,121 +247,6 @@
 
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
-                                分布式计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/storm.html">
-                                Storm
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/translation.html">
-                                Translation
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
-                                环境搭建
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/kafka.html">
-                                Kafka
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
-                                实时计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/linux.html">
-                                Linux
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/java.html">
-                                Java
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/mapreduce.html">
-                                MapReduce
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/hadoop.html">
-                                Hadoop
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/flume.html">
-                                Flume
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/redis.html">
-                                Redis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/shell.html">
-                                Shell
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/virtualbox.html">
-                                VirtualBox
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/undefined.html">
-                                Undefined
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/benchmark.html">
-                                Benchmark
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/rpc.html">
-                                RPC
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/log4j.html">
-                                log4j
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/jedis.html">
-                                Jedis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/yaml.html">
-                                Yaml
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/zookeeper.html">
-                                ZooKeeper
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/windows.html">
-                                Windows
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/gnome.html">
-                                Gnome
-                            </a>
-                        </li>
         </ul>
     </section>
 </aside>        </div>

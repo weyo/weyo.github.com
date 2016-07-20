@@ -137,30 +137,30 @@
 <p>本地分区操作是在每个分区块上独立运行的操作，其中不涉及网络数据传输。</p>
 <h3>函数</h3>
 <p>函数负责接收一个输入域的集合并选择输出或者不输出 tuple。输出 tuple 的域会被添加到原始数据流的输入域中。如果一个函数不输出 tuple，那么原始的输入 tuple 就会被直接过滤掉。否则，每个输出 tuple 都会复制一份输入 tuple 。假设你有下面这样的函数：</p>
-<div class="highlight"><pre><span class="n">public</span> <span class="n">class</span> <span class="n">MyFunction</span> <span class="n">extends</span> <span class="n">BaseFunction</span> <span class="p">{</span>
-    <span class="n">public</span> <span class="kt">void</span> <span class="n">execute</span><span class="p">(</span><span class="n">TridentTuple</span> <span class="n">tuple</span><span class="p">,</span> <span class="n">TridentCollector</span> <span class="n">collector</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">tuple</span><span class="p">.</span><span class="n">getInteger</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-            <span class="n">collector</span><span class="p">.</span><span class="n">emit</span><span class="p">(</span><span class="n">new</span> <span class="n">Values</span><span class="p">(</span><span class="n">i</span><span class="p">));</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-<span class="p">}</span>
+<div class="highlight"><pre><span></span>public class MyFunction extends BaseFunction {
+    public void execute(TridentTuple tuple, TridentCollector collector) {
+        for(int i=0; i &lt; tuple.getInteger(0); i++) {
+            collector.emit(new Values(i));
+        }
+    }
+}
 </pre></div>
 
 
 <p>再假设你有一个名为 “mystream” 的数据流，这个流中包含下面几个 tuple，每个 tuple 中包含有 “a”、“b”、“c” 三个域：</p>
-<div class="highlight"><pre><span class="k">[1, 2, 3]</span>
+<div class="highlight"><pre><span></span><span class="k">[1, 2, 3]</span>
 <span class="k">[4, 1, 6]</span>
 <span class="k">[3, 0, 8]</span>
 </pre></div>
 
 
 <p>如果你运行这段代码：</p>
-<div class="highlight"><pre><span class="n">mystream</span><span class="p">.</span><span class="n">each</span><span class="p">(</span><span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;b&quot;</span><span class="p">),</span> <span class="n">new</span> <span class="n">MyFunction</span><span class="p">(),</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;d&quot;</span><span class="p">)))</span>
+<div class="highlight"><pre><span></span>mystream.each(new Fields(&quot;b&quot;), new MyFunction(), new Fields(&quot;d&quot;)))
 </pre></div>
 
 
 <p>那么最终输出的结果 tuple 就会包含有 “a”、“b”、“c”、“d” 4 个域，就像下面这样：</p>
-<div class="highlight"><pre><span class="k">[1, 2, 3, 0]</span>
+<div class="highlight"><pre><span></span><span class="k">[1, 2, 3, 0]</span>
 <span class="k">[1, 2, 3, 1]</span>
 <span class="k">[4, 1, 6, 0]</span>
 </pre></div>
@@ -168,121 +168,121 @@
 
 <h3>过滤器</h3>
 <p>过滤器负责判断输入的 tuple 是否需要保留。以下面的过滤器为例：</p>
-<div class="highlight"><pre><span class="n">public</span> <span class="n">class</span> <span class="n">MyFilter</span> <span class="n">extends</span> <span class="n">BaseFilter</span> <span class="p">{</span>
-    <span class="n">public</span> <span class="n">boolean</span> <span class="n">isKeep</span><span class="p">(</span><span class="n">TridentTuple</span> <span class="n">tuple</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="n">tuple</span><span class="p">.</span><span class="n">getInteger</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="o">&amp;&amp;</span> <span class="n">tuple</span><span class="p">.</span><span class="n">getInteger</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">;</span>
-    <span class="p">}</span>
-<span class="p">}</span>
+<div class="highlight"><pre><span></span>public class MyFilter extends BaseFilter {
+    public boolean isKeep(TridentTuple tuple) {
+        return tuple.getInteger(0) == 1 &amp;&amp; tuple.getInteger(1) == 2;
+    }
+}
 </pre></div>
 
 
 <p>通过使用这段代码：</p>
-<div class="highlight"><pre><span class="n">mystream</span><span class="p">.</span><span class="n">each</span><span class="p">(</span><span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;b&quot;</span><span class="p">,</span> <span class="s">&quot;a&quot;</span><span class="p">),</span> <span class="n">new</span> <span class="n">MyFilter</span><span class="p">())</span>
+<div class="highlight"><pre><span></span>mystream.each(new Fields(&quot;b&quot;, &quot;a&quot;), new MyFilter())
 </pre></div>
 
 
 <p>就可以将下面这样带有 “a”、“b”、“c” 三个域的 tuple</p>
-<div class="highlight"><pre><span class="k">[1, 2, 3]</span>
+<div class="highlight"><pre><span></span><span class="k">[1, 2, 3]</span>
 <span class="k">[2, 1, 1]</span>
 <span class="k">[2, 3, 4]</span>
 </pre></div>
 
 
 <p>最终转化成这样的结果 tuple：</p>
-<div class="highlight"><pre><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<div class="highlight"><pre><span></span>[2, 1, 1]
 </pre></div>
 
 
 <h3>partitionAggregate</h3>
 <p><code>partitionAggregate</code> 会在一批 tuple 的每个分区上执行一个指定的功能操作。与上面的函数不同，由 <code>partitionAggregate</code> 发送出的 tuple 会将输入 tuple 的域替换。以下面这段代码为例：</p>
-<div class="highlight"><pre><span class="n">mystream</span><span class="p">.</span><span class="n">partitionAggregate</span><span class="p">(</span><span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;b&quot;</span><span class="p">),</span> <span class="n">new</span> <span class="n">Sum</span><span class="p">(),</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;sum&quot;</span><span class="p">))</span>
+<div class="highlight"><pre><span></span>mystream.partitionAggregate(new Fields(&quot;b&quot;), new Sum(), new Fields(&quot;sum&quot;))
 </pre></div>
 
 
 <p>假如输入流中包含有 “a”、“b” 两个域并且有以下几个 tuple 块：</p>
-<div class="highlight"><pre><span class="n">Partition</span> <span class="mi">0</span><span class="o">:</span>
-<span class="p">[</span><span class="s">&quot;a&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
-<span class="p">[</span><span class="s">&quot;b&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<div class="highlight"><pre><span></span>Partition 0:
+[&quot;a&quot;, 1]
+[&quot;b&quot;, 2]
 
-<span class="n">Partition</span> <span class="mi">1</span><span class="o">:</span>
-<span class="p">[</span><span class="s">&quot;a&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
-<span class="p">[</span><span class="s">&quot;c&quot;</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span>
+Partition 1:
+[&quot;a&quot;, 3]
+[&quot;c&quot;, 8]
 
-<span class="n">Partition</span> <span class="mi">2</span><span class="o">:</span>
-<span class="p">[</span><span class="s">&quot;e&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
-<span class="p">[</span><span class="s">&quot;d&quot;</span><span class="p">,</span> <span class="mi">9</span><span class="p">]</span>
-<span class="p">[</span><span class="s">&quot;d&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span>
+Partition 2:
+[&quot;e&quot;, 1]
+[&quot;d&quot;, 9]
+[&quot;d&quot;, 10]
 </pre></div>
 
 
 <p>经过上面的代码之后，输出就会变成带有一个名为 “sum” 的域的数据流，其中的 tuple 就是这样的：</p>
-<div class="highlight"><pre><span class="n">Partition</span> <span class="mi">0</span><span class="o">:</span>
-<span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+<div class="highlight"><pre><span></span>Partition 0:
+[3]
 
-<span class="n">Partition</span> <span class="mi">1</span><span class="o">:</span>
-<span class="p">[</span><span class="mi">11</span><span class="p">]</span>
+Partition 1:
+[11]
 
-<span class="n">Partition</span> <span class="mi">2</span><span class="o">:</span>
-<span class="p">[</span><span class="mi">20</span><span class="p">]</span>
+Partition 2:
+[20]
 </pre></div>
 
 
 <p>Storm 有三个用于定义聚合器的接口：<code>CombinerAggregator</code>，<code>ReducerAggregator</code> 以及 <code>Aggregator</code>。</p>
 <p>这是 <code>CombinerAggregator</code> 接口：</p>
-<div class="highlight"><pre><span class="k">public</span> <span class="nf">interface</span> <span class="nx">CombinerAggregator</span><span class="o">&lt;</span><span class="nb">T</span><span class="o">&gt;</span> <span class="nx">extends</span> <span class="nx">Serializable</span> <span class="p">{</span>
-    <span class="nb">T</span> <span class="nb">init</span><span class="p">(</span><span class="nx">TridentTuple</span> <span class="nx">tuple</span><span class="p">);</span>
-    <span class="nb">T</span> <span class="nx">combine</span><span class="p">(</span><span class="nb">T</span> <span class="nx">val1</span><span class="p">,</span> <span class="nb">T</span> <span class="nx">val2</span><span class="p">);</span>
-    <span class="nb">T</span> <span class="nx">zero</span><span class="p">();</span>
-<span class="p">}</span>
+<div class="highlight"><pre><span></span>public interface CombinerAggregator&lt;T&gt; extends Serializable {
+    T init(TridentTuple tuple);
+    T combine(T val1, T val2);
+    T zero();
+}
 </pre></div>
 
 
 <p><code>CombinerAggregator</code> 会将带有一个域的一个单独的 tuple 返回作为输出。<code>CombinerAggregator</code> 会在每个输入 tuple 上运行初始化函数，然后使用组合函数来组合所有输入的值。如果在某个分区中没有 tuple， <code>CombinerAggregator</code> 就会输出 <code>zero</code> 方法的结果。例如，下面是 <code>Count</code> 的实现代码：</p>
-<div class="highlight"><pre><span class="k">public</span> <span class="nf">class</span> <span class="nb">Count</span> <span class="nx">implements</span> <span class="nx">CombinerAggregator</span><span class="o">&lt;</span><span class="nx">Long</span><span class="o">&gt;</span> <span class="p">{</span>
-    <span class="k">public</span> <span class="nf">Long</span> <span class="nb">init</span><span class="p">(</span><span class="nx">TridentTuple</span> <span class="nx">tuple</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="mi">1</span><span class="nx">L</span><span class="p">;</span>
-    <span class="p">}</span>
+<div class="highlight"><pre><span></span>public class Count implements CombinerAggregator&lt;Long&gt; {
+    public Long init(TridentTuple tuple) {
+        return 1L;
+    }
 
-    <span class="k">public</span> <span class="nf">Long</span> <span class="nx">combine</span><span class="p">(</span><span class="nx">Long</span> <span class="nx">val1</span><span class="p">,</span> <span class="nx">Long</span> <span class="nx">val2</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="nx">val1</span> <span class="o">+</span> <span class="nx">val2</span><span class="p">;</span>
-    <span class="p">}</span>
+    public Long combine(Long val1, Long val2) {
+        return val1 + val2;
+    }
 
-    <span class="k">public</span> <span class="nf">Long</span> <span class="nx">zero</span><span class="p">()</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="mi">0</span><span class="nx">L</span><span class="p">;</span>
-    <span class="p">}</span>
-<span class="p">}</span>
+    public Long zero() {
+        return 0L;
+    }
+}
 </pre></div>
 
 
 <p>如果你使用 aggregate 方法来代替 partitionAggregate 方法，你就会发现 <code>CombinerAggregator</code> 的好处了。在这种情况下，Trident 会在发送 tuple 之前通过分区聚合操作来优化计算过程。</p>
 <p><code>ReducerAggregator</code> 的接口实现是这样的：</p>
-<div class="highlight"><pre><span class="k">public</span> <span class="nf">interface</span> <span class="nx">ReducerAggregator</span><span class="o">&lt;</span><span class="nb">T</span><span class="o">&gt;</span> <span class="nx">extends</span> <span class="nx">Serializable</span> <span class="p">{</span>
-    <span class="nb">T</span> <span class="nb">init</span><span class="p">();</span>
-    <span class="nb">T</span> <span class="nx">reduce</span><span class="p">(</span><span class="nb">T</span> <span class="nx">curr</span><span class="p">,</span> <span class="nx">TridentTuple</span> <span class="nx">tuple</span><span class="p">);</span>
-<span class="p">}</span>
+<div class="highlight"><pre><span></span>public interface ReducerAggregator&lt;T&gt; extends Serializable {
+    T init();
+    T reduce(T curr, TridentTuple tuple);
+}
 </pre></div>
 
 
 <p><code>ReducerAggregator</code> 会使用 <code>init</code> 方法来产生一个初始化的值，然后使用该值对每个输入 tuple 进行遍历，并最终生成并输出一个单独的 tuple，这个 tuple 中就包含有我们需要的计算结果值。例如，下面是将 Count 定义为 <code>ReducerAggregator</code> 的代码：</p>
-<div class="highlight"><pre><span class="k">public</span> <span class="nf">class</span> <span class="nb">Count</span> <span class="nx">implements</span> <span class="nx">ReducerAggregator</span><span class="o">&lt;</span><span class="nx">Long</span><span class="o">&gt;</span> <span class="p">{</span>
-    <span class="k">public</span> <span class="nf">Long</span> <span class="nb">init</span><span class="p">()</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="mi">0</span><span class="nx">L</span><span class="p">;</span>
-    <span class="p">}</span>
+<div class="highlight"><pre><span></span>public class Count implements ReducerAggregator&lt;Long&gt; {
+    public Long init() {
+        return 0L;
+    }
 
-    <span class="k">public</span> <span class="nf">Long</span> <span class="nx">reduce</span><span class="p">(</span><span class="nx">Long</span> <span class="nx">curr</span><span class="p">,</span> <span class="nx">TridentTuple</span> <span class="nx">tuple</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="nx">curr</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
-    <span class="p">}</span>
-<span class="p">}</span>
+    public Long reduce(Long curr, TridentTuple tuple) {
+        return curr + 1;
+    }
+}
 </pre></div>
 
 
 <p><code>ReducerAggregator</code> 同样可以用于 persistentAggregate，你会在后面看到这一点。</p>
 <p>最常用的聚合器接口还是下面的 <code>Aggregator</code> 接口：</p>
-<div class="highlight"><pre><span class="k">public</span> <span class="nf">interface</span> <span class="nx">Aggregator</span><span class="o">&lt;</span><span class="nb">T</span><span class="o">&gt;</span> <span class="nx">extends</span> <span class="nx">Operation</span> <span class="p">{</span>
-    <span class="nb">T</span> <span class="nb">init</span><span class="p">(</span><span class="nb">Object</span> <span class="nx">batchId</span><span class="p">,</span> <span class="nx">TridentCollector</span> <span class="nx">collector</span><span class="p">);</span>
-    <span class="bp">void</span> <span class="nx">aggregate</span><span class="p">(</span><span class="nb">T</span> <span class="nx">state</span><span class="p">,</span> <span class="nx">TridentTuple</span> <span class="nx">tuple</span><span class="p">,</span> <span class="nx">TridentCollector</span> <span class="nx">collector</span><span class="p">);</span>
-    <span class="bp">void</span> <span class="nx">complete</span><span class="p">(</span><span class="nb">T</span> <span class="nx">state</span><span class="p">,</span> <span class="nx">TridentCollector</span> <span class="nx">collector</span><span class="p">);</span>
-<span class="p">}</span>
+<div class="highlight"><pre><span></span>public interface Aggregator&lt;T&gt; extends Operation {
+    T init(Object batchId, TridentCollector collector);
+    void aggregate(T state, TridentTuple tuple, TridentCollector collector);
+    void complete(T state, TridentCollector collector);
+}
 </pre></div>
 
 
@@ -293,31 +293,31 @@
 <li>在区块中的所有 tuple 都被 aggregate 方法处理之后就会调用 complete 方法。</li>
 </ol>
 <p>下面是使用 Count 作为聚合器的代码：</p>
-<div class="highlight"><pre><span class="k">public</span> <span class="nf">class</span> <span class="nx">CountAgg</span> <span class="nx">extends</span> <span class="nx">BaseAggregator</span><span class="o">&lt;</span><span class="nx">CountState</span><span class="o">&gt;</span> <span class="p">{</span>
-    <span class="nx">static</span> <span class="nb">class</span> <span class="nx">CountState</span> <span class="p">{</span>
-        <span class="nx">long</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-    <span class="p">}</span>
+<div class="highlight"><pre><span></span>public class CountAgg extends BaseAggregator&lt;CountState&gt; {
+    static class CountState {
+        long count = 0;
+    }
 
-    <span class="k">public</span> <span class="nf">CountState</span> <span class="nb">init</span><span class="p">(</span><span class="nb">Object</span> <span class="nx">batchId</span><span class="p">,</span> <span class="nx">TridentCollector</span> <span class="nx">collector</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="nb">new</span> <span class="nx">CountState</span><span class="p">();</span>
-    <span class="p">}</span>
+    public CountState init(Object batchId, TridentCollector collector) {
+        return new CountState();
+    }
 
-    <span class="k">public</span> <span class="nf">void</span> <span class="nx">aggregate</span><span class="p">(</span><span class="nx">CountState</span> <span class="nx">state</span><span class="p">,</span> <span class="nx">TridentTuple</span> <span class="nx">tuple</span><span class="p">,</span> <span class="nx">TridentCollector</span> <span class="nx">collector</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nx">state.count</span><span class="o">+=</span><span class="mi">1</span><span class="p">;</span>
-    <span class="p">}</span>
+    public void aggregate(CountState state, TridentTuple tuple, TridentCollector collector) {
+        state.count+=1;
+    }
 
-    <span class="k">public</span> <span class="nf">void</span> <span class="nx">complete</span><span class="p">(</span><span class="nx">CountState</span> <span class="nx">state</span><span class="p">,</span> <span class="nx">TridentCollector</span> <span class="nx">collector</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nx">collector.emit</span><span class="p">(</span><span class="nb">new</span> <span class="nb">Values</span><span class="p">(</span><span class="nx">state.count</span><span class="p">));</span>
-    <span class="p">}</span>
-<span class="p">}</span>
+    public void complete(CountState state, TridentCollector collector) {
+        collector.emit(new Values(state.count));
+    }
+}
 </pre></div>
 
 
 <p>有时你可能会需要同时执行多个聚合操作。这个过程叫做链式处理，可以使用下面这样的代码来实现：</p>
-<div class="highlight"><pre><span class="n">mystream</span><span class="p">.</span><span class="n">chainedAgg</span><span class="p">()</span>
-        <span class="p">.</span><span class="n">partitionAggregate</span><span class="p">(</span><span class="n">new</span> <span class="n">Count</span><span class="p">(),</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;count&quot;</span><span class="p">))</span>
-        <span class="p">.</span><span class="n">partitionAggregate</span><span class="p">(</span><span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;b&quot;</span><span class="p">),</span> <span class="n">new</span> <span class="n">Sum</span><span class="p">(),</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;sum&quot;</span><span class="p">))</span>
-        <span class="p">.</span><span class="n">chainEnd</span><span class="p">()</span>
+<div class="highlight"><pre><span></span>mystream.chainedAgg()
+        .partitionAggregate(new Count(), new Fields(&quot;count&quot;))
+        .partitionAggregate(new Fields(&quot;b&quot;), new Sum(), new Fields(&quot;sum&quot;))
+        .chainEnd()
 </pre></div>
 
 
@@ -326,7 +326,7 @@
 <p>stateQuery 与 partitionPersist 会分别查询、更新 state 数据源。你可以参考 <a href="http://storm.apache.org/documentation/Trident-state.html">Trident state doc</a> 来了解如何使用它们。</p>
 <h3>projection</h3>
 <p><code>projection</code> 方法只会保留操作中指定的域。如果你有一个带有 ["a", "b", "c", "d"] 域的数据流，通过执行这段代码：</p>
-<div class="highlight"><pre><span class="n">mystream</span><span class="p">.</span><span class="n">project</span><span class="p">(</span><span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;b&quot;</span><span class="p">,</span> <span class="s">&quot;d&quot;</span><span class="p">))</span>
+<div class="highlight"><pre><span></span>mystream.project(new Fields(&quot;b&quot;, &quot;d&quot;))
 </pre></div>
 
 
@@ -345,7 +345,7 @@
 <p>Trident 使用 aggregate 方法和 persistentAggregate 方法来对数据流进行聚类操作。其中，aggregate 方法会分别对数据流中的每个 batch 进行处理，而 persistentAggregate 方法则会对数据流中的所有 batch 执行聚类处理，并将结果存入某个 state 中。</p>
 <p>在数据流上执行 aggregate 方法会执行一个全局的聚类操作。在你使用 <code>ReducerAggregator</code> 或者 <code>Aggregator</code> 时，数据流首先会被重新分区成一个单独的分区，然后聚类函数就会在该分区上执行操作。而在你使用 <code>CombinerAggregator</code> 时，Trident 首先会计算每个分区的部分聚类结果，然后将这些结果重分区到一个单独的分区中，最后在网络数据传输完成之后结束这个聚类过程。<code>CombinerAggregator</code> 比其他的聚合器的运行效率更高，在聚类时应该尽可能使用 <code>CombinerAggregator</code>。</p>
 <p>下面是一个使用 aggregate 来获取一个 batch 的全局计数值的例子：</p>
-<div class="highlight"><pre><span class="n">mystream</span><span class="p">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">new</span> <span class="n">Count</span><span class="p">(),</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;count&quot;</span><span class="p">))</span>
+<div class="highlight"><pre><span></span>mystream.aggregate(new Count(), new Fields(&quot;count&quot;))
 </pre></div>
 
 
@@ -358,14 +358,14 @@
 <p>和其他操作一样，对分组数据流的聚合操作也可以以链式的方式执行。</p>
 <h2>融合（Merge）与联结（join）</h2>
 <p>Trident API 的最后一部分是联结不同的数据流的操作。联结数据流最简单的方式就是将所有的数据流融合到一个流中。你可以使用 TridentTopology 的 merge 方法实现该操作，比如这样：</p>
-<div class="highlight"><pre><span class="n">topology</span><span class="p">.</span><span class="n">merge</span><span class="p">(</span><span class="n">stream1</span><span class="p">,</span> <span class="n">stream2</span><span class="p">,</span> <span class="n">stream3</span><span class="p">);</span>
+<div class="highlight"><pre><span></span>topology.merge(stream1, stream2, stream3);
 </pre></div>
 
 
 <p>Trident 会将融合后的新数据流的域命名为为第一个数据流的输出域。</p>
 <p>联结数据流的另外一种方法是使用 join。像 SQL 那样的标准 join 操作只能用于有限的输入数据集，对于无限的数据集就没有用武之地了。Trident 中的 join 只会应用于每个从 spout 中输出的小 batch。</p>
 <p>下面是两个流的 join 操作的示例，其中一个流含有 ["key", "val1", "val2"] 域，另外一个流含有 ["x", "val1"] 域：</p>
-<div class="highlight"><pre><span class="n">topology</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">stream1</span><span class="p">,</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;key&quot;</span><span class="p">),</span> <span class="n">stream2</span><span class="p">,</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;x&quot;</span><span class="p">),</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;key&quot;</span><span class="p">,</span> <span class="s">&quot;a&quot;</span><span class="p">,</span> <span class="s">&quot;b&quot;</span><span class="p">,</span> <span class="s">&quot;c&quot;</span><span class="p">));</span>
+<div class="highlight"><pre><span></span>topology.join(stream1, new Fields(&quot;key&quot;), stream2, new Fields(&quot;x&quot;), new Fields(&quot;key&quot;, &quot;a&quot;, &quot;b&quot;, &quot;c&quot;));
 </pre></div>
 
 
@@ -432,121 +432,6 @@ a” 和 “b” 域与 stream1 的 “val1” 和 “val2” 域对应；而 �
 
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
-                                分布式计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/storm.html">
-                                Storm
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/translation.html">
-                                Translation
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
-                                环境搭建
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/kafka.html">
-                                Kafka
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
-                                实时计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/linux.html">
-                                Linux
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/java.html">
-                                Java
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/mapreduce.html">
-                                MapReduce
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/hadoop.html">
-                                Hadoop
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/flume.html">
-                                Flume
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/redis.html">
-                                Redis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/shell.html">
-                                Shell
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/virtualbox.html">
-                                VirtualBox
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/undefined.html">
-                                Undefined
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/benchmark.html">
-                                Benchmark
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/rpc.html">
-                                RPC
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/log4j.html">
-                                log4j
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/jedis.html">
-                                Jedis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/yaml.html">
-                                Yaml
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/zookeeper.html">
-                                ZooKeeper
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/windows.html">
-                                Windows
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/gnome.html">
-                                Gnome
-                            </a>
-                        </li>
         </ul>
     </section>
 </aside>        </div>

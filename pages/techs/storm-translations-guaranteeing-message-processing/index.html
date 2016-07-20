@@ -127,15 +127,15 @@
 <p>Storm 能够保证每一个由 Spout 发送的消息都能够得到完整地处理。本文详细解释了 Storm 如何实现这种保障机制，以及作为用户如何使用好 Storm 的可靠性机制。</p>
 <h2>消息的“完整性处理”是什么意思</h2>
 <p>一个从 spout 中发送出的 tuple 会产生上千个基于它创建的 tuples。例如，有这样一个 word-count 拓扑：</p>
-<div class="highlight"><pre><span class="n">TopologyBuilder</span> <span class="n">builder</span> <span class="o">=</span> <span class="n">new</span> <span class="n">TopologyBuilder</span><span class="p">();</span>
-<span class="n">builder</span><span class="p">.</span><span class="n">setSpout</span><span class="p">(</span><span class="s">&quot;sentences&quot;</span><span class="p">,</span> <span class="n">new</span> <span class="n">KestrelSpout</span><span class="p">(</span><span class="s">&quot;kestrel.backtype.com&quot;</span><span class="p">,</span>
-                                               <span class="mi">22133</span><span class="p">,</span>
-                                               <span class="s">&quot;sentence_queue&quot;</span><span class="p">,</span>
-                                               <span class="n">new</span> <span class="n">StringScheme</span><span class="p">()));</span>
-<span class="n">builder</span><span class="p">.</span><span class="n">setBolt</span><span class="p">(</span><span class="s">&quot;split&quot;</span><span class="p">,</span> <span class="n">new</span> <span class="n">SplitSentence</span><span class="p">(),</span> <span class="mi">10</span><span class="p">)</span>
-        <span class="p">.</span><span class="n">shuffleGrouping</span><span class="p">(</span><span class="s">&quot;sentences&quot;</span><span class="p">);</span>
-<span class="n">builder</span><span class="p">.</span><span class="n">setBolt</span><span class="p">(</span><span class="s">&quot;count&quot;</span><span class="p">,</span> <span class="n">new</span> <span class="n">WordCount</span><span class="p">(),</span> <span class="mi">20</span><span class="p">)</span>
-        <span class="p">.</span><span class="n">fieldsGrouping</span><span class="p">(</span><span class="s">&quot;split&quot;</span><span class="p">,</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;word&quot;</span><span class="p">));</span>
+<div class="highlight"><pre><span></span>TopologyBuilder builder = new TopologyBuilder();
+builder.setSpout(&quot;sentences&quot;, new KestrelSpout(&quot;kestrel.backtype.com&quot;,
+                                               22133,
+                                               &quot;sentence_queue&quot;,
+                                               new StringScheme()));
+builder.setBolt(&quot;split&quot;, new SplitSentence(), 10)
+        .shuffleGrouping(&quot;sentences&quot;);
+builder.setBolt(&quot;count&quot;, new WordCount(), 20)
+        .fieldsGrouping(&quot;split&quot;, new Fields(&quot;word&quot;));
 </pre></div>
 
 
@@ -144,18 +144,18 @@
 <p>如果这棵 tuple 树发送完成，并且树中的每一条消息都得到了正确的处理，就表明发送 tuple 的 spout 已经得到了“完整性处理”。对应的，如果在指定的超时时间内 tuple 树中有消息没有完成处理就意味着这个 tuple 失败了。这个超时时间可以使用 <a href="http://storm.apache.org/javadoc/apidocs/backtype/storm/Config.html#TOPOLOGY_MESSAGE_TIMEOUT_SECS">Config.TOPOLOGY_MESSAGE_TIMEOUT_SECS</a> 参数在构造拓扑时进行配置，如果不配置，则默认时间为 30 秒。</p>
 <h2>在消息得到完整性处理后或者处理失败后会发生什么</h2>
 <p>为了理解这个问题，让我们先了解一下 tuple 的生命周期。下面是定义 spout 的接口（可以在 <a href="http://storm.apache.org/javadoc/apidocs/backtype/storm/spout/ISpout.html">Javadoc</a> 中查看更多细节信息）：</p>
-<div class="highlight"><pre><span class="n">public</span> <span class="n">interface</span> <span class="n">ISpout</span> <span class="n">extends</span> <span class="n">Serializable</span> <span class="p">{</span>
-    <span class="kt">void</span> <span class="n">open</span><span class="p">(</span><span class="n">Map</span> <span class="n">conf</span><span class="p">,</span> <span class="n">TopologyContext</span> <span class="n">context</span><span class="p">,</span> <span class="n">SpoutOutputCollector</span> <span class="n">collector</span><span class="p">);</span>
-    <span class="kt">void</span> <span class="nf">close</span><span class="p">();</span>
-    <span class="kt">void</span> <span class="nf">nextTuple</span><span class="p">();</span>
-    <span class="kt">void</span> <span class="nf">ack</span><span class="p">(</span><span class="n">Object</span> <span class="n">msgId</span><span class="p">);</span>
-    <span class="kt">void</span> <span class="nf">fail</span><span class="p">(</span><span class="n">Object</span> <span class="n">msgId</span><span class="p">);</span>
-<span class="p">}</span>
+<div class="highlight"><pre><span></span>public interface ISpout extends Serializable {
+    void open(Map conf, TopologyContext context, SpoutOutputCollector collector);
+    void close();
+    void nextTuple();
+    void ack(Object msgId);
+    void fail(Object msgId);
+}
 </pre></div>
 
 
 <p>首先，通过调用 <code>Spout</code> 的 <code>nextTuple</code> 方法，Storm 向 <code>Spout</code> 请求一个 tuple。<code>Spout</code> 会使用 <code>open</code> 方法中提供的 <code>SpoutOutputCollector</code> 向它的一个输出数据流中发送一个 tuple。在发送 tuple 的时候，<code>Spout</code> 会提供一个 “消息 id”，这个 id 会在后续过程中用于识别 tuple。例如，上面的 <code>KestrelSpout</code> 就是从一个 kestrel 队列中读取一条消息，然后再发送一条带有“消息 id”的消息，这个 id 是由 Kestrel 提供的。使用 <code>SpoutOutputCollector</code> 发送消息一般是这样的形式：</p>
-<div class="highlight"><pre><span class="n">_collector</span><span class="p">.</span><span class="n">emit</span><span class="p">(</span><span class="n">new</span> <span class="n">Values</span><span class="p">(</span><span class="s">&quot;field1&quot;</span><span class="p">,</span> <span class="s">&quot;field2&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="p">,</span> <span class="n">msgId</span><span class="p">);</span>
+<div class="highlight"><pre><span></span>_collector.emit(new Values(&quot;field1&quot;, &quot;field2&quot;, 3) , msgId);
 </pre></div>
 
 
@@ -164,39 +164,39 @@
 <h2>Storm 的可靠性 API 是什么</h2>
 <p>使用 Storm 的可靠性机制的时候你需要注意两件事：首先，在 tuple 树中创建新节点连接时务必通知 Storm；其次，在每个 tuple 处理结束的时候也必须向 Storm 发出通知。通过这两个操作，Storm 就能够检测到 tuple 树会在何时完成处理，并适时地调用 ack 或者 fail 方法。Storm 的 API 提供了一种非常精确的方式来实现着两个操作。</p>
 <p>Storm 中指定 tuple 树中的一个连接称为“锚定”（anchoring）。锚定是在发送新 tuple 的同时发生的。让我们以下面的 Bolt 为例说明这一点，这个 Bolt 将一个包含句子的 tuple 分割成若干个单词 tuple：</p>
-<div class="highlight"><pre><span class="n">public</span> <span class="n">class</span> <span class="n">SplitSentence</span> <span class="n">extends</span> <span class="n">BaseRichBolt</span> <span class="p">{</span>
-        <span class="n">OutputCollector</span> <span class="n">_collector</span><span class="p">;</span>
+<div class="highlight"><pre><span></span>public class SplitSentence extends BaseRichBolt {
+        OutputCollector _collector;
 
-        <span class="n">public</span> <span class="kt">void</span> <span class="nf">prepare</span><span class="p">(</span><span class="n">Map</span> <span class="n">conf</span><span class="p">,</span> <span class="n">TopologyContext</span> <span class="n">context</span><span class="p">,</span> <span class="n">OutputCollector</span> <span class="n">collector</span><span class="p">)</span> <span class="p">{</span>
-            <span class="n">_collector</span> <span class="o">=</span> <span class="n">collector</span><span class="p">;</span>
-        <span class="p">}</span>
+        public void prepare(Map conf, TopologyContext context, OutputCollector collector) {
+            _collector = collector;
+        }
 
-        <span class="n">public</span> <span class="kt">void</span> <span class="nf">execute</span><span class="p">(</span><span class="n">Tuple</span> <span class="n">tuple</span><span class="p">)</span> <span class="p">{</span>
-            <span class="n">String</span> <span class="n">sentence</span> <span class="o">=</span> <span class="n">tuple</span><span class="p">.</span><span class="n">getString</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
-            <span class="k">for</span><span class="p">(</span><span class="n">String</span> <span class="n">word</span><span class="o">:</span> <span class="n">sentence</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="p">))</span> <span class="p">{</span>
-                <span class="n">_collector</span><span class="p">.</span><span class="n">emit</span><span class="p">(</span><span class="n">tuple</span><span class="p">,</span> <span class="n">new</span> <span class="n">Values</span><span class="p">(</span><span class="n">word</span><span class="p">));</span>
-            <span class="p">}</span>
-            <span class="n">_collector</span><span class="p">.</span><span class="n">ack</span><span class="p">(</span><span class="n">tuple</span><span class="p">);</span>
-        <span class="p">}</span>
+        public void execute(Tuple tuple) {
+            String sentence = tuple.getString(0);
+            for(String word: sentence.split(&quot; &quot;)) {
+                _collector.emit(tuple, new Values(word));
+            }
+            _collector.ack(tuple);
+        }
 
-        <span class="n">public</span> <span class="kt">void</span> <span class="nf">declareOutputFields</span><span class="p">(</span><span class="n">OutputFieldsDeclarer</span> <span class="n">declarer</span><span class="p">)</span> <span class="p">{</span>
-            <span class="n">declarer</span><span class="p">.</span><span class="n">declare</span><span class="p">(</span><span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;word&quot;</span><span class="p">));</span>
-        <span class="p">}</span>
-<span class="p">}</span>
+        public void declareOutputFields(OutputFieldsDeclarer declarer) {
+            declarer.declare(new Fields(&quot;word&quot;));
+        }
+}
 </pre></div>
 
 
 <p>通过将输入 tuple 指定为 <code>emit</code> 方法的第一个参数，每个单词 tuple 都被“锚定”了。这样，如果单词 tuple 在后续处理过程中失败了，作为这棵 tuple 树的根节点的原始 Spout tuple 就会被重新处理。相对应的，如果这样发送 tuple：</p>
-<div class="highlight"><pre><span class="n">_collector</span><span class="p">.</span><span class="n">emit</span><span class="p">(</span><span class="n">new</span> <span class="n">Values</span><span class="p">(</span><span class="n">word</span><span class="p">));</span>
+<div class="highlight"><pre><span></span>_collector.emit(new Values(word));
 </pre></div>
 
 
 <p>就称为“非锚定”。在这种情况下，下游的 tuple 处理失败不会触发原始 tuple 的任何处理操作。有时候发送这种“非锚定” tuple 也是必要的，这取决于你的拓扑的容错性要求。</p>
 <p>一个输出 tuple 可以被锚定到多个输入 tuple 上，这在流式连接或者聚合操作时很有用。显然，一个多锚定的 tuple 失败会导致 Spout 中多个 tuple 的重新处理。多锚定操作是通过指定一个 tuple 列表而不是单一的 tuple 来实现的，如下面的例子所示：</p>
-<div class="highlight"><pre><span class="nb">List</span><span class="o">&lt;</span><span class="nx">Tuple</span><span class="o">&gt;</span> <span class="n">anchors</span> <span class="o">=</span> <span class="nb">new</span> <span class="nx">ArrayList</span><span class="o">&lt;</span><span class="nx">Tuple</span><span class="o">&gt;</span><span class="p">();</span>
-<span class="nx">anchors.add</span><span class="p">(</span><span class="nx">tuple1</span><span class="p">);</span>
-<span class="nx">anchors.add</span><span class="p">(</span><span class="nx">tuple2</span><span class="p">);</span>
-<span class="nx">_collector.emit</span><span class="p">(</span><span class="nx">anchors</span><span class="p">,</span> <span class="nb">new</span> <span class="nb">Values</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">));</span>
+<div class="highlight"><pre><span></span>List&lt;Tuple&gt; anchors = new ArrayList&lt;Tuple&gt;();
+anchors.add(tuple1);
+anchors.add(tuple2);
+_collector.emit(anchors, new Values(1, 2, 3));
 </pre></div>
 
 
@@ -207,18 +207,18 @@
 <p>你可以使用 <code>OutputCollector</code> 的 <code>fail</code> 方法来使得位于 tuple 树根节点的 Spout tuple 立即失败。例如，你的应用可以在建立数据库连接的时候抓取异常，并且在异常出现的时候立即让输入 tuple 失败。通过这种立即失败的方式，原始 Spout tuple 就会比等待 tuple 超时的方式响应更快。</p>
 <p>每个待处理的 tuple 都必须显式地应答（ack）或者失效（fail）。因为 Storm 是使用内存来跟踪每个 tuple 的，所以，如果你不对每个 tuple 进行应答或者失效，那么负责跟踪的任务很快就会发生内存溢出。</p>
 <p>Bolt 处理 tuple 的一种通用模式是在 <code>execute</code> 方法中读取输入 tuple、发送出基于输入 tuple 的新 tuple，然后在方法末尾对 tuple 进行应答。大部分 Bolt 都会使用这样的过程。这些 Bolt 大多属于过滤器或者简单的处理函数一类。Storm 有一个可以简化这种操作的简便接口，称为 <code>BasicBolt</code>。例如，如果使用 <code>BasicBolt</code>，<code>SplitSentence</code> 的例子可以这样写：</p>
-<div class="highlight"><pre><span class="n">public</span> <span class="n">class</span> <span class="n">SplitSentence</span> <span class="n">extends</span> <span class="n">BaseBasicBolt</span> <span class="p">{</span>
-        <span class="n">public</span> <span class="kt">void</span> <span class="n">execute</span><span class="p">(</span><span class="n">Tuple</span> <span class="n">tuple</span><span class="p">,</span> <span class="n">BasicOutputCollector</span> <span class="n">collector</span><span class="p">)</span> <span class="p">{</span>
-            <span class="n">String</span> <span class="n">sentence</span> <span class="o">=</span> <span class="n">tuple</span><span class="p">.</span><span class="n">getString</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
-            <span class="k">for</span><span class="p">(</span><span class="n">String</span> <span class="n">word</span><span class="o">:</span> <span class="n">sentence</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="p">))</span> <span class="p">{</span>
-                <span class="n">collector</span><span class="p">.</span><span class="n">emit</span><span class="p">(</span><span class="n">new</span> <span class="n">Values</span><span class="p">(</span><span class="n">word</span><span class="p">));</span>
-            <span class="p">}</span>
-        <span class="p">}</span>
+<div class="highlight"><pre><span></span>public class SplitSentence extends BaseBasicBolt {
+        public void execute(Tuple tuple, BasicOutputCollector collector) {
+            String sentence = tuple.getString(0);
+            for(String word: sentence.split(&quot; &quot;)) {
+                collector.emit(new Values(word));
+            }
+        }
 
-        <span class="n">public</span> <span class="kt">void</span> <span class="n">declareOutputFields</span><span class="p">(</span><span class="n">OutputFieldsDeclarer</span> <span class="n">declarer</span><span class="p">)</span> <span class="p">{</span>
-            <span class="n">declarer</span><span class="p">.</span><span class="n">declare</span><span class="p">(</span><span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;word&quot;</span><span class="p">));</span>
-        <span class="p">}</span>
-<span class="p">}</span>
+        public void declareOutputFields(OutputFieldsDeclarer declarer) {
+            declarer.declare(new Fields(&quot;word&quot;));
+        }
+}
 </pre></div>
 
 
@@ -312,121 +312,6 @@
 
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
-                                分布式计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/storm.html">
-                                Storm
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/translation.html">
-                                Translation
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
-                                环境搭建
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/kafka.html">
-                                Kafka
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
-                                实时计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/linux.html">
-                                Linux
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/java.html">
-                                Java
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/mapreduce.html">
-                                MapReduce
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/hadoop.html">
-                                Hadoop
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/flume.html">
-                                Flume
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/redis.html">
-                                Redis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/shell.html">
-                                Shell
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/virtualbox.html">
-                                VirtualBox
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/undefined.html">
-                                Undefined
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/benchmark.html">
-                                Benchmark
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/rpc.html">
-                                RPC
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/log4j.html">
-                                log4j
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/jedis.html">
-                                Jedis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/yaml.html">
-                                Yaml
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/zookeeper.html">
-                                ZooKeeper
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/windows.html">
-                                Windows
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/gnome.html">
-                                Gnome
-                            </a>
-                        </li>
         </ul>
     </section>
 </aside>        </div>

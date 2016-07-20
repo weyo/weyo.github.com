@@ -124,7 +124,7 @@
                 <h2>Question</h2>
 <p>Recently when I looked over <code>HashMap</code>, I found an interesting thing about the <code>keySet</code> method (and then asked a question on <a href="https://stackoverflow.com/questions/30708380/how-do-hashmap-values-and-hashmap-keyset-return-values-and-keys">StackOverflow</a>).</p>
 <p>The source code of HashMap.keySet() is shown as follows</p>
-<div class="highlight"><pre>    <span class="kd">public</span> <span class="n">Set</span><span class="o">&lt;</span><span class="n">K</span><span class="o">&gt;</span> <span class="nf">keySet</span><span class="o">()</span> <span class="o">{</span>
+<div class="highlight"><pre><span></span>    <span class="kd">public</span> <span class="n">Set</span><span class="o">&lt;</span><span class="n">K</span><span class="o">&gt;</span> <span class="nf">keySet</span><span class="o">()</span> <span class="o">{</span>
         <span class="n">Set</span><span class="o">&lt;</span><span class="n">K</span><span class="o">&gt;</span> <span class="n">ks</span> <span class="o">=</span> <span class="n">keySet</span><span class="o">;</span>
         <span class="k">return</span> <span class="o">(</span><span class="n">ks</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">?</span> <span class="n">ks</span> <span class="o">:</span> <span class="o">(</span><span class="n">keySet</span> <span class="o">=</span> <span class="k">new</span> <span class="n">KeySet</span><span class="o">()));</span>
     <span class="o">}</span>
@@ -133,15 +133,15 @@
 
 <p>As you can see, when the keySet() method first called, it just returns a <code>KeySet</code> object. The <code>KeySet</code> object is a subclass of <code>AbstractSet</code> with an empty constructor, and contains no element.</p>
 <p>Source codes of <code>KeySet</code> and <code>AbstractSet</code> are shown below:</p>
-<div class="highlight"><pre>    <span class="kd">private</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">KeySet</span> <span class="kd">extends</span> <span class="n">AbstractSet</span><span class="o">&lt;</span><span class="n">K</span><span class="o">&gt;</span> <span class="o">{</span>
+<div class="highlight"><pre><span></span>    <span class="kd">private</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">KeySet</span> <span class="kd">extends</span> <span class="n">AbstractSet</span><span class="o">&lt;</span><span class="n">K</span><span class="o">&gt;</span> <span class="o">{</span>
         <span class="kd">public</span> <span class="n">Iterator</span><span class="o">&lt;</span><span class="n">K</span><span class="o">&gt;</span> <span class="nf">iterator</span><span class="o">()</span> <span class="o">{</span>
-            <span class="k">return</span> <span class="nf">newKeyIterator</span><span class="o">();</span>
+            <span class="k">return</span> <span class="n">newKeyIterator</span><span class="o">();</span>
         <span class="o">}</span>
         <span class="kd">public</span> <span class="kt">int</span> <span class="nf">size</span><span class="o">()</span> <span class="o">{</span>
             <span class="k">return</span> <span class="n">size</span><span class="o">;</span>
         <span class="o">}</span>
         <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">contains</span><span class="o">(</span><span class="n">Object</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
-            <span class="k">return</span> <span class="nf">containsKey</span><span class="o">(</span><span class="n">o</span><span class="o">);</span>
+            <span class="k">return</span> <span class="n">containsKey</span><span class="o">(</span><span class="n">o</span><span class="o">);</span>
         <span class="o">}</span>
         <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">remove</span><span class="o">(</span><span class="n">Object</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
             <span class="k">return</span> <span class="n">HashMap</span><span class="o">.</span><span class="na">this</span><span class="o">.</span><span class="na">removeEntryForKey</span><span class="o">(</span><span class="n">o</span><span class="o">)</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">;</span>
@@ -153,7 +153,7 @@
 </pre></div>
 
 
-<div class="highlight"><pre><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">AbstractSet</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span> <span class="kd">extends</span> <span class="n">AbstractCollection</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span> <span class="kd">implements</span> <span class="n">Set</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span> <span class="o">{</span>
+<div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">AbstractSet</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span> <span class="kd">extends</span> <span class="n">AbstractCollection</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span> <span class="kd">implements</span> <span class="n">Set</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span> <span class="o">{</span>
     <span class="cm">/**</span>
 <span class="cm">     * Sole constructor.  (For invocation by subclass constructors, typically</span>
 <span class="cm">     * implicit.)</span>
@@ -167,7 +167,7 @@
 
 
 <p>But when you call the method like this</p>
-<div class="highlight"><pre><span class="n">Collection</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">keySet</span> <span class="o">=</span> <span class="n">map</span><span class="o">.</span><span class="na">keySet</span><span class="o">();</span>
+<div class="highlight"><pre><span></span><span class="n">Collection</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">keySet</span> <span class="o">=</span> <span class="n">map</span><span class="o">.</span><span class="na">keySet</span><span class="o">();</span>
 <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">keySet</span><span class="o">);</span>
 </pre></div>
 
@@ -182,7 +182,7 @@
 <h2>Answer</h2>
 <p>Let's start off with how you would use the method in a program. When you first call <code>keySet</code>, it returns a <code>KeySet</code> object. However, the object does contain an implicit reference to the <code>HashMap</code> object created it which means it's an inner class of <code>HashMap</code> rather than contains nothing.</p>
 <p>Now we get an Set object, but it contains no element of the given type(that is, the generic type of HashMap's key). Then we use a <code>println</code> method to print the set. When <code>println</code> is ready to print a non-String object, it will call <code>object.toString()</code> method to change the object to a String object like this</p>
-<div class="highlight"><pre>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">println</span><span class="o">(</span><span class="n">Object</span> <span class="n">x</span><span class="o">)</span> <span class="o">{</span>
+<div class="highlight"><pre><span></span>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">println</span><span class="o">(</span><span class="n">Object</span> <span class="n">x</span><span class="o">)</span> <span class="o">{</span>
         <span class="n">String</span> <span class="n">s</span> <span class="o">=</span> <span class="n">String</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="n">x</span><span class="o">);</span>
         <span class="kd">synchronized</span> <span class="o">(</span><span class="k">this</span><span class="o">)</span> <span class="o">{</span>
             <span class="n">print</span><span class="o">(</span><span class="n">s</span><span class="o">);</span>
@@ -193,7 +193,7 @@
 
 
 <p><code>AbstractCollection</code> uses an iterator to iterate its elements in <code>toString</code> method</p>
-<div class="highlight"><pre>    <span class="kd">public</span> <span class="n">String</span> <span class="nf">toString</span><span class="o">()</span> <span class="o">{</span>
+<div class="highlight"><pre><span></span>    <span class="kd">public</span> <span class="n">String</span> <span class="nf">toString</span><span class="o">()</span> <span class="o">{</span>
         <span class="c1">// iterator() method is called here</span>
         <span class="n">Iterator</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span> <span class="n">it</span> <span class="o">=</span> <span class="n">iterator</span><span class="o">();</span>
         <span class="k">if</span> <span class="o">(!</span> <span class="n">it</span><span class="o">.</span><span class="na">hasNext</span><span class="o">())</span>
@@ -277,121 +277,6 @@
 
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
-                                分布式计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/storm.html">
-                                Storm
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/translation.html">
-                                Translation
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
-                                环境搭建
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/kafka.html">
-                                Kafka
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
-                                实时计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/linux.html">
-                                Linux
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/java.html">
-                                Java
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/mapreduce.html">
-                                MapReduce
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/hadoop.html">
-                                Hadoop
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/flume.html">
-                                Flume
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/redis.html">
-                                Redis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/shell.html">
-                                Shell
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/virtualbox.html">
-                                VirtualBox
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/undefined.html">
-                                Undefined
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/benchmark.html">
-                                Benchmark
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/rpc.html">
-                                RPC
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/log4j.html">
-                                log4j
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/jedis.html">
-                                Jedis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/yaml.html">
-                                Yaml
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/zookeeper.html">
-                                ZooKeeper
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/windows.html">
-                                Windows
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/gnome.html">
-                                Gnome
-                            </a>
-                        </li>
         </ul>
     </section>
 </aside>        </div>

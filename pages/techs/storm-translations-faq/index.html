@@ -164,7 +164,7 @@
 <p>Trident 拓扑可以设计成条件路径（if-else）的工作流形式吗？例如，bolt0 在接收 spout 的数据流时，可以根据输入 tuple 的值来选择将数据流发送到 bolt1 或者 bolt2，而不是同时向两个 bolt 发送。</p>
 </blockquote>
 <p>Trident 的 “each” 运算符可以返回一个数据流对象，你可以将该对象存储在某个变量中，然后你可以对同一个数据流执行多个 each 操作来分解该数据流，如下述代码所示：</p>
-<div class="highlight"><pre><span class="n">Stream</span> <span class="n">s</span> <span class="o">=</span> <span class="n">topology</span><span class="o">.</span><span class="na">each</span><span class="o">(...).</span><span class="na">groupBy</span><span class="o">(...).</span><span class="na">aggregate</span><span class="o">(...)</span> 
+<div class="highlight"><pre><span></span><span class="n">Stream</span> <span class="n">s</span> <span class="o">=</span> <span class="n">topology</span><span class="o">.</span><span class="na">each</span><span class="o">(...).</span><span class="na">groupBy</span><span class="o">(...).</span><span class="na">aggregate</span><span class="o">(...)</span> 
 <span class="n">Stream</span> <span class="n">branch1</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="na">each</span><span class="o">(...,</span> <span class="n">FilterA</span><span class="o">)</span> 
 <span class="n">Stream</span> <span class="n">branch2</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="na">each</span><span class="o">(...,</span> <span class="n">FilterB</span><span class="o">)</span> 
 </pre></div>
@@ -267,121 +267,6 @@
 
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
-                                分布式计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/storm.html">
-                                Storm
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/translation.html">
-                                Translation
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
-                                环境搭建
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/kafka.html">
-                                Kafka
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
-                                实时计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/linux.html">
-                                Linux
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/java.html">
-                                Java
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/mapreduce.html">
-                                MapReduce
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/hadoop.html">
-                                Hadoop
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/flume.html">
-                                Flume
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/redis.html">
-                                Redis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/shell.html">
-                                Shell
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/virtualbox.html">
-                                VirtualBox
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/undefined.html">
-                                Undefined
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/benchmark.html">
-                                Benchmark
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/rpc.html">
-                                RPC
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/log4j.html">
-                                log4j
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/jedis.html">
-                                Jedis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/yaml.html">
-                                Yaml
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/zookeeper.html">
-                                ZooKeeper
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/windows.html">
-                                Windows
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/gnome.html">
-                                Gnome
-                            </a>
-                        </li>
         </ul>
     </section>
 </aside>        </div>

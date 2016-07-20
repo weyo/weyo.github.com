@@ -131,8 +131,8 @@ Linux 系统时间配置大致可以大致分为“手动”设置与基于 ntp 
 <p>Linux将时钟分为系统时钟(System Clock)和硬件(Real Time Clock，简称RTC)时钟两种。系统时间是指当前Linux Kernel中的时钟，而硬件时钟则是主板上由电池供电的那个主板硬件时钟，这个时钟可以在BIOS的“Standard BIOS Feture”项中进行设置。Linux并没有默认哪个时钟系统。当Linux启动时，硬件时钟会去读取系统时钟的设置，然后系统时钟就会独立于硬件运作。</p>
 <hr />
 <h4>2. 设置方法</h4>
-<div class="highlight"><pre><span class="n">date</span> <span class="mf">042612492015.28</span>
-<span class="n">hwclock</span> <span class="err">–</span><span class="n">w</span>
+<div class="highlight"><pre><span></span>date 042612492015.28
+hwclock –w
 </pre></div>
 
 
@@ -146,7 +146,7 @@ Linux 系统时间配置大致可以大致分为“手动”设置与基于 ntp 
 <ul>
 <li>查看硬件时钟</li>
 </ul>
-<div class="highlight"><pre><span class="n">hwclock</span> <span class="o">--</span><span class="n">show</span> 
+<div class="highlight"><pre><span></span>hwclock --show 
 </pre></div>
 
 
@@ -154,21 +154,21 @@ Linux 系统时间配置大致可以大致分为“手动”设置与基于 ntp 
 <li>设置硬件时钟
 通用的设置格式：hwclock/clock --set --date=“月/日/年 时：分：秒”。</li>
 </ul>
-<div class="highlight"><pre><span class="n">hwclock</span> <span class="o">--</span><span class="n">set</span> <span class="o">--</span><span class="n">date</span><span class="o">=</span><span class="s">&quot;09/17/2003 13:26:00&quot;</span>
+<div class="highlight"><pre><span></span>hwclock --set --date<span class="o">=</span><span class="s2">&quot;09/17/2003 13:26:00&quot;</span>
 </pre></div>
 
 
 <ul>
 <li>硬件时钟与系统时钟同步</li>
 </ul>
-<div class="highlight"><pre><span class="n">hwclock</span> <span class="err">–</span><span class="n">hctosys</span>
+<div class="highlight"><pre><span></span>hwclock –hctosys
 </pre></div>
 
 
 <ul>
 <li>系统时钟与硬件时钟同步</li>
 </ul>
-<div class="highlight"><pre><span class="n">hwclock</span> <span class="err">–</span><span class="n">systohc</span>
+<div class="highlight"><pre><span></span>hwclock –systohc
 </pre></div>
 
 
@@ -178,7 +178,7 @@ Linux 系统时间配置大致可以大致分为“手动”设置与基于 ntp 
 <p>ntpd 服务是通过网络对系统时间进行同步配置的 Linux 服务，可以确保系统时间的一致性。</p>
 <hr />
 <h4>2. 配置同步时间</h4>
-<div class="highlight"><pre><span class="n">ntpdate</span> <span class="err">$</span><span class="n">ntpserver</span>
+<div class="highlight"><pre><span></span>ntpdate <span class="nv">$ntpserver</span>
 </pre></div>
 
 
@@ -186,12 +186,12 @@ Linux 系统时间配置大致可以大致分为“手动”设置与基于 ntp 
 <hr />
 <h4>3. 配置系统开机时间同步</h4>
 <p>在<code>/etc/rc.local</code>中添加</p>
-<div class="highlight"><pre><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">sbin</span><span class="o">/</span><span class="n">ntpdate</span> <span class="err">$</span><span class="n">ntpserver</span> <span class="o">&gt;&gt;</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">log</span><span class="o">/</span><span class="n">ntpdate</span><span class="p">.</span><span class="n">log</span>
+<div class="highlight"><pre><span></span>/usr/sbin/ntpdate <span class="nv">$ntpserver</span> &gt;&gt; /var/log/ntpdate.log
 </pre></div>
 
 
 <p>另外，也可以使用 crontab 来定时对时间进行同步，在<code>/etc/crontab</code>中添加</p>
-<div class="highlight"><pre><span class="mi">10</span> <span class="mi">5</span> <span class="o">*</span> <span class="o">*</span> <span class="o">*</span> <span class="n">root</span> <span class="n">ntpdate</span> <span class="err">$</span><span class="n">ntpserver</span><span class="p">;</span><span class="n">hwclock</span> <span class="o">-</span><span class="n">w</span>
+<div class="highlight"><pre><span></span><span class="m">10</span> <span class="m">5</span> * * * root ntpdate <span class="nv">$ntpserver</span><span class="p">;</span>hwclock -w
 </pre></div>
 
 
@@ -207,11 +207,11 @@ Linux 系统时间配置大致可以大致分为“手动”设置与基于 ntp 
 <blockquote>
 <p><strong>附二级服务器列表</strong></p>
 </blockquote>
-<div class="highlight"><pre><span class="mf">0.</span><span class="n">pool</span><span class="p">.</span><span class="n">ntp</span><span class="p">.</span><span class="n">org</span>            <span class="err">有域名负载均衡</span>
-<span class="mf">0.</span><span class="n">cn</span><span class="p">.</span><span class="n">pool</span><span class="p">.</span><span class="n">ntp</span><span class="p">.</span><span class="n">org</span>         <span class="err">有域名负载均衡</span>
-<span class="n">ntp</span><span class="p">.</span><span class="n">tuna</span><span class="p">.</span><span class="n">tsinghua</span><span class="p">.</span><span class="n">edu</span><span class="p">.</span><span class="n">cn</span>  <span class="err">清华大学</span>
-<span class="n">time</span><span class="p">.</span><span class="n">windows</span><span class="p">.</span><span class="n">com</span>          <span class="err">微软</span>
-<span class="n">ntp</span><span class="p">.</span><span class="n">fudan</span><span class="p">.</span><span class="n">edu</span><span class="p">.</span><span class="n">cn</span>          <span class="err">复旦大学</span>
+<div class="highlight"><pre><span></span>0.pool.ntp.org            有域名负载均衡
+0.cn.pool.ntp.org         有域名负载均衡
+ntp.tuna.tsinghua.edu.cn  清华大学
+time.windows.com          微软
+ntp.fudan.edu.cn          复旦大学
 </pre></div>
 
 
@@ -231,15 +231,15 @@ Linux 系统时间配置大致可以大致分为“手动”设置与基于 ntp 
 (3) 在NTP客户端执行<br />
 <code>ntpdate -d NTP服务端IP</code><br />
 如果输出结果如下：<br /></p>
-<div class="highlight"><pre><span class="mi">6</span> <span class="n">Nov</span> <span class="mi">10</span><span class="o">:</span><span class="mi">23</span><span class="o">:</span><span class="mi">16</span> <span class="n">ntpdate</span><span class="p">[</span><span class="mi">3521</span><span class="p">]</span><span class="o">:</span> <span class="n">ntpdate</span> <span class="mf">4.2.2</span><span class="n">p1</span><span class="err">@</span><span class="mf">1.1570</span><span class="o">-</span><span class="n">o</span> <span class="n">Tue</span> <span class="p">...</span>
+<div class="highlight"><pre><span></span><span class="mi">6</span> <span class="n">Nov</span> <span class="mi">10</span><span class="o">:</span><span class="mi">23</span><span class="o">:</span><span class="mi">16</span> <span class="n">ntpdate</span><span class="p">[</span><span class="mi">3521</span><span class="p">]</span><span class="o">:</span> <span class="n">ntpdate</span> <span class="mf">4.2.2</span><span class="n">p1</span><span class="mf">@1.1570</span><span class="o">-</span><span class="n">o</span> <span class="n">Tue</span> <span class="p">...</span>
 <span class="n">Looking</span> <span class="k">for</span> <span class="n">host</span> <span class="mf">10.75.80.47</span> <span class="n">and</span> <span class="n">service</span> <span class="n">ntp</span>
-<span class="n">host</span> <span class="n">found</span> <span class="o">:</span> <span class="mf">10.75.80.47</span>
+<span class="n">host</span> <span class="nl">found</span> <span class="p">:</span> <span class="mf">10.75.80.47</span>
 <span class="n">transmit</span><span class="p">(</span><span class="mf">10.75.80.47</span><span class="p">)</span>
 <span class="n">transmit</span><span class="p">(</span><span class="mf">10.75.80.47</span><span class="p">)</span>
 <span class="n">transmit</span><span class="p">(</span><span class="mf">10.75.80.47</span><span class="p">)</span>
 <span class="n">transmit</span><span class="p">(</span><span class="mf">10.75.80.47</span><span class="p">)</span>
 <span class="n">transmit</span><span class="p">(</span><span class="mf">10.75.80.47</span><span class="p">)</span>
-<span class="mf">10.75.80.47</span><span class="o">:</span> <span class="o">**</span><span class="n">Server</span> <span class="n">dropped</span><span class="o">:</span> <span class="n">no</span> <span class="n">data</span><span class="o">**</span>
+<span class="mf">10.75.80.47</span><span class="o">:</span> <span class="o">**</span><span class="n">Server</span> <span class="nl">dropped</span><span class="p">:</span> <span class="n">no</span> <span class="n">data</span><span class="o">**</span>
 <span class="p">...</span>
 <span class="p">...</span>
 <span class="mi">6</span> <span class="n">Nov</span> <span class="mi">10</span><span class="o">:</span><span class="mi">23</span><span class="o">:</span><span class="mi">20</span> <span class="n">ntpdate</span><span class="p">[</span><span class="mi">3521</span><span class="p">]</span><span class="o">:</span> <span class="n">no</span> <span class="n">server</span> <span class="n">suitable</span> <span class="k">for</span> <span class="n">synchronization</span> <span class="n">found</span>
@@ -321,121 +321,6 @@ a) 检查NTP服务端使用的ntp版本：<br />
 
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
-                                分布式计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/storm.html">
-                                Storm
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/translation.html">
-                                Translation
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
-                                环境搭建
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/kafka.html">
-                                Kafka
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
-                                实时计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/linux.html">
-                                Linux
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/java.html">
-                                Java
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/mapreduce.html">
-                                MapReduce
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/hadoop.html">
-                                Hadoop
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/flume.html">
-                                Flume
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/redis.html">
-                                Redis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/shell.html">
-                                Shell
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/virtualbox.html">
-                                VirtualBox
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/undefined.html">
-                                Undefined
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/benchmark.html">
-                                Benchmark
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/rpc.html">
-                                RPC
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/log4j.html">
-                                log4j
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/jedis.html">
-                                Jedis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/yaml.html">
-                                Yaml
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/zookeeper.html">
-                                ZooKeeper
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/windows.html">
-                                Windows
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/gnome.html">
-                                Gnome
-                            </a>
-                        </li>
         </ul>
     </section>
 </aside>        </div>

@@ -192,33 +192,33 @@
 <ul>
 <li>系统运行时出现如下的异常堆栈跟踪信息</li>
 </ul>
-<div class="highlight"><pre><span class="n">java</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">RuntimeException</span><span class="o">:</span> <span class="n">java</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">ConcurrentModificationException</span>
-    <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">utils</span><span class="p">.</span><span class="n">DisruptorQueue</span><span class="p">.</span><span class="n">consumeBatchToCursor</span><span class="p">(</span><span class="n">DisruptorQueue</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">84</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">utils</span><span class="p">.</span><span class="n">DisruptorQueue</span><span class="p">.</span><span class="n">consumeBatchWhenAvailable</span><span class="p">(</span><span class="n">DisruptorQueue</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">55</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">disruptor</span><span class="err">$</span><span class="n">consume_batch_when_available</span><span class="p">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">disruptor</span><span class="p">.</span><span class="n">clj</span><span class="o">:</span><span class="mi">56</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">disruptor</span><span class="err">$</span><span class="n">consume_loop_STAR_</span><span class="err">$</span><span class="n">fn__1597</span><span class="p">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">disruptor</span><span class="p">.</span><span class="n">clj</span><span class="o">:</span><span class="mi">67</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">util</span><span class="err">$</span><span class="n">async_loop</span><span class="err">$</span><span class="n">fn__465</span><span class="p">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">util</span><span class="p">.</span><span class="n">clj</span><span class="o">:</span><span class="mi">377</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">clojure</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">AFn</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">AFn</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">24</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">java</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">Thread</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">Thread</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">679</span><span class="p">)</span>
-<span class="n">Caused</span> <span class="n">by</span><span class="o">:</span> <span class="n">java</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">ConcurrentModificationException</span>
-    <span class="n">at</span> <span class="n">java</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">LinkedHashMap</span><span class="err">$</span><span class="n">LinkedHashIterator</span><span class="p">.</span><span class="n">nextEntry</span><span class="p">(</span><span class="n">LinkedHashMap</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">390</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">java</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">LinkedHashMap</span><span class="err">$</span><span class="n">EntryIterator</span><span class="p">.</span><span class="n">next</span><span class="p">(</span><span class="n">LinkedHashMap</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">409</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">java</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">LinkedHashMap</span><span class="err">$</span><span class="n">EntryIterator</span><span class="p">.</span><span class="n">next</span><span class="p">(</span><span class="n">LinkedHashMap</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">408</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">java</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">HashMap</span><span class="p">.</span><span class="n">writeObject</span><span class="p">(</span><span class="n">HashMap</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">1016</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">sun</span><span class="p">.</span><span class="n">reflect</span><span class="p">.</span><span class="n">GeneratedMethodAccessor17</span><span class="p">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">Unknown</span> <span class="n">Source</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">sun</span><span class="p">.</span><span class="n">reflect</span><span class="p">.</span><span class="n">DelegatingMethodAccessorImpl</span><span class="p">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">DelegatingMethodAccessorImpl</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">43</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">java</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">reflect</span><span class="p">.</span><span class="n">Method</span><span class="p">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">Method</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">616</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">java</span><span class="p">.</span><span class="n">io</span><span class="p">.</span><span class="n">ObjectStreamClass</span><span class="p">.</span><span class="n">invokeWriteObject</span><span class="p">(</span><span class="n">ObjectStreamClass</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">959</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">java</span><span class="p">.</span><span class="n">io</span><span class="p">.</span><span class="n">ObjectOutputStream</span><span class="p">.</span><span class="n">writeSerialData</span><span class="p">(</span><span class="n">ObjectOutputStream</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">1480</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">java</span><span class="p">.</span><span class="n">io</span><span class="p">.</span><span class="n">ObjectOutputStream</span><span class="p">.</span><span class="n">writeOrdinaryObject</span><span class="p">(</span><span class="n">ObjectOutputStream</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">1416</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">java</span><span class="p">.</span><span class="n">io</span><span class="p">.</span><span class="n">ObjectOutputStream</span><span class="p">.</span><span class="n">writeObject0</span><span class="p">(</span><span class="n">ObjectOutputStream</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">1174</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">java</span><span class="p">.</span><span class="n">io</span><span class="p">.</span><span class="n">ObjectOutputStream</span><span class="p">.</span><span class="n">writeObject</span><span class="p">(</span><span class="n">ObjectOutputStream</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">346</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">serialization</span><span class="p">.</span><span class="n">SerializableSerializer</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">SerializableSerializer</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">21</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">com</span><span class="p">.</span><span class="n">esotericsoftware</span><span class="p">.</span><span class="n">kryo</span><span class="p">.</span><span class="n">Kryo</span><span class="p">.</span><span class="n">writeClassAndObject</span><span class="p">(</span><span class="n">Kryo</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">554</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">com</span><span class="p">.</span><span class="n">esotericsoftware</span><span class="p">.</span><span class="n">kryo</span><span class="p">.</span><span class="n">serializers</span><span class="p">.</span><span class="n">CollectionSerializer</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">CollectionSerializer</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">77</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">com</span><span class="p">.</span><span class="n">esotericsoftware</span><span class="p">.</span><span class="n">kryo</span><span class="p">.</span><span class="n">serializers</span><span class="p">.</span><span class="n">CollectionSerializer</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">CollectionSerializer</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">18</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">com</span><span class="p">.</span><span class="n">esotericsoftware</span><span class="p">.</span><span class="n">kryo</span><span class="p">.</span><span class="n">Kryo</span><span class="p">.</span><span class="n">writeObject</span><span class="p">(</span><span class="n">Kryo</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">472</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">serialization</span><span class="p">.</span><span class="n">KryoValuesSerializer</span><span class="p">.</span><span class="n">serializeInto</span><span class="p">(</span><span class="n">KryoValuesSerializer</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">27</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><span class="x">java.lang.RuntimeException: java.util.ConcurrentModificationException</span>
+<span class="x">    at backtype.storm.utils.DisruptorQueue.consumeBatchToCursor(DisruptorQueue.java:84)</span>
+<span class="x">    at backtype.storm.utils.DisruptorQueue.consumeBatchWhenAvailable(DisruptorQueue.java:55)</span>
+<span class="x">    at backtype.storm.disruptor</span><span class="p">$</span><span class="nv">consume_batch_when_available</span><span class="p">.</span><span class="nv">invoke</span><span class="p">(</span><span class="err">disruptor.clj</span><span class="p">:</span><span class="m">56</span><span class="p">)</span><span class="x"></span>
+<span class="x">    at backtype.storm.disruptor</span><span class="p">$</span><span class="nv">consume_loop_STAR_</span><span class="p">$</span><span class="nv">fn__1597</span><span class="p">.</span><span class="nv">invoke</span><span class="p">(</span><span class="err">disruptor.clj</span><span class="p">:</span><span class="m">67</span><span class="p">)</span><span class="x"></span>
+<span class="x">    at backtype.storm.util</span><span class="p">$</span><span class="nv">async_loop</span><span class="p">$</span><span class="nv">fn__465</span><span class="p">.</span><span class="nv">invoke</span><span class="p">(</span><span class="err">util.clj</span><span class="p">:</span><span class="m">377</span><span class="p">)</span><span class="x"></span>
+<span class="x">    at clojure.lang.AFn.run(AFn.java:24)</span>
+<span class="x">    at java.lang.Thread.run(Thread.java:679)</span>
+<span class="x">Caused by: java.util.ConcurrentModificationException</span>
+<span class="x">    at java.util.LinkedHashMap</span><span class="p">$</span><span class="nv">LinkedHashIterator</span><span class="p">.</span><span class="nv">nextEntry</span><span class="p">(</span><span class="err">LinkedHashMap.java</span><span class="p">:</span><span class="m">390</span><span class="p">)</span><span class="x"></span>
+<span class="x">    at java.util.LinkedHashMap</span><span class="p">$</span><span class="nv">EntryIterator</span><span class="p">.</span><span class="nv">next</span><span class="p">(</span><span class="err">LinkedHashMap.java</span><span class="p">:</span><span class="m">409</span><span class="p">)</span><span class="x"></span>
+<span class="x">    at java.util.LinkedHashMap</span><span class="p">$</span><span class="nv">EntryIterator</span><span class="p">.</span><span class="nv">next</span><span class="p">(</span><span class="err">LinkedHashMap.java</span><span class="p">:</span><span class="m">408</span><span class="p">)</span><span class="x"></span>
+<span class="x">    at java.util.HashMap.writeObject(HashMap.java:1016)</span>
+<span class="x">    at sun.reflect.GeneratedMethodAccessor17.invoke(Unknown Source)</span>
+<span class="x">    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)</span>
+<span class="x">    at java.lang.reflect.Method.invoke(Method.java:616)</span>
+<span class="x">    at java.io.ObjectStreamClass.invokeWriteObject(ObjectStreamClass.java:959)</span>
+<span class="x">    at java.io.ObjectOutputStream.writeSerialData(ObjectOutputStream.java:1480)</span>
+<span class="x">    at java.io.ObjectOutputStream.writeOrdinaryObject(ObjectOutputStream.java:1416)</span>
+<span class="x">    at java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1174)</span>
+<span class="x">    at java.io.ObjectOutputStream.writeObject(ObjectOutputStream.java:346)</span>
+<span class="x">    at backtype.storm.serialization.SerializableSerializer.write(SerializableSerializer.java:21)</span>
+<span class="x">    at com.esotericsoftware.kryo.Kryo.writeClassAndObject(Kryo.java:554)</span>
+<span class="x">    at com.esotericsoftware.kryo.serializers.CollectionSerializer.write(CollectionSerializer.java:77)</span>
+<span class="x">    at com.esotericsoftware.kryo.serializers.CollectionSerializer.write(CollectionSerializer.java:18)</span>
+<span class="x">    at com.esotericsoftware.kryo.Kryo.writeObject(Kryo.java:472)</span>
+<span class="x">    at backtype.storm.serialization.KryoValuesSerializer.serializeInto(KryoValuesSerializer.java:27)</span>
 </pre></div>
 
 
@@ -231,23 +231,23 @@
 <ul>
 <li>Storm 运行中出现了如下的 NullPointerException</li>
 </ul>
-<div class="highlight"><pre><span class="n">java</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">RuntimeException</span><span class="o">:</span> <span class="n">java</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">NullPointerException</span>
-    <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">utils</span><span class="p">.</span><span class="n">DisruptorQueue</span><span class="p">.</span><span class="n">consumeBatchToCursor</span><span class="p">(</span><span class="n">DisruptorQueue</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">84</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">utils</span><span class="p">.</span><span class="n">DisruptorQueue</span><span class="p">.</span><span class="n">consumeBatchWhenAvailable</span><span class="p">(</span><span class="n">DisruptorQueue</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">55</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">disruptor</span><span class="err">$</span><span class="n">consume_batch_when_available</span><span class="p">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">disruptor</span><span class="p">.</span><span class="n">clj</span><span class="o">:</span><span class="mi">56</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">disruptor</span><span class="err">$</span><span class="n">consume_loop_STAR_</span><span class="err">$</span><span class="n">fn__1596</span><span class="p">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">disruptor</span><span class="p">.</span><span class="n">clj</span><span class="o">:</span><span class="mi">67</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">util</span><span class="err">$</span><span class="n">async_loop</span><span class="err">$</span><span class="n">fn__465</span><span class="p">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">util</span><span class="p">.</span><span class="n">clj</span><span class="o">:</span><span class="mi">377</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">clojure</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">AFn</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">AFn</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">24</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">java</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">Thread</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">Thread</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">662</span><span class="p">)</span>
-<span class="n">Caused</span> <span class="n">by</span><span class="o">:</span> <span class="n">java</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">NullPointerException</span>
-    <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">serialization</span><span class="p">.</span><span class="n">KryoTupleSerializer</span><span class="p">.</span><span class="n">serialize</span><span class="p">(</span><span class="n">KryoTupleSerializer</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">24</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">daemon</span><span class="p">.</span><span class="n">worker</span><span class="err">$</span><span class="n">mk_transfer_fn</span><span class="err">$</span><span class="n">fn__4126</span><span class="err">$</span><span class="n">fn__4130</span><span class="p">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">worker</span><span class="p">.</span><span class="n">clj</span><span class="o">:</span><span class="mi">99</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">util</span><span class="err">$</span><span class="n">fast_list_map</span><span class="p">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">util</span><span class="p">.</span><span class="n">clj</span><span class="o">:</span><span class="mi">771</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">daemon</span><span class="p">.</span><span class="n">worker</span><span class="err">$</span><span class="n">mk_transfer_fn</span><span class="err">$</span><span class="n">fn__4126</span><span class="p">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">worker</span><span class="p">.</span><span class="n">clj</span><span class="o">:</span><span class="mi">99</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">daemon</span><span class="p">.</span><span class="n">executor</span><span class="err">$</span><span class="n">start_batch_transfer__GT_worker_handler_BANG_</span><span class="err">$</span><span class="n">fn__3904</span><span class="p">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">executor</span><span class="p">.</span><span class="n">clj</span><span class="o">:</span><span class="mi">205</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">disruptor</span><span class="err">$</span><span class="n">clojure_handler</span><span class="err">$</span><span class="n">reify__1584</span><span class="p">.</span><span class="n">onEvent</span><span class="p">(</span><span class="n">disruptor</span><span class="p">.</span><span class="n">clj</span><span class="o">:</span><span class="mi">43</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">utils</span><span class="p">.</span><span class="n">DisruptorQueue</span><span class="p">.</span><span class="n">consumeBatchToCursor</span><span class="p">(</span><span class="n">DisruptorQueue</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">81</span><span class="p">)</span>
-    <span class="p">...</span> <span class="mi">6</span> <span class="n">more</span>
+<div class="highlight"><pre><span></span><span class="x">java.lang.RuntimeException: java.lang.NullPointerException</span>
+<span class="x">    at backtype.storm.utils.DisruptorQueue.consumeBatchToCursor(DisruptorQueue.java:84)</span>
+<span class="x">    at backtype.storm.utils.DisruptorQueue.consumeBatchWhenAvailable(DisruptorQueue.java:55)</span>
+<span class="x">    at backtype.storm.disruptor</span><span class="p">$</span><span class="nv">consume_batch_when_available</span><span class="p">.</span><span class="nv">invoke</span><span class="p">(</span><span class="err">disruptor.clj</span><span class="p">:</span><span class="m">56</span><span class="p">)</span><span class="x"></span>
+<span class="x">    at backtype.storm.disruptor</span><span class="p">$</span><span class="nv">consume_loop_STAR_</span><span class="p">$</span><span class="nv">fn__1596</span><span class="p">.</span><span class="nv">invoke</span><span class="p">(</span><span class="err">disruptor.clj</span><span class="p">:</span><span class="m">67</span><span class="p">)</span><span class="x"></span>
+<span class="x">    at backtype.storm.util</span><span class="p">$</span><span class="nv">async_loop</span><span class="p">$</span><span class="nv">fn__465</span><span class="p">.</span><span class="nv">invoke</span><span class="p">(</span><span class="err">util.clj</span><span class="p">:</span><span class="m">377</span><span class="p">)</span><span class="x"></span>
+<span class="x">    at clojure.lang.AFn.run(AFn.java:24)</span>
+<span class="x">    at java.lang.Thread.run(Thread.java:662)</span>
+<span class="x">Caused by: java.lang.NullPointerException</span>
+<span class="x">    at backtype.storm.serialization.KryoTupleSerializer.serialize(KryoTupleSerializer.java:24)</span>
+<span class="x">    at backtype.storm.daemon.worker</span><span class="p">$</span><span class="nv">mk_transfer_fn</span><span class="p">$</span><span class="nv">fn__4126</span><span class="p">$</span><span class="nv">fn__4130</span><span class="p">.</span><span class="nv">invoke</span><span class="p">(</span><span class="err">worker.clj</span><span class="p">:</span><span class="m">99</span><span class="p">)</span><span class="x"></span>
+<span class="x">    at backtype.storm.util</span><span class="p">$</span><span class="nv">fast_list_map</span><span class="p">.</span><span class="nv">invoke</span><span class="p">(</span><span class="err">util.clj</span><span class="p">:</span><span class="m">771</span><span class="p">)</span><span class="x"></span>
+<span class="x">    at backtype.storm.daemon.worker</span><span class="p">$</span><span class="nv">mk_transfer_fn</span><span class="p">$</span><span class="nv">fn__4126</span><span class="p">.</span><span class="nv">invoke</span><span class="p">(</span><span class="err">worker.clj</span><span class="p">:</span><span class="m">99</span><span class="p">)</span><span class="x"></span>
+<span class="x">    at backtype.storm.daemon.executor</span><span class="p">$</span><span class="nv">start_batch_transfer__GT_worker_handler_BANG_</span><span class="p">$</span><span class="nv">fn__3904</span><span class="p">.</span><span class="nv">invoke</span><span class="p">(</span><span class="err">executor.clj</span><span class="p">:</span><span class="m">205</span><span class="p">)</span><span class="x"></span>
+<span class="x">    at backtype.storm.disruptor</span><span class="p">$</span><span class="nv">clojure_handler</span><span class="p">$</span><span class="nv">reify__1584</span><span class="p">.</span><span class="nv">onEvent</span><span class="p">(</span><span class="err">disruptor.clj</span><span class="p">:</span><span class="m">43</span><span class="p">)</span><span class="x"></span>
+<span class="x">    at backtype.storm.utils.DisruptorQueue.consumeBatchToCursor(DisruptorQueue.java:81)</span>
+<span class="x">    ... 6 more</span>
 </pre></div>
 
 
@@ -309,121 +309,6 @@
 
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
-                                分布式计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/storm.html">
-                                Storm
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/translation.html">
-                                Translation
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
-                                环境搭建
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/kafka.html">
-                                Kafka
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
-                                实时计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/linux.html">
-                                Linux
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/java.html">
-                                Java
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/mapreduce.html">
-                                MapReduce
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/hadoop.html">
-                                Hadoop
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/flume.html">
-                                Flume
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/redis.html">
-                                Redis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/shell.html">
-                                Shell
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/virtualbox.html">
-                                VirtualBox
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/undefined.html">
-                                Undefined
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/benchmark.html">
-                                Benchmark
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/rpc.html">
-                                RPC
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/log4j.html">
-                                log4j
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/jedis.html">
-                                Jedis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/yaml.html">
-                                Yaml
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/zookeeper.html">
-                                ZooKeeper
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/windows.html">
-                                Windows
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/gnome.html">
-                                Gnome
-                            </a>
-                        </li>
         </ul>
     </section>
 </aside>        </div>

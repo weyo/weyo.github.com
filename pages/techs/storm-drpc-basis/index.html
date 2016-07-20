@@ -145,9 +145,9 @@
 <p><code>nohup storm drpc &gt;&gt; /home/storm/apache-storm-0.9.3/logs/nohup_drpc.out 2&gt;&amp;1 &amp;</code></p>
 <h2>配置集群 DRPC server 列表</h2>
 <p>在集群其他机器上添加配置：</p>
-<div class="highlight"><pre><span class="n">drpc</span><span class="p">.</span><span class="n">servers</span><span class="o">:</span>
-  <span class="o">-</span> <span class="s">&quot;hd181&quot;</span>
-  <span class="o">-</span> <span class="s">&quot;otherdrpcservers&quot;</span>
+<div class="highlight"><pre><span></span>drpc.servers:
+  - &quot;hd181&quot;
+  - &quot;otherdrpcservers&quot;
 </pre></div>
 
 
@@ -170,7 +170,7 @@
 13
 14
 15
-16</pre></div></td><td class="code"><div class="highlight"><pre><span class="n">TopologyBuilder</span> <span class="n">builder</span> <span class="o">=</span> <span class="k">new</span> <span class="n">TopologyBuilder</span><span class="o">();</span>
+16</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="n">TopologyBuilder</span> <span class="n">builder</span> <span class="o">=</span> <span class="k">new</span> <span class="n">TopologyBuilder</span><span class="o">();</span>
 <span class="n">LocalDRPC</span> <span class="n">drpc</span> <span class="o">=</span> <span class="k">new</span> <span class="n">LocalDRPC</span><span class="o">();</span>
 
 <span class="n">DRPCSpout</span> <span class="n">spout</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DRPCSpout</span><span class="o">(</span><span class="s">&quot;exclamation&quot;</span><span class="o">,</span> <span class="n">drpc</span><span class="o">);</span>
@@ -202,7 +202,7 @@
 10
 11
 12
-13</pre></div></td><td class="code"><div class="highlight"><pre><span class="n">TopologyBuilder</span> <span class="n">builder</span> <span class="o">=</span> <span class="k">new</span> <span class="n">TopologyBuilder</span><span class="o">();</span>
+13</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="n">TopologyBuilder</span> <span class="n">builder</span> <span class="o">=</span> <span class="k">new</span> <span class="n">TopologyBuilder</span><span class="o">();</span>
 
 <span class="n">DRPCSpout</span> <span class="n">spout</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DRPCSpout</span><span class="o">(</span><span class="s">&quot;drpcFunc&quot;</span><span class="o">);</span>
 <span class="n">builder</span><span class="o">.</span><span class="na">setSpout</span><span class="o">(</span><span class="s">&quot;drpc&quot;</span><span class="o">,</span> <span class="n">spout</span><span class="o">,</span> <span class="mi">3</span><span class="o">);</span>
@@ -228,7 +228,7 @@
 5
 6
 7
-8</pre></div></td><td class="code"><div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DRPCClientDemo</span> <span class="o">{</span>
+8</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DRPCClientDemo</span> <span class="o">{</span>
 
     <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">TException</span><span class="o">,</span> <span class="n">DRPCExecutionException</span> <span class="o">{</span>
         <span class="n">DRPCClient</span> <span class="n">client</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DRPCClient</span><span class="o">(</span><span class="s">&quot;hd181&quot;</span><span class="o">,</span> <span class="mi">3772</span><span class="o">);</span>
@@ -247,12 +247,12 @@
 </ul>
 </blockquote>
 <p>如果一切正常客户端会很快收到结果；如果发生错误，就会报错：</p>
-<div class="highlight"><pre><span class="n">Exception</span> <span class="n">in</span> <span class="kr">thread</span> <span class="s">&quot;main&quot;</span> <span class="n">DRPCExecutionException</span><span class="p">(</span><span class="n">msg</span><span class="o">:</span><span class="n">Request</span> <span class="n">timed</span> <span class="n">out</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">generated</span><span class="p">.</span><span class="n">DistributedRPC</span><span class="err">$</span><span class="n">execute_result</span><span class="p">.</span><span class="n">read</span><span class="p">(</span><span class="n">DistributedRPC</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">904</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">org</span><span class="p">.</span><span class="n">apache</span><span class="p">.</span><span class="n">thrift7</span><span class="p">.</span><span class="n">TServiceClient</span><span class="p">.</span><span class="n">receiveBase</span><span class="p">(</span><span class="n">TServiceClient</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">78</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">generated</span><span class="p">.</span><span class="n">DistributedRPC</span><span class="err">$</span><span class="n">Client</span><span class="p">.</span><span class="n">recv_execute</span><span class="p">(</span><span class="n">DistributedRPC</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">92</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">generated</span><span class="p">.</span><span class="n">DistributedRPC</span><span class="err">$</span><span class="n">Client</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="n">DistributedRPC</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">78</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">utils</span><span class="p">.</span><span class="n">DRPCClient</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="n">DRPCClient</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">71</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><span class="x">Exception in thread &quot;main&quot; DRPCExecutionException(msg:Request timed out)</span>
+<span class="x">    at backtype.storm.generated.DistributedRPC</span><span class="p">$</span><span class="nv">execute_result</span><span class="p">.</span><span class="nv">read</span><span class="p">(</span><span class="err">DistributedRPC.java</span><span class="p">:</span><span class="m">904</span><span class="p">)</span><span class="x"></span>
+<span class="x">    at org.apache.thrift7.TServiceClient.receiveBase(TServiceClient.java:78)</span>
+<span class="x">    at backtype.storm.generated.DistributedRPC</span><span class="p">$</span><span class="nv">Client</span><span class="p">.</span><span class="nv">recv_execute</span><span class="p">(</span><span class="err">DistributedRPC.java</span><span class="p">:</span><span class="m">92</span><span class="p">)</span><span class="x"></span>
+<span class="x">    at backtype.storm.generated.DistributedRPC</span><span class="p">$</span><span class="nv">Client</span><span class="p">.</span><span class="nv">execute</span><span class="p">(</span><span class="err">DistributedRPC.java</span><span class="p">:</span><span class="m">78</span><span class="p">)</span><span class="x"></span>
+<span class="x">    at backtype.storm.utils.DRPCClient.execute(DRPCClient.java:71)</span>
 </pre></div>
 
 
@@ -260,14 +260,14 @@
 <hr />
 <h1>Questions</h1>
 <p>修改配置或重新启动 DRPC server 后有一段时间出现错误</p>
-<div class="highlight"><pre><span class="n">Exclamation</span><span class="o">-</span><span class="mi">6</span><span class="o">:</span><span class="n">aaa203</span><span class="o">!!!</span>
-<span class="n">Exception</span> <span class="n">in</span> <span class="kr">thread</span> <span class="s">&quot;main&quot;</span> <span class="n">DRPCExecutionException</span><span class="p">(</span><span class="n">msg</span><span class="o">:</span><span class="n">Request</span> <span class="n">failed</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">generated</span><span class="p">.</span><span class="n">DistributedRPC</span><span class="err">$</span><span class="n">execute_result</span><span class="p">.</span><span class="n">read</span><span class="p">(</span><span class="n">DistributedRPC</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">904</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">org</span><span class="p">.</span><span class="n">apache</span><span class="p">.</span><span class="n">thrift7</span><span class="p">.</span><span class="n">TServiceClient</span><span class="p">.</span><span class="n">receiveBase</span><span class="p">(</span><span class="n">TServiceClient</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">78</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">generated</span><span class="p">.</span><span class="n">DistributedRPC</span><span class="err">$</span><span class="n">Client</span><span class="p">.</span><span class="n">recv_execute</span><span class="p">(</span><span class="n">DistributedRPC</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">92</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">generated</span><span class="p">.</span><span class="n">DistributedRPC</span><span class="err">$</span><span class="n">Client</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="n">DistributedRPC</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">78</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">utils</span><span class="p">.</span><span class="n">DRPCClient</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="n">DRPCClient</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">71</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">com</span><span class="p">.</span><span class="n">enjoyor</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">kafka</span><span class="p">.</span><span class="n">example</span><span class="p">.</span><span class="n">DRPCClientDemo</span><span class="p">.</span><span class="n">main</span><span class="p">(</span><span class="n">DRPCTest</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">18</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><span class="x">Exclamation-6:aaa203!!!</span>
+<span class="x">Exception in thread &quot;main&quot; DRPCExecutionException(msg:Request failed)</span>
+<span class="x">    at backtype.storm.generated.DistributedRPC</span><span class="p">$</span><span class="nv">execute_result</span><span class="p">.</span><span class="nv">read</span><span class="p">(</span><span class="err">DistributedRPC.java</span><span class="p">:</span><span class="m">904</span><span class="p">)</span><span class="x"></span>
+<span class="x">    at org.apache.thrift7.TServiceClient.receiveBase(TServiceClient.java:78)</span>
+<span class="x">    at backtype.storm.generated.DistributedRPC</span><span class="p">$</span><span class="nv">Client</span><span class="p">.</span><span class="nv">recv_execute</span><span class="p">(</span><span class="err">DistributedRPC.java</span><span class="p">:</span><span class="m">92</span><span class="p">)</span><span class="x"></span>
+<span class="x">    at backtype.storm.generated.DistributedRPC</span><span class="p">$</span><span class="nv">Client</span><span class="p">.</span><span class="nv">execute</span><span class="p">(</span><span class="err">DistributedRPC.java</span><span class="p">:</span><span class="m">78</span><span class="p">)</span><span class="x"></span>
+<span class="x">    at backtype.storm.utils.DRPCClient.execute(DRPCClient.java:71)</span>
+<span class="x">    at com.enjoyor.storm.kafka.example.DRPCClientDemo.main(DRPCTest.java:18)</span>
 </pre></div>
 
 
@@ -278,7 +278,7 @@
 4
 5
 6
-7</pre></div></td><td class="code"><div class="highlight"><pre>    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">TException</span><span class="o">,</span> <span class="n">DRPCExecutionException</span> <span class="o">{</span>
+7</pre></div></td><td class="code"><div class="highlight"><pre><span></span>    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">TException</span><span class="o">,</span> <span class="n">DRPCExecutionException</span> <span class="o">{</span>
         <span class="n">DRPCClient</span> <span class="n">client</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DRPCClient</span><span class="o">(</span><span class="s">&quot;hd181&quot;</span><span class="o">,</span> <span class="mi">3772</span><span class="o">);</span>
 
         <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="o">;</span> <span class="o">++</span><span class="n">i</span><span class="o">)</span> <span class="o">{</span>
@@ -344,121 +344,6 @@
 
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
-                                分布式计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/storm.html">
-                                Storm
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/translation.html">
-                                Translation
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
-                                环境搭建
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/kafka.html">
-                                Kafka
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
-                                实时计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/linux.html">
-                                Linux
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/java.html">
-                                Java
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/mapreduce.html">
-                                MapReduce
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/hadoop.html">
-                                Hadoop
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/flume.html">
-                                Flume
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/redis.html">
-                                Redis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/shell.html">
-                                Shell
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/virtualbox.html">
-                                VirtualBox
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/undefined.html">
-                                Undefined
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/benchmark.html">
-                                Benchmark
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/rpc.html">
-                                RPC
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/log4j.html">
-                                log4j
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/jedis.html">
-                                Jedis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/yaml.html">
-                                Yaml
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/zookeeper.html">
-                                ZooKeeper
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/windows.html">
-                                Windows
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/gnome.html">
-                                Gnome
-                            </a>
-                        </li>
         </ul>
     </section>
 </aside>        </div>

@@ -124,40 +124,40 @@
 </footer><!-- /.post-info -->                    </div>
                 </div>
                 <p>今天在测试 <code>KafkaSpout</code> 的时候突然冒出了 log4j 的问题，先是两行醒目的红色警告：</p>
-<div class="highlight"><pre><span class="n">SLF4J</span><span class="o">:</span> <span class="n">Detected</span> <span class="n">both</span> <span class="n">log4j</span><span class="o">-</span><span class="n">over</span><span class="o">-</span><span class="n">slf4j</span><span class="o">.</span><span class="na">jar</span> <span class="n">AND</span> <span class="n">slf4j</span><span class="o">-</span><span class="n">log4j12</span><span class="o">.</span><span class="na">jar</span> <span class="n">on</span> <span class="n">the</span> <span class="kd">class</span> <span class="n">path</span><span class="o">,</span> <span class="n">preempting</span> <span class="n">StackOverflowError</span><span class="o">.</span> 
+<div class="highlight"><pre><span></span><span class="n">SLF4J</span><span class="o">:</span> <span class="n">Detected</span> <span class="n">both</span> <span class="n">log4j</span><span class="o">-</span><span class="n">over</span><span class="o">-</span><span class="n">slf4j</span><span class="o">.</span><span class="na">jar</span> <span class="n">AND</span> <span class="n">slf4j</span><span class="o">-</span><span class="n">log4j12</span><span class="o">.</span><span class="na">jar</span> <span class="n">on</span> <span class="n">the</span> <span class="kd">class</span> <span class="n">path</span><span class="o">,</span> <span class="n">preempting</span> <span class="n">StackOverflowError</span><span class="o">.</span> 
 <span class="n">SLF4J</span><span class="o">:</span> <span class="n">See</span> <span class="n">also</span> <span class="n">http</span><span class="o">://</span><span class="n">www</span><span class="o">.</span><span class="na">slf4j</span><span class="o">.</span><span class="na">org</span><span class="o">/</span><span class="n">codes</span><span class="o">.</span><span class="na">html</span><span class="err">#</span><span class="n">log4jDelegationLoop</span> <span class="k">for</span> <span class="n">more</span> <span class="n">details</span><span class="o">.</span>
 </pre></div>
 
 
 <p>跟着 topology 就挂掉了，只留下了一堆无奈的日志：</p>
-<div class="highlight"><pre><span class="mi">5370</span> <span class="err">[</span><span class="k">Thread</span><span class="o">-</span><span class="mi">14</span><span class="na">-newKafka</span><span class="cp">]</span> ERROR backtype.storm.util - Async loop died!
-java.lang.NoClassDefFoundError: Could not initialize class org.apache.log4j.Log4jLoggerFactory
-    at org.apache.log4j.Logger.getLogger(Logger.java:39) ~<span class="cp">[</span><span class="nx">log4j</span><span class="na">-over-slf4j</span><span class="o">-</span><span class="mf">1.6.6</span><span class="bp">.</span><span class="nx">jar</span><span class="p">:</span><span class="mf">1.6.6</span><span class="cp">]</span>
-    at kafka.utils.Logging$class.logger(Logging.scala:24) ~<span class="cp">[</span><span class="nx">kafka_2.10</span><span class="o">-</span><span class="mf">0.8.2.1</span><span class="bp">.</span><span class="nx">jar</span><span class="p">:</span><span class="nx">na</span><span class="cp">]</span>
-    at kafka.consumer.SimpleConsumer.logger$lzycompute(SimpleConsumer.scala:30) ~<span class="cp">[</span><span class="nx">kafka_2.10</span><span class="o">-</span><span class="mf">0.8.2.1</span><span class="bp">.</span><span class="nx">jar</span><span class="p">:</span><span class="nx">na</span><span class="cp">]</span>
-    at kafka.consumer.SimpleConsumer.logger(SimpleConsumer.scala:30) ~<span class="cp">[</span><span class="nx">kafka_2.10</span><span class="o">-</span><span class="mf">0.8.2.1</span><span class="bp">.</span><span class="nx">jar</span><span class="p">:</span><span class="nx">na</span><span class="cp">]</span>
-    at kafka.utils.Logging$class.info(Logging.scala:67) ~<span class="cp">[</span><span class="nx">kafka_2.10</span><span class="o">-</span><span class="mf">0.8.2.1</span><span class="bp">.</span><span class="nx">jar</span><span class="p">:</span><span class="nx">na</span><span class="cp">]</span>
-    at kafka.consumer.SimpleConsumer.info(SimpleConsumer.scala:30) ~<span class="cp">[</span><span class="nx">kafka_2.10</span><span class="o">-</span><span class="mf">0.8.2.1</span><span class="bp">.</span><span class="nx">jar</span><span class="p">:</span><span class="nx">na</span><span class="cp">]</span>
-    at kafka.consumer.SimpleConsumer.liftedTree1$1(SimpleConsumer.scala:74) ~<span class="cp">[</span><span class="nx">kafka_2.10</span><span class="o">-</span><span class="mf">0.8.2.1</span><span class="bp">.</span><span class="nx">jar</span><span class="p">:</span><span class="nx">na</span><span class="cp">]</span>
-    at kafka.consumer.SimpleConsumer.kafka$consumer$SimpleConsumer$$sendRequest(SimpleConsumer.scala:68) ~<span class="cp">[</span><span class="nx">kafka_2.10</span><span class="o">-</span><span class="mf">0.8.2.1</span><span class="bp">.</span><span class="nx">jar</span><span class="p">:</span><span class="nx">na</span><span class="cp">]</span>
-    at kafka.consumer.SimpleConsumer.getOffsetsBefore(SimpleConsumer.scala:127) ~<span class="cp">[</span><span class="nx">kafka_2.10</span><span class="o">-</span><span class="mf">0.8.2.1</span><span class="bp">.</span><span class="nx">jar</span><span class="p">:</span><span class="nx">na</span><span class="cp">]</span>
-    at kafka.javaapi.consumer.SimpleConsumer.getOffsetsBefore(SimpleConsumer.scala:79) ~<span class="cp">[</span><span class="nx">kafka_2.10</span><span class="o">-</span><span class="mf">0.8.2.1</span><span class="bp">.</span><span class="nx">jar</span><span class="p">:</span><span class="nx">na</span><span class="cp">]</span>
-    at storm.kafka.KafkaUtils.getOffset(KafkaUtils.java:77) ~<span class="cp">[</span><span class="nx">storm</span><span class="na">-kafka</span><span class="o">-</span><span class="mf">0.9.3</span><span class="bp">.</span><span class="nx">jar</span><span class="p">:</span><span class="mf">0.9.3</span><span class="cp">]</span>
-    at storm.kafka.KafkaUtils.getOffset(KafkaUtils.java:67) ~<span class="cp">[</span><span class="nx">storm</span><span class="na">-kafka</span><span class="o">-</span><span class="mf">0.9.3</span><span class="bp">.</span><span class="nx">jar</span><span class="p">:</span><span class="mf">0.9.3</span><span class="cp">]</span>
-    at storm.kafka.PartitionManager.<span class="nt">&lt;init&gt;</span>(PartitionManager.java:83) ~<span class="cp">[</span><span class="nx">storm</span><span class="na">-kafka</span><span class="o">-</span><span class="mf">0.9.3</span><span class="bp">.</span><span class="nx">jar</span><span class="p">:</span><span class="mf">0.9.3</span><span class="cp">]</span>
-    at storm.kafka.ZkCoordinator.refresh(ZkCoordinator.java:98) ~<span class="cp">[</span><span class="nx">storm</span><span class="na">-kafka</span><span class="o">-</span><span class="mf">0.9.3</span><span class="bp">.</span><span class="nx">jar</span><span class="p">:</span><span class="mf">0.9.3</span><span class="cp">]</span>
-    at storm.kafka.ZkCoordinator.getMyManagedPartitions(ZkCoordinator.java:69) ~<span class="cp">[</span><span class="nx">storm</span><span class="na">-kafka</span><span class="o">-</span><span class="mf">0.9.3</span><span class="bp">.</span><span class="nx">jar</span><span class="p">:</span><span class="mf">0.9.3</span><span class="cp">]</span>
-    at storm.kafka.KafkaSpout.nextTuple(KafkaSpout.java:135) ~<span class="cp">[</span><span class="nx">storm</span><span class="na">-kafka</span><span class="o">-</span><span class="mf">0.9.3</span><span class="bp">.</span><span class="nx">jar</span><span class="p">:</span><span class="mf">0.9.3</span><span class="cp">]</span>
-    at backtype.storm.daemon.executor$fn__3373$fn__3388$fn__3417.invoke(executor.clj:565) ~<span class="cp">[</span><span class="nx">storm</span><span class="na">-core</span><span class="o">-</span><span class="mf">0.9.3</span><span class="bp">.</span><span class="nx">jar</span><span class="p">:</span><span class="mf">0.9.3</span><span class="cp">]</span>
-    at backtype.storm.util$async_loop$fn__464.invoke(util.clj:463) ~<span class="cp">[</span><span class="nx">storm</span><span class="na">-core</span><span class="o">-</span><span class="mf">0.9.3</span><span class="bp">.</span><span class="nx">jar</span><span class="p">:</span><span class="mf">0.9.3</span><span class="cp">]</span>
-    at clojure.lang.AFn.run(AFn.java:24) <span class="cp">[</span><span class="nx">clojure</span><span class="o">-</span><span class="mf">1.5.1</span><span class="bp">.</span><span class="nx">jar</span><span class="p">:</span><span class="nx">na</span><span class="cp">]</span>
-    at java.lang.Thread.run(Thread.java:744) <span class="cp">[</span><span class="nx">na</span><span class="p">:</span><span class="mf">1.7.0</span><span class="nx">_45</span><span class="cp">]</span>
+<div class="highlight"><pre><span></span><span class="x">5370 [Thread-14-newKafka] ERROR backtype.storm.util - Async loop died!</span>
+<span class="x">java.lang.NoClassDefFoundError: Could not initialize class org.apache.log4j.Log4jLoggerFactory</span>
+<span class="x">    at org.apache.log4j.Logger.getLogger(Logger.java:39) ~[log4j-over-slf4j-1.6.6.jar:1.6.6]</span>
+<span class="x">    at kafka.utils.Logging</span><span class="p">$</span><span class="nv">class</span><span class="p">.</span><span class="nv">logger</span><span class="p">(</span><span class="err">Logging.scala</span><span class="p">:</span><span class="m">24</span><span class="p">)</span><span class="x"> ~[kafka_2.10-0.8.2.1.jar:na]</span>
+<span class="x">    at kafka.consumer.SimpleConsumer.logger</span><span class="p">$</span><span class="nv">lzycompute</span><span class="p">(</span><span class="err">SimpleConsumer.scala</span><span class="p">:</span><span class="m">30</span><span class="p">)</span><span class="x"> ~[kafka_2.10-0.8.2.1.jar:na]</span>
+<span class="x">    at kafka.consumer.SimpleConsumer.logger(SimpleConsumer.scala:30) ~[kafka_2.10-0.8.2.1.jar:na]</span>
+<span class="x">    at kafka.utils.Logging</span><span class="p">$</span><span class="nv">class</span><span class="p">.</span><span class="nv">info</span><span class="p">(</span><span class="err">Logging.scala</span><span class="p">:</span><span class="m">67</span><span class="p">)</span><span class="x"> ~[kafka_2.10-0.8.2.1.jar:na]</span>
+<span class="x">    at kafka.consumer.SimpleConsumer.info(SimpleConsumer.scala:30) ~[kafka_2.10-0.8.2.1.jar:na]</span>
+<span class="x">    at kafka.consumer.SimpleConsumer.liftedTree1</span><span class="p">$</span><span class="x">1(SimpleConsumer.scala:74) ~[kafka_2.10-0.8.2.1.jar:na]</span>
+<span class="x">    at kafka.consumer.SimpleConsumer.kafka</span><span class="p">$</span><span class="nv">consumer</span><span class="p">$</span><span class="nv">SimpleConsumer</span><span class="p">$$</span><span class="nv">sendRequest</span><span class="p">(</span><span class="err">SimpleConsumer.scala</span><span class="p">:</span><span class="m">68</span><span class="p">)</span><span class="x"> ~[kafka_2.10-0.8.2.1.jar:na]</span>
+<span class="x">    at kafka.consumer.SimpleConsumer.getOffsetsBefore(SimpleConsumer.scala:127) ~[kafka_2.10-0.8.2.1.jar:na]</span>
+<span class="x">    at kafka.javaapi.consumer.SimpleConsumer.getOffsetsBefore(SimpleConsumer.scala:79) ~[kafka_2.10-0.8.2.1.jar:na]</span>
+<span class="x">    at storm.kafka.KafkaUtils.getOffset(KafkaUtils.java:77) ~[storm-kafka-0.9.3.jar:0.9.3]</span>
+<span class="x">    at storm.kafka.KafkaUtils.getOffset(KafkaUtils.java:67) ~[storm-kafka-0.9.3.jar:0.9.3]</span>
+<span class="x">    at storm.kafka.PartitionManager.&lt;init&gt;(PartitionManager.java:83) ~[storm-kafka-0.9.3.jar:0.9.3]</span>
+<span class="x">    at storm.kafka.ZkCoordinator.refresh(ZkCoordinator.java:98) ~[storm-kafka-0.9.3.jar:0.9.3]</span>
+<span class="x">    at storm.kafka.ZkCoordinator.getMyManagedPartitions(ZkCoordinator.java:69) ~[storm-kafka-0.9.3.jar:0.9.3]</span>
+<span class="x">    at storm.kafka.KafkaSpout.nextTuple(KafkaSpout.java:135) ~[storm-kafka-0.9.3.jar:0.9.3]</span>
+<span class="x">    at backtype.storm.daemon.executor</span><span class="p">$</span><span class="nv">fn__3373</span><span class="p">$</span><span class="nv">fn__3388</span><span class="p">$</span><span class="nv">fn__3417</span><span class="p">.</span><span class="nv">invoke</span><span class="p">(</span><span class="err">executor.clj</span><span class="p">:</span><span class="m">565</span><span class="p">)</span><span class="x"> ~[storm-core-0.9.3.jar:0.9.3]</span>
+<span class="x">    at backtype.storm.util</span><span class="p">$</span><span class="nv">async_loop</span><span class="p">$</span><span class="nv">fn__464</span><span class="p">.</span><span class="nv">invoke</span><span class="p">(</span><span class="err">util.clj</span><span class="p">:</span><span class="m">463</span><span class="p">)</span><span class="x"> ~[storm-core-0.9.3.jar:0.9.3]</span>
+<span class="x">    at clojure.lang.AFn.run(AFn.java:24) [clojure-1.5.1.jar:na]</span>
+<span class="x">    at java.lang.Thread.run(Thread.java:744) [na:1.7.0_45]</span>
 </pre></div>
 
 
 <p>追根溯源，发现 <code>KafkaSpout</code> 代码里（<code>storm.kafka.KafkaSpout</code>）使用了 slf4j 的包，而 Kafka 系统本身（<code>kafka.consumer.SimpleConsumer</code>）却使用了 apache 的包，这个结果着实有些尴尬。</p>
 <p>折腾了一会儿，最后还是根据 <a href="http://stackoverflow.com/questions/20117720/detected-both-log4j-over-slf4j-jar-and-slf4j-log4j12-jar-on-the-class-path-pree">http://stackoverflow.com/questions/20117720/detected-both-log4j-over-slf4j-jar-and-slf4j-log4j12-jar-on-the-class-path-pree</a> 这个问题的提示，在依赖定义中排除问题依赖包（也就是 Kafka 本身的依赖包）中对应的冲突的包</p>
-<div class="highlight"><pre><span class="nt">&lt;dependency&gt;</span>
+<div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
     <span class="nt">&lt;groupId&gt;</span>org.apache.kafka<span class="nt">&lt;/groupId&gt;</span>
     <span class="nt">&lt;artifactId&gt;</span>kafka_2.10<span class="nt">&lt;/artifactId&gt;</span>
     <span class="nt">&lt;version&gt;</span>0.8.2.1<span class="nt">&lt;/version&gt;</span>
@@ -182,12 +182,12 @@ java.lang.NoClassDefFoundError: Could not initialize class org.apache.log4j.Log4
 <ul>
 <li><strong>统一采用 slf4j 的包</strong></li>
 </ul>
-<div class="highlight"><pre><span class="n">import</span> <span class="n">org</span><span class="p">.</span><span class="n">slf4j</span><span class="p">.</span><span class="n">Logger</span><span class="p">;</span>
-<span class="n">import</span> <span class="n">org</span><span class="p">.</span><span class="n">slf4j</span><span class="p">.</span><span class="n">LoggerFactory</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">org.slf4j.Logger</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">org.slf4j.LoggerFactory</span><span class="p">;</span>
 
-<span class="n">public</span> <span class="n">class</span> <span class="n">MyBolt</span> <span class="p">{</span>
-    <span class="n">private</span> <span class="k">static</span> <span class="n">final</span> <span class="n">Logger</span> <span class="n">LOG</span> <span class="o">=</span> <span class="n">LoggerFactory</span>
-            <span class="p">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">MyBolt</span><span class="p">.</span><span class="n">class</span><span class="p">);</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">MyBolt</span> <span class="p">{</span>
+    <span class="n">private</span> <span class="n">static</span> <span class="n">final</span> <span class="n">Logger</span> <span class="n">LOG</span> <span class="o">=</span> <span class="n">LoggerFactory</span>
+            <span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">MyBolt</span><span class="o">.</span><span class="n">class</span><span class="p">);</span>
 <span class="p">}</span>
 </pre></div>
 
@@ -196,7 +196,7 @@ java.lang.NoClassDefFoundError: Could not initialize class org.apache.log4j.Log4
 <ul>
 <li><strong>Maven 的编译发布插件中最好都要排除冲突的包</strong></li>
 </ul>
-<div class="highlight"><pre><span class="nt">&lt;plugins&gt;</span>
+<div class="highlight"><pre><span></span><span class="nt">&lt;plugins&gt;</span>
     <span class="nt">&lt;plugin&gt;</span>
         <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
         <span class="nt">&lt;artifactId&gt;</span>maven-compiler-plugin<span class="nt">&lt;/artifactId&gt;</span>
@@ -296,121 +296,6 @@ java.lang.NoClassDefFoundError: Could not initialize class org.apache.log4j.Log4
 
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
-                                分布式计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/storm.html">
-                                Storm
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/translation.html">
-                                Translation
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
-                                环境搭建
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/kafka.html">
-                                Kafka
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
-                                实时计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/linux.html">
-                                Linux
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/java.html">
-                                Java
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/mapreduce.html">
-                                MapReduce
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/hadoop.html">
-                                Hadoop
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/flume.html">
-                                Flume
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/redis.html">
-                                Redis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/shell.html">
-                                Shell
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/virtualbox.html">
-                                VirtualBox
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/undefined.html">
-                                Undefined
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/benchmark.html">
-                                Benchmark
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/rpc.html">
-                                RPC
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/log4j.html">
-                                log4j
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/jedis.html">
-                                Jedis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/yaml.html">
-                                Yaml
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/zookeeper.html">
-                                ZooKeeper
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/windows.html">
-                                Windows
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/gnome.html">
-                                Gnome
-                            </a>
-                        </li>
         </ul>
     </section>
 </aside>        </div>

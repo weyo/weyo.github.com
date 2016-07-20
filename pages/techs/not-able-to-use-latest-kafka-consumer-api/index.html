@@ -123,7 +123,7 @@
                 </div>
                 <p>Days ago I was to get start with the newest Kafka document <a href="http://kafka.apache.org/documentation.html">http://kafka.apache.org/documentation.html</a> to learn about Kafka. But I meet some problem when I try to use the new Consumer API. I'd done the job with following steps:</p>
 <p><strong>1. Add a new dependency</strong></p>
-<div class="highlight"><pre><span class="nt">&lt;dependency&gt;</span>
+<div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
     <span class="nt">&lt;groupId&gt;</span>org.apache.kafka<span class="nt">&lt;/groupId&gt;</span>
     <span class="nt">&lt;artifactId&gt;</span>kafka-clients<span class="nt">&lt;/artifactId&gt;</span>
     <span class="nt">&lt;version&gt;</span>0.8.2.1<span class="nt">&lt;/version&gt;</span>
@@ -133,39 +133,39 @@
 
 <p><strong>2. Add configurations</strong></p>
 <p>Latest documents did not contains such configurable things, it took me a while to figure out how <code>KafkaProducer</code> works, and I used some similar configurations to set the config map</p>
-<div class="highlight"><pre>    <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="n">config</span> <span class="o">=</span> <span class="n">new</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span> <span class="n">Object</span><span class="o">&gt;</span><span class="p">();</span>
-    <span class="n">config</span><span class="p">.</span><span class="n">put</span><span class="p">(</span><span class="n">ConsumerConfig</span><span class="p">.</span><span class="n">BOOTSTRAP_SERVERS_CONFIG</span><span class="p">,</span>
-            <span class="s">&quot;host:9092&quot;</span><span class="p">);</span>
-    <span class="n">config</span><span class="p">.</span><span class="n">put</span><span class="p">(</span><span class="n">ConsumerConfig</span><span class="p">.</span><span class="n">GROUP_ID_CONFIG</span><span class="p">,</span> <span class="s">&quot;test&quot;</span><span class="p">);</span>
-    <span class="n">config</span><span class="p">.</span><span class="n">put</span><span class="p">(</span><span class="n">ConsumerConfig</span><span class="p">.</span><span class="n">KEY_DESERIALIZER_CLASS_CONFIG</span><span class="p">,</span>
-            <span class="n">StringDeserializer</span><span class="p">.</span><span class="n">class</span><span class="p">.</span><span class="n">getName</span><span class="p">());</span>
-    <span class="n">config</span><span class="p">.</span><span class="n">put</span><span class="p">(</span><span class="n">ConsumerConfig</span><span class="p">.</span><span class="n">VALUE_DESERIALIZER_CLASS_CONFIG</span><span class="p">,</span>
-            <span class="n">StringDeserializer</span><span class="p">.</span><span class="n">class</span><span class="p">.</span><span class="n">getName</span><span class="p">());</span>
-    <span class="n">config</span><span class="p">.</span><span class="n">put</span><span class="p">(</span><span class="n">ConsumerConfig</span><span class="p">.</span><span class="n">PARTITION_ASSIGNMENT_STRATEGY</span><span class="p">,</span> <span class="s">&quot;range&quot;</span><span class="p">);</span>
+<div class="highlight"><pre><span></span>    <span class="nt">Map</span><span class="o">&lt;</span><span class="nt">String</span><span class="o">,</span> <span class="nt">Object</span><span class="o">&gt;</span> <span class="nt">config</span> <span class="o">=</span> <span class="nt">new</span> <span class="nt">HashMap</span><span class="o">&lt;</span><span class="nt">String</span><span class="o">,</span> <span class="nt">Object</span><span class="o">&gt;();</span>
+    <span class="nt">config</span><span class="nc">.put</span><span class="o">(</span><span class="nt">ConsumerConfig</span><span class="nc">.BOOTSTRAP_SERVERS_CONFIG</span><span class="o">,</span>
+            <span class="s2">&quot;host:9092&quot;</span><span class="o">);</span>
+    <span class="nt">config</span><span class="nc">.put</span><span class="o">(</span><span class="nt">ConsumerConfig</span><span class="nc">.GROUP_ID_CONFIG</span><span class="o">,</span> <span class="s2">&quot;test&quot;</span><span class="o">);</span>
+    <span class="nt">config</span><span class="nc">.put</span><span class="o">(</span><span class="nt">ConsumerConfig</span><span class="nc">.KEY_DESERIALIZER_CLASS_CONFIG</span><span class="o">,</span>
+            <span class="nt">StringDeserializer</span><span class="nc">.class.getName</span><span class="o">());</span>
+    <span class="nt">config</span><span class="nc">.put</span><span class="o">(</span><span class="nt">ConsumerConfig</span><span class="nc">.VALUE_DESERIALIZER_CLASS_CONFIG</span><span class="o">,</span>
+            <span class="nt">StringDeserializer</span><span class="nc">.class.getName</span><span class="o">());</span>
+    <span class="nt">config</span><span class="nc">.put</span><span class="o">(</span><span class="nt">ConsumerConfig</span><span class="nc">.PARTITION_ASSIGNMENT_STRATEGY</span><span class="o">,</span> <span class="s2">&quot;range&quot;</span><span class="o">);</span>
 </pre></div>
 
 
 <p><strong>3. Use KafkaConsumer API</strong></p>
-<div class="highlight"><pre><span class="n">KafkaConsumer</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">consumer</span> <span class="o">=</span> <span class="n">new</span> <span class="n">KafkaConsumer</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span> <span class="n">String</span><span class="o">&gt;</span><span class="p">(</span><span class="n">config</span><span class="p">);</span>
-<span class="n">consumer</span><span class="p">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s">&quot;topic&quot;</span><span class="p">);</span>
+<div class="highlight"><pre><span></span>KafkaConsumer&lt;String, String&gt; consumer = new KafkaConsumer&lt;String, String&gt;(config);
+consumer.subscribe(&quot;topic&quot;);
 </pre></div>
 
 
 <p>However, when I try to poll message from the broker, I got nothing but null:</p>
-<div class="highlight"><pre><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span> <span class="n">ConsumerRecords</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span> <span class="n">String</span><span class="o">&gt;&gt;</span> <span class="n">records</span> <span class="o">=</span> <span class="n">consumer</span><span class="p">.</span><span class="n">poll</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
-<span class="k">if</span> <span class="p">(</span><span class="n">records</span> <span class="o">!=</span> <span class="n">null</span><span class="p">)</span>
-    <span class="n">process</span><span class="p">(</span><span class="n">records</span><span class="p">);</span>
-<span class="k">else</span>
-    <span class="n">System</span><span class="p">.</span><span class="n">err</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;null&quot;</span><span class="p">);</span>
+<div class="highlight"><pre><span></span>Map&lt;String, ConsumerRecords&lt;String, String&gt;&gt; records = consumer.poll(0);
+if (records != null)
+    process(records);
+else
+    System.err.println(&quot;null&quot;);
 </pre></div>
 
 
 <p>And then I know what's wrong with the consumer after I checked the source code:</p>
-<div class="highlight"><pre><span class="err">@</span><span class="n">Override</span>
-<span class="n">public</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span> <span class="n">ConsumerRecords</span><span class="o">&lt;</span><span class="n">K</span><span class="p">,</span><span class="n">V</span><span class="o">&gt;&gt;</span> <span class="n">poll</span><span class="p">(</span><span class="kt">long</span> <span class="n">timeout</span><span class="p">)</span> <span class="p">{</span>
-    <span class="c1">// TODO Auto-generated method stub</span>
-    <span class="k">return</span> <span class="n">null</span><span class="p">;</span>
-<span class="p">}</span>
+<div class="highlight"><pre><span></span>@Override
+public Map&lt;String, ConsumerRecords&lt;K,V&gt;&gt; poll(long timeout) {
+    // TODO Auto-generated method stub
+    return null;
+}
 </pre></div>
 
 
@@ -231,121 +231,6 @@ The new KafkaConsumer API will only be available in 0.8.3 <a href="https://cwiki
 
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
-                                分布式计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/storm.html">
-                                Storm
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/translation.html">
-                                Translation
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
-                                环境搭建
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/kafka.html">
-                                Kafka
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
-                                实时计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/linux.html">
-                                Linux
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/java.html">
-                                Java
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/mapreduce.html">
-                                MapReduce
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/hadoop.html">
-                                Hadoop
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/flume.html">
-                                Flume
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/redis.html">
-                                Redis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/shell.html">
-                                Shell
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/virtualbox.html">
-                                VirtualBox
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/undefined.html">
-                                Undefined
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/benchmark.html">
-                                Benchmark
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/rpc.html">
-                                RPC
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/log4j.html">
-                                log4j
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/jedis.html">
-                                Jedis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/yaml.html">
-                                Yaml
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/zookeeper.html">
-                                ZooKeeper
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/windows.html">
-                                Windows
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/gnome.html">
-                                Gnome
-                            </a>
-                        </li>
         </ul>
     </section>
 </aside>        </div>

@@ -187,46 +187,46 @@ nimbus.host: "111.222.333.444"</p>
 <p><em><strong>[注]</strong> yaml 文件的配置使用<code>“-”</code>来表示数据的层次结构，配置项的<code>:</code>后必须有空格，否则该配置项无法识别</em></p>
 </blockquote>
 <p>集群配置示例如下：</p>
-<div class="highlight"><pre><span class="cp">########### These MUST be filled in for a storm configuration</span>
-<span class="cp"># storm.zookeeper.servers:</span>
-<span class="cp">#     - &quot;server1&quot;</span>
-<span class="cp">#     - &quot;server2&quot;</span>
- <span class="n">storm</span><span class="p">.</span><span class="n">zookeeper</span><span class="p">.</span><span class="n">servers</span><span class="o">:</span>
-    <span class="o">-</span> <span class="s">&quot;192.168.9.182&quot;</span>
-    <span class="o">-</span> <span class="s">&quot;192.168.9.185&quot;</span>
-    <span class="o">-</span> <span class="s">&quot;192.168.91.128&quot;</span>
- <span class="n">storm</span><span class="p">.</span><span class="n">zookeeper</span><span class="p">.</span><span class="n">port</span><span class="o">:</span> <span class="mi">2181</span>
-<span class="cp"># storm&#39;s work directory</span>
- <span class="n">storm</span><span class="p">.</span><span class="n">local</span><span class="p">.</span><span class="n">dir</span><span class="o">:</span> <span class="s">&quot;/home/storm/workdir&quot;</span>
-<span class="cp"># nimbus.host: &quot;nimbus&quot;</span>
- <span class="n">nimbus</span><span class="p">.</span><span class="n">host</span><span class="o">:</span> <span class="s">&quot;192.168.9.185&quot;</span>
-<span class="cp"># supervisor&#39;s work ports</span>
- <span class="n">supervisor</span><span class="p">.</span><span class="n">slots</span><span class="p">.</span><span class="n">ports</span><span class="o">:</span>
-    <span class="o">-</span><span class="mi">6700</span>
-    <span class="o">-</span><span class="mi">6701</span>
-    <span class="o">-</span><span class="mi">6702</span>
-    <span class="o">-</span><span class="mi">6703</span>
+<div class="highlight"><pre><span></span>########### These MUST be filled in for a storm configuration
+# storm.zookeeper.servers:
+#     - &quot;server1&quot;
+#     - &quot;server2&quot;
+ storm.zookeeper.servers:
+    - &quot;192.168.9.182&quot;
+    - &quot;192.168.9.185&quot;
+    - &quot;192.168.91.128&quot;
+ storm.zookeeper.port: 2181
+# storm&#39;s work directory
+ storm.local.dir: &quot;/home/storm/workdir&quot;
+# nimbus.host: &quot;nimbus&quot;
+ nimbus.host: &quot;192.168.9.185&quot;
+# supervisor&#39;s work ports
+ supervisor.slots.ports:
+    -6700
+    -6701
+    -6702
+    -6703
 
-<span class="cp"># #### Netty transport configuration</span>
-<span class="cp"># transmission protocol</span>
- <span class="n">storm</span><span class="p">.</span><span class="n">messaging</span><span class="p">.</span><span class="n">transport</span><span class="o">:</span> <span class="s">&quot;backtype.storm.messaging.netty.Context&quot;</span>
-<span class="cp"># server&#39;s work threads number</span>
- <span class="n">storm</span><span class="p">.</span><span class="n">messaging</span><span class="p">.</span><span class="n">netty</span><span class="p">.</span><span class="n">server_worker_threads</span><span class="o">:</span> <span class="mi">1</span>
-<span class="cp"># client&#39;s work threads number</span>
- <span class="n">storm</span><span class="p">.</span><span class="n">messaging</span><span class="p">.</span><span class="n">netty</span><span class="p">.</span><span class="n">client_worker_threads</span><span class="o">:</span> <span class="mi">1</span>
-<span class="cp"># buffer size</span>
- <span class="n">storm</span><span class="p">.</span><span class="n">messaging</span><span class="p">.</span><span class="n">netty</span><span class="p">.</span><span class="n">buffer_size</span><span class="o">:</span> <span class="mi">5242880</span>
-<span class="cp"># max retry times</span>
- <span class="n">storm</span><span class="p">.</span><span class="n">messaging</span><span class="p">.</span><span class="n">netty</span><span class="p">.</span><span class="n">max_retries</span><span class="o">:</span> <span class="mi">100</span>
-<span class="cp"># max waiting time(ms)</span>
- <span class="n">storm</span><span class="p">.</span><span class="n">messaging</span><span class="p">.</span><span class="n">netty</span><span class="p">.</span><span class="n">max_wait_ms</span><span class="o">:</span> <span class="mi">1000</span>
-<span class="cp"># min waiting time(ms)</span>
- <span class="n">storm</span><span class="p">.</span><span class="n">messaging</span><span class="p">.</span><span class="n">netty</span><span class="p">.</span><span class="n">min_wait_ms</span><span class="o">:</span> <span class="mi">100</span>
+# #### Netty transport configuration
+# transmission protocol
+ storm.messaging.transport: &quot;backtype.storm.messaging.netty.Context&quot;
+# server&#39;s work threads number
+ storm.messaging.netty.server_worker_threads: 1
+# client&#39;s work threads number
+ storm.messaging.netty.client_worker_threads: 1
+# buffer size
+ storm.messaging.netty.buffer_size: 5242880
+# max retry times
+ storm.messaging.netty.max_retries: 100
+# max waiting time(ms)
+ storm.messaging.netty.max_wait_ms: 1000
+# min waiting time(ms)
+ storm.messaging.netty.min_wait_ms: 100
 
-<span class="cp">## JVM parameters can be configured here</span>
- <span class="n">nimbus</span><span class="p">.</span><span class="n">childopts</span><span class="o">:</span> <span class="s">&quot;-Xloggc:/home/enjoyor/storm/apache-storm-0.9.3/logs/nimbusGC.log -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps&quot;</span>
- <span class="n">supervisor</span><span class="p">.</span><span class="n">childopts</span><span class="o">:</span> <span class="s">&quot;-Xloggc:/home/enjoyor/storm/apache-storm-0.9.3/logs/nimbusGC.log -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps&quot;</span>
- <span class="n">worker</span><span class="p">.</span><span class="n">childopts</span><span class="o">:</span> <span class="s">&quot;-Xloggc:/home/enjoyor/storm/apache-storm-0.9.3/logs/nimbusGC.log -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps&quot;</span>
+## JVM parameters can be configured here
+ nimbus.childopts: &quot;-Xloggc:/home/enjoyor/storm/apache-storm-0.9.3/logs/nimbusGC.log -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps&quot;
+ supervisor.childopts: &quot;-Xloggc:/home/enjoyor/storm/apache-storm-0.9.3/logs/nimbusGC.log -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps&quot;
+ worker.childopts: &quot;-Xloggc:/home/enjoyor/storm/apache-storm-0.9.3/logs/nimbusGC.log -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps&quot;
 </pre></div>
 
 
@@ -333,121 +333,6 @@ nimbus.host: "111.222.333.444"</p>
 
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
-                                分布式计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/storm.html">
-                                Storm
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/translation.html">
-                                Translation
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
-                                环境搭建
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/kafka.html">
-                                Kafka
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
-                                实时计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/linux.html">
-                                Linux
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/java.html">
-                                Java
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/mapreduce.html">
-                                MapReduce
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/hadoop.html">
-                                Hadoop
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/flume.html">
-                                Flume
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/redis.html">
-                                Redis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/shell.html">
-                                Shell
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/virtualbox.html">
-                                VirtualBox
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/undefined.html">
-                                Undefined
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/benchmark.html">
-                                Benchmark
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/rpc.html">
-                                RPC
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/log4j.html">
-                                log4j
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/jedis.html">
-                                Jedis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/yaml.html">
-                                Yaml
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/zookeeper.html">
-                                ZooKeeper
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/windows.html">
-                                Windows
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/gnome.html">
-                                Gnome
-                            </a>
-                        </li>
         </ul>
     </section>
 </aside>        </div>

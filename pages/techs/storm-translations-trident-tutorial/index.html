@@ -132,23 +132,23 @@
 <li>实现对一个单词列表中每个单词总数的查询</li>
 </ol>
 <p>为了实现这个目的，这个例子将会从下面的数据源中无限循环地读取语句数据流：</p>
-<div class="highlight"><pre><span class="n">FixedBatchSpout</span> <span class="n">spout</span> <span class="o">=</span> <span class="n">new</span> <span class="n">FixedBatchSpout</span><span class="p">(</span><span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;sentence&quot;</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span>
-               <span class="n">new</span> <span class="n">Values</span><span class="p">(</span><span class="s">&quot;the cow jumped over the moon&quot;</span><span class="p">),</span>
-               <span class="n">new</span> <span class="n">Values</span><span class="p">(</span><span class="s">&quot;the man went to the store and bought some candy&quot;</span><span class="p">),</span>
-               <span class="n">new</span> <span class="n">Values</span><span class="p">(</span><span class="s">&quot;four score and seven years ago&quot;</span><span class="p">),</span>
-               <span class="n">new</span> <span class="n">Values</span><span class="p">(</span><span class="s">&quot;how many apples can you eat&quot;</span><span class="p">));</span>
-<span class="n">spout</span><span class="p">.</span><span class="n">setCycle</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+<div class="highlight"><pre><span></span>FixedBatchSpout spout = new FixedBatchSpout(new Fields(&quot;sentence&quot;), 3,
+               new Values(&quot;the cow jumped over the moon&quot;),
+               new Values(&quot;the man went to the store and bought some candy&quot;),
+               new Values(&quot;four score and seven years ago&quot;),
+               new Values(&quot;how many apples can you eat&quot;));
+spout.setCycle(true);
 </pre></div>
 
 
 <p>这个 Spout 会循环地访问语句集来生成语句数据流。下面的代码就是用来实现计算过程中的单词数据流统计部分：</p>
-<div class="highlight"><pre><span class="n">TridentTopology</span> <span class="n">topology</span> <span class="o">=</span> <span class="n">new</span> <span class="n">TridentTopology</span><span class="p">();</span>        
-<span class="n">TridentState</span> <span class="n">wordCounts</span> <span class="o">=</span>
-     <span class="n">topology</span><span class="p">.</span><span class="n">newStream</span><span class="p">(</span><span class="s">&quot;spout1&quot;</span><span class="p">,</span> <span class="n">spout</span><span class="p">)</span>
-       <span class="p">.</span><span class="n">each</span><span class="p">(</span><span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;sentence&quot;</span><span class="p">),</span> <span class="n">new</span> <span class="n">Split</span><span class="p">(),</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;word&quot;</span><span class="p">))</span>
-       <span class="p">.</span><span class="n">groupBy</span><span class="p">(</span><span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;word&quot;</span><span class="p">))</span>
-       <span class="p">.</span><span class="n">persistentAggregate</span><span class="p">(</span><span class="n">new</span> <span class="n">MemoryMapState</span><span class="p">.</span><span class="n">Factory</span><span class="p">(),</span> <span class="n">new</span> <span class="n">Count</span><span class="p">(),</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;count&quot;</span><span class="p">))</span>                
-       <span class="p">.</span><span class="n">parallelismHint</span><span class="p">(</span><span class="mi">6</span><span class="p">);</span>
+<div class="highlight"><pre><span></span>TridentTopology topology = new TridentTopology();        
+TridentState wordCounts =
+     topology.newStream(&quot;spout1&quot;, spout)
+       .each(new Fields(&quot;sentence&quot;), new Split(), new Fields(&quot;word&quot;))
+       .groupBy(new Fields(&quot;word&quot;))
+       .persistentAggregate(new MemoryMapState.Factory(), new Count(), new Fields(&quot;count&quot;))                
+       .parallelismHint(6);
 </pre></div>
 
 
@@ -158,20 +158,20 @@
 <p>这些小块的大小主要取决于你的输入吞吐量，一般可能会在数万甚至数百万元组的级别。</p>
 <p>Trident 为这些小块提供了一个完全成熟的批处理 API。这个 API 和你见到过的 Pig 或者 Cascading 这样的 Hadoop 的高级抽象语言很相似：你可以处理分组（group by）、联结（join）、聚合（aggregation）、函数（function）、过滤器（filter）等各种操作。当然，分别处理每个小块并不是件好事，所以，Trident 提供了适用于处理各个小块之间的聚合操作的函数，并且可以在聚合后将结果保存到持久化存储中，而且无论是内存、Memcached、Cassandra 还是其他类型的存储都可以支持。最后，Trident 还提供了用于查询实时状态结果的一级接口。而这个结果状态既可以像这个例子中演示的那样由 Trident 负责更新，也可以作为一个独立的状态数据源而存在。</p>
 <p>再回到这个例子中，输入数据源 spout 发送出了一个名为 “sentence” 的数据流。接下来拓扑中定义了一个 <code>Split</code> 方法用于处理流中的每个 tuple，这个方法接收 “sentence” 域并将其分割成若干个单词。每个 sentence tuple 都会创建很多个单词 tuple —— 例如 “the cow jumped over the moon” 这个句子就会创建 6 个 “word” tuple，下面是 <code>Split</code> 的定义：</p>
-<div class="highlight"><pre><span class="n">public</span> <span class="n">class</span> <span class="n">Split</span> <span class="n">extends</span> <span class="n">BaseFunction</span> <span class="p">{</span>
-   <span class="n">public</span> <span class="kt">void</span> <span class="n">execute</span><span class="p">(</span><span class="n">TridentTuple</span> <span class="n">tuple</span><span class="p">,</span> <span class="n">TridentCollector</span> <span class="n">collector</span><span class="p">)</span> <span class="p">{</span>
-       <span class="n">String</span> <span class="n">sentence</span> <span class="o">=</span> <span class="n">tuple</span><span class="p">.</span><span class="n">getString</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
-       <span class="k">for</span><span class="p">(</span><span class="n">String</span> <span class="n">word</span><span class="o">:</span> <span class="n">sentence</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="p">))</span> <span class="p">{</span>
-           <span class="n">collector</span><span class="p">.</span><span class="n">emit</span><span class="p">(</span><span class="n">new</span> <span class="n">Values</span><span class="p">(</span><span class="n">word</span><span class="p">));</span>                
-       <span class="p">}</span>
-   <span class="p">}</span>
-<span class="p">}</span>
+<div class="highlight"><pre><span></span>public class Split extends BaseFunction {
+   public void execute(TridentTuple tuple, TridentCollector collector) {
+       String sentence = tuple.getString(0);
+       for(String word: sentence.split(&quot; &quot;)) {
+           collector.emit(new Values(word));                
+       }
+   }
+}
 </pre></div>
 
 
 <p>从上面的代码中你会发现这个过程真的很简单。这个方法中的所有操作仅仅是抓取句子、以空格分隔句子并且为每个单词发射一个 tuple。</p>
 <p>拓扑的剩余部分负责统计单词的数量并将结果保存到持久化存储中。首先，数据流根据 “word” 域分组，然后使用 <code>Count</code> 聚合器持续聚合每个小组。<code>persistentAggregate</code> 方法用于存储并更新 state 源中的聚合结果。在这个例子中，单词的数量结果是保存在内存中的，不过可以根据需要切换到 Memcached、Cassandra 或者其他持久化存储中。切换存储模型也非常简单，只需要像下面这样（使用 <a href="https://github.com/nathanmarz/trident-memcached">trident-memcached</a> 修改 <code>persistentAggregate</code> 行中的一个参数（其中，“serverLocations” 是 Memcached 集群的地址/端口列表）即可：</p>
-<div class="highlight"><pre><span class="p">.</span><span class="n">persistentAggregate</span><span class="p">(</span><span class="n">MemcachedState</span><span class="p">.</span><span class="n">transactional</span><span class="p">(</span><span class="n">serverLocations</span><span class="p">),</span> <span class="n">new</span> <span class="n">Count</span><span class="p">(),</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;count&quot;</span><span class="p">))</span>
+<div class="highlight"><pre><span></span><span class="na">.persistentAggregate</span><span class="p">(</span><span class="no">MemcachedState.transactional</span><span class="p">(</span><span class="no">serverLocations</span><span class="p">),</span> <span class="no">new</span> <span class="no">Count</span><span class="p">(),</span> <span class="no">new</span> <span class="no">Fields</span><span class="p">(</span><span class="s">&quot;count&quot;</span><span class="p">))</span>
 </pre></div>
 
 
@@ -179,20 +179,20 @@
 <p>Trident 的另一个很酷的特性就是它支持完全容错性和恰好一次处理的语义。如果处理过程中出现错误需要重新执行处理操作，Trident 不会向数据库中提交多次来自相同的源数据的更新操作，这就是 Trident 持久化 state 的方式。</p>
 <p><code>persistentAggregate</code> 方法也可以将数据流结果传入一个 <code>TridentState</code> 对象中。这种情况下，这个 <code>TridentState</code> 就表示所有的单词统计信息。这样我们就可以使用 <code>TridentState</code> 对象来实现整个计算过程中的分布式查询部分。</p>
 <p>接下来我们就可以在拓扑中实现 word count 的一个低延时分布式查询。这个查询接收一个由空格分隔的单词列表作为参数，然后返回这些单词的数量统计结果。这个查询看上去与普通的 RPC 调用并没有什么分别，不过在后台他们是并发执行的。下面是一个实现这种查询的例子：</p>
-<div class="highlight"><pre><span class="n">DRPCClient</span> <span class="n">client</span> <span class="o">=</span> <span class="n">new</span> <span class="n">DRPCClient</span><span class="p">(</span><span class="s">&quot;drpc.server.location&quot;</span><span class="p">,</span> <span class="mi">3772</span><span class="p">);</span>
-<span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="n">client</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;words&quot;</span><span class="p">,</span> <span class="s">&quot;cat dog the man&quot;</span><span class="p">);</span>
-<span class="c1">// prints the JSON-encoded result, e.g.: &quot;[[5078]]&quot;</span>
+<div class="highlight"><pre><span></span>DRPCClient client = new DRPCClient(&quot;drpc.server.location&quot;, 3772);
+System.out.println(client.execute(&quot;words&quot;, &quot;cat dog the man&quot;);
+// prints the JSON-encoded result, e.g.: &quot;[[5078]]&quot;
 </pre></div>
 
 
 <p>如你所见，这个查询看上去只是一个普通的远程过程调用（RPC），不过在后台他是在一个 Storm 集群中并发执行的。这种查询的端到端延时一般在 10 ms 左右。当然，更大量的查询会花费更长的时间，尽管这些查询还是取决于你为这个计算过程分配了多少时间。</p>
 <p>拓扑中的分布式查询的实现是这样的：</p>
-<div class="highlight"><pre><span class="n">topology</span><span class="p">.</span><span class="n">newDRPCStream</span><span class="p">(</span><span class="s">&quot;words&quot;</span><span class="p">)</span>
-       <span class="p">.</span><span class="n">each</span><span class="p">(</span><span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;args&quot;</span><span class="p">),</span> <span class="n">new</span> <span class="n">Split</span><span class="p">(),</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;word&quot;</span><span class="p">))</span>
-       <span class="p">.</span><span class="n">groupBy</span><span class="p">(</span><span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;word&quot;</span><span class="p">))</span>
-       <span class="p">.</span><span class="n">stateQuery</span><span class="p">(</span><span class="n">wordCounts</span><span class="p">,</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;word&quot;</span><span class="p">),</span> <span class="n">new</span> <span class="n">MapGet</span><span class="p">(),</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;count&quot;</span><span class="p">))</span>
-       <span class="p">.</span><span class="n">each</span><span class="p">(</span><span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;count&quot;</span><span class="p">),</span> <span class="n">new</span> <span class="n">FilterNull</span><span class="p">())</span>
-       <span class="p">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;count&quot;</span><span class="p">),</span> <span class="n">new</span> <span class="n">Sum</span><span class="p">(),</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;sum&quot;</span><span class="p">));</span>
+<div class="highlight"><pre><span></span>topology.newDRPCStream(&quot;words&quot;)
+       .each(new Fields(&quot;args&quot;), new Split(), new Fields(&quot;word&quot;))
+       .groupBy(new Fields(&quot;word&quot;))
+       .stateQuery(wordCounts, new Fields(&quot;word&quot;), new MapGet(), new Fields(&quot;count&quot;))
+       .each(new Fields(&quot;count&quot;), new FilterNull())
+       .aggregate(new Fields(&quot;count&quot;), new Sum(), new Fields(&quot;sum&quot;));
 </pre></div>
 
 
@@ -212,22 +212,22 @@
 <h2>Reach</h2>
 <p>这个例子是一个纯粹的 DRPC 拓扑，计算了一个指定 URL 的 Reach 数。Reach 指的是 Twitter 上能够看到一个指定的 URL 的独立用户数。要想计算 Reach，你需要先提取所有转发了该 URL 的用户，提取这些用户的关注者，将关注者放入一个 set 集合中来去除重复的关注者，然后再统计这个 set 中的数量。对于单一的一台机器来说，计算 reach 太耗时了，这个过程大概需要数千次数据库调用并生成数千万 tuple。而使用 Storm 和 Trident 就可以通过一个集群来将计算过程的每个步骤进行并行化处理。</p>
 <p>这个拓扑会从两个 state 源中读取数据。其中一个数据库建立了 URL 和转发了该 URL 的用户列表的关联表。另一个数据库中建立了用户和用户的关注者列表的关联表。拓扑的定义是这样的：</p>
-<div class="highlight"><pre><span class="n">TridentState</span> <span class="n">urlToTweeters</span> <span class="o">=</span>
-       <span class="n">topology</span><span class="p">.</span><span class="n">newStaticState</span><span class="p">(</span><span class="n">getUrlToTweetersState</span><span class="p">());</span>
-<span class="n">TridentState</span> <span class="n">tweetersToFollowers</span> <span class="o">=</span>
-       <span class="n">topology</span><span class="p">.</span><span class="n">newStaticState</span><span class="p">(</span><span class="n">getTweeterToFollowersState</span><span class="p">());</span>
+<div class="highlight"><pre><span></span>TridentState urlToTweeters =
+       topology.newStaticState(getUrlToTweetersState());
+TridentState tweetersToFollowers =
+       topology.newStaticState(getTweeterToFollowersState());
 
-<span class="n">topology</span><span class="p">.</span><span class="n">newDRPCStream</span><span class="p">(</span><span class="s">&quot;reach&quot;</span><span class="p">)</span>
-       <span class="p">.</span><span class="n">stateQuery</span><span class="p">(</span><span class="n">urlToTweeters</span><span class="p">,</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;args&quot;</span><span class="p">),</span> <span class="n">new</span> <span class="n">MapGet</span><span class="p">(),</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;tweeters&quot;</span><span class="p">))</span>
-       <span class="p">.</span><span class="n">each</span><span class="p">(</span><span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;tweeters&quot;</span><span class="p">),</span> <span class="n">new</span> <span class="n">ExpandList</span><span class="p">(),</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;tweeter&quot;</span><span class="p">))</span>
-       <span class="p">.</span><span class="n">shuffle</span><span class="p">()</span>
-       <span class="p">.</span><span class="n">stateQuery</span><span class="p">(</span><span class="n">tweetersToFollowers</span><span class="p">,</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;tweeter&quot;</span><span class="p">),</span> <span class="n">new</span> <span class="n">MapGet</span><span class="p">(),</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;followers&quot;</span><span class="p">))</span>
-       <span class="p">.</span><span class="n">parallelismHint</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span>
-       <span class="p">.</span><span class="n">each</span><span class="p">(</span><span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;followers&quot;</span><span class="p">),</span> <span class="n">new</span> <span class="n">ExpandList</span><span class="p">(),</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;follower&quot;</span><span class="p">))</span>
-       <span class="p">.</span><span class="n">groupBy</span><span class="p">(</span><span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;follower&quot;</span><span class="p">))</span>
-       <span class="p">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">new</span> <span class="n">One</span><span class="p">(),</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;one&quot;</span><span class="p">))</span>
-       <span class="p">.</span><span class="n">parallelismHint</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
-       <span class="p">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">new</span> <span class="n">Count</span><span class="p">(),</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;reach&quot;</span><span class="p">));</span>
+topology.newDRPCStream(&quot;reach&quot;)
+       .stateQuery(urlToTweeters, new Fields(&quot;args&quot;), new MapGet(), new Fields(&quot;tweeters&quot;))
+       .each(new Fields(&quot;tweeters&quot;), new ExpandList(), new Fields(&quot;tweeter&quot;))
+       .shuffle()
+       .stateQuery(tweetersToFollowers, new Fields(&quot;tweeter&quot;), new MapGet(), new Fields(&quot;followers&quot;))
+       .parallelismHint(200)
+       .each(new Fields(&quot;followers&quot;), new ExpandList(), new Fields(&quot;follower&quot;))
+       .groupBy(new Fields(&quot;follower&quot;))
+       .aggregate(new One(), new Fields(&quot;one&quot;))
+       .parallelismHint(20)
+       .aggregate(new Count(), new Fields(&quot;reach&quot;));
 </pre></div>
 
 
@@ -235,19 +235,19 @@
 <p>拓扑的定义很直接 —— 就是一个简单的批处理 job。首先，会通过查询 urlToTweeters 数据库来获取转发了 URL 的用户列表，然后就可以调用 <code>ExpandList</code> 方法来为每个 tweeter 创建一个 tuple。</p>
 <p>接下来必须要获取每个 tweeter 的关注者。由于需要调用 shuffle 方法将所有的 tweeter 均衡分配到拓扑的所有 worker 中，所以这个步骤必须并发进行，这一点非常重要。然后就可以查询关注者数据库来获取每个 tweeter 的关注者列表。你可能注意到了这个过程的并行度非常高，因为这是整个计算过程中复杂度最高的部分。</p>
 <p>再接下来，关注者就会被放入一个单独的 set 集合中用于计数。这里包含两个步骤。首先，会根据 “follower” 域来执行 “group by” 分组操作，并在每个组上运行 <code>One</code> 聚合器。“One”聚合器的作用仅仅是为每个组发送一个包含数字 1 的 tuple。然后，就可以通过统计这些 one 结果来得到关注者 set 的大小，也就是真正的关注者数量。下面是 “One” 聚合器的定义：</p>
-<div class="highlight"><pre><span class="k">public</span> <span class="nf">class</span> <span class="nx">One</span> <span class="nx">implements</span> <span class="nx">CombinerAggregator</span><span class="o">&lt;</span><span class="kt">Integer</span><span class="o">&gt;</span> <span class="p">{</span>
-   <span class="k">public</span> <span class="nf">Integer</span> <span class="nb">init</span><span class="p">(</span><span class="nx">TridentTuple</span> <span class="nx">tuple</span><span class="p">)</span> <span class="p">{</span>
-       <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
-   <span class="p">}</span>
+<div class="highlight"><pre><span></span>public class One implements CombinerAggregator&lt;Integer&gt; {
+   public Integer init(TridentTuple tuple) {
+       return 1;
+   }
 
-   <span class="k">public</span> <span class="nf">Integer</span> <span class="nx">combine</span><span class="p">(</span><span class="kt">Integer</span> <span class="nx">val1</span><span class="p">,</span> <span class="kt">Integer</span> <span class="nx">val2</span><span class="p">)</span> <span class="p">{</span>
-       <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
-   <span class="p">}</span>
+   public Integer combine(Integer val1, Integer val2) {
+       return 1;
+   }
 
-   <span class="k">public</span> <span class="nf">Integer</span> <span class="nx">zero</span><span class="p">()</span> <span class="p">{</span>
-       <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
-   <span class="p">}</span>        
-<span class="p">}</span>
+   public Integer zero() {
+       return 1;
+   }        
+}
 </pre></div>
 
 
@@ -256,46 +256,46 @@
 <h2>域（Fields）与元组（tuples）</h2>
 <p>Trident 的数据模型 TridentTuple 是一个指定的值列表。在一个拓扑中，tuple 是在一系列操作中不断生成的。这些操作一般会输入一个“输入域”（input fields）集合，然后发送出一个“方法域”（function fields）的集合。输入域主要用于选取一个 tuple 的子集作为操作的输入，而“方法域”主要用于为该操作的输出结果域命名。</p>
 <p>我们来看看这样一个场景。假设你有一个名为 “stream” 的数据流，其中包含域 “x”、“y” 和 “z”。如果要运行一个接收 “y” 作为输入的过滤器 MyFilter，你可以这样写：</p>
-<div class="highlight"><pre><span class="n">stream</span><span class="p">.</span><span class="n">each</span><span class="p">(</span><span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;y&quot;</span><span class="p">),</span> <span class="n">new</span> <span class="n">MyFilter</span><span class="p">())</span>
+<div class="highlight"><pre><span></span>stream.each(new Fields(&quot;y&quot;), new MyFilter())
 </pre></div>
 
 
 <p>再假设 MyFilter 的实现是这样的：</p>
-<div class="highlight"><pre><span class="n">public</span> <span class="n">class</span> <span class="n">MyFilter</span> <span class="n">extends</span> <span class="n">BaseFilter</span> <span class="p">{</span>
-   <span class="n">public</span> <span class="n">boolean</span> <span class="n">isKeep</span><span class="p">(</span><span class="n">TridentTuple</span> <span class="n">tuple</span><span class="p">)</span> <span class="p">{</span>
-       <span class="k">return</span> <span class="n">tuple</span><span class="p">.</span><span class="n">getInteger</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span>
-   <span class="p">}</span>
-<span class="p">}</span>
+<div class="highlight"><pre><span></span>public class MyFilter extends BaseFilter {
+   public boolean isKeep(TridentTuple tuple) {
+       return tuple.getInteger(0) &lt; 10;
+   }
+}
 </pre></div>
 
 
 <p>这样就会保留所有 “y” 域的值小于 10 的 tuple。MyFilter 输入的 TridentTuple 将会仅包含有 “y” 域。值得注意的是，Trident 可以在选取输入域时以一种非常高效的方式来投射 tuple 的子集：这个投射过程非常灵活。</p>
 <p>我们再来看看 “function fields” 是怎么工作的。假设你有这样一个函数：</p>
-<div class="highlight"><pre><span class="n">public</span> <span class="n">class</span> <span class="n">AddAndMultiply</span> <span class="n">extends</span> <span class="n">BaseFunction</span> <span class="p">{</span>
-   <span class="n">public</span> <span class="kt">void</span> <span class="n">execute</span><span class="p">(</span><span class="n">TridentTuple</span> <span class="n">tuple</span><span class="p">,</span> <span class="n">TridentCollector</span> <span class="n">collector</span><span class="p">)</span> <span class="p">{</span>
-       <span class="kt">int</span> <span class="n">i1</span> <span class="o">=</span> <span class="n">tuple</span><span class="p">.</span><span class="n">getInteger</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
-       <span class="kt">int</span> <span class="n">i2</span> <span class="o">=</span> <span class="n">tuple</span><span class="p">.</span><span class="n">getInteger</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-       <span class="n">collector</span><span class="p">.</span><span class="n">emit</span><span class="p">(</span><span class="n">new</span> <span class="n">Values</span><span class="p">(</span><span class="n">i1</span> <span class="o">+</span> <span class="n">i2</span><span class="p">,</span> <span class="n">i1</span> <span class="o">*</span> <span class="n">i2</span><span class="p">));</span>
-   <span class="p">}</span>
-<span class="p">}</span>
+<div class="highlight"><pre><span></span>public class AddAndMultiply extends BaseFunction {
+   public void execute(TridentTuple tuple, TridentCollector collector) {
+       int i1 = tuple.getInteger(0);
+       int i2 = tuple.getInteger(1);
+       collector.emit(new Values(i1 + i2, i1 * i2));
+   }
+}
 </pre></div>
 
 
 <p>这个函数接收两个数字作为输入，然后发送出两个新值：分别是两个数字的和和乘积。再假定你有一个包含 “x”、“y” 和 “z” 域的数据流，你可以这样使用这个函数：</p>
-<div class="highlight"><pre><span class="n">stream</span><span class="p">.</span><span class="n">each</span><span class="p">(</span><span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;x&quot;</span><span class="p">,</span> <span class="s">&quot;y&quot;</span><span class="p">),</span> <span class="n">new</span> <span class="n">AddAndMultiply</span><span class="p">(),</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;added&quot;</span><span class="p">,</span> <span class="s">&quot;multiplied&quot;</span><span class="p">));</span>
+<div class="highlight"><pre><span></span>stream.each(new Fields(&quot;x&quot;, &quot;y&quot;), new AddAndMultiply(), new Fields(&quot;added&quot;, &quot;multiplied&quot;));
 </pre></div>
 
 
 <p>这个函数的输出增加了两个新的域。因此，这个 each 调用的输出 tuple 会包含 5 个域：“x”、“y” 、“z”、“added” 和 “multiplied”。其中 “added” 与 AddAndMultiply 的第一个输出值相对应，“multiplied” 和 AddAndMultiply 的第二个输出值相对应。</p>
 <p>另一方面，通过聚合器，函数域也可以替换输入 tuple 的域。假如你有一个包含域 “val1” 和域 “val2” 的数据流，通过这样的操作：</p>
-<div class="highlight"><pre><span class="n">stream</span><span class="p">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;val2&quot;</span><span class="p">),</span> <span class="n">new</span> <span class="n">Sum</span><span class="p">(),</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;sum&quot;</span><span class="p">))</span>
+<div class="highlight"><pre><span></span>stream.aggregate(new Fields(&quot;val2&quot;), new Sum(), new Fields(&quot;sum&quot;))
 </pre></div>
 
 
 <p>就会使得输出数据流中只包含一个只带有 “sum” 的域的 tuple，这个 “sum” 域就代表了在哪个批处理块中所有的 “val2” 域的总和值。</p>
 <p>通过数据流分组，输出就可以同时包含用于分组的域以及由聚合器发送的域。举个例子：</p>
-<div class="highlight"><pre><span class="n">stream</span><span class="p">.</span><span class="n">groupBy</span><span class="p">(</span><span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;val1&quot;</span><span class="p">))</span>
-     <span class="p">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;val2&quot;</span><span class="p">),</span> <span class="n">new</span> <span class="n">Sum</span><span class="p">(),</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;sum&quot;</span><span class="p">))</span>
+<div class="highlight"><pre><span></span>stream.groupBy(new Fields(&quot;val1&quot;))
+     .aggregate(new Fields(&quot;val2&quot;), new Sum(), new Fields(&quot;sum&quot;))
 </pre></div>
 
 
@@ -373,121 +373,6 @@
 
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
-                                分布式计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/storm.html">
-                                Storm
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/translation.html">
-                                Translation
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
-                                环境搭建
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/kafka.html">
-                                Kafka
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
-                                实时计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/linux.html">
-                                Linux
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/java.html">
-                                Java
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/mapreduce.html">
-                                MapReduce
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/hadoop.html">
-                                Hadoop
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/flume.html">
-                                Flume
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/redis.html">
-                                Redis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/shell.html">
-                                Shell
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/virtualbox.html">
-                                VirtualBox
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/undefined.html">
-                                Undefined
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/benchmark.html">
-                                Benchmark
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/rpc.html">
-                                RPC
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/log4j.html">
-                                log4j
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/jedis.html">
-                                Jedis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/yaml.html">
-                                Yaml
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/zookeeper.html">
-                                ZooKeeper
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/windows.html">
-                                Windows
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/gnome.html">
-                                Gnome
-                            </a>
-                        </li>
         </ul>
     </section>
 </aside>        </div>

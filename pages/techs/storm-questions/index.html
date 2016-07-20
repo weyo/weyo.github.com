@@ -128,10 +128,10 @@
                 <h1>Storm 安装与运维问题</h1>
 <h3>运行 storm 命令报错</h3>
 <p>出现语法错误：<br /></p>
-<div class="highlight"><pre><span class="n">File</span> <span class="s">&quot;/home/storm/apache-storm-0.9.3/bin/storm&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">61</span>
-   <span class="n">normclasspath</span> <span class="o">=</span> <span class="n">cygpath</span> <span class="k">if</span> <span class="n">sys</span><span class="p">.</span><span class="n">platform</span> <span class="o">==</span> <span class="err">&#39;</span><span class="n">cygwin</span><span class="err">&#39;</span> <span class="k">else</span> <span class="n">identity</span>
-                            <span class="o">^</span>
-<span class="nl">SyntaxError:</span> <span class="n">invalid</span> <span class="n">syntax</span>
+<div class="highlight"><pre><span></span>File &quot;/home/storm/apache-storm-0.9.3/bin/storm&quot;, line 61
+   normclasspath = cygpath if sys.platform == &#39;cygwin&#39; else identity
+                            ^
+SyntaxError: invalid syntax
 </pre></div>
 
 
@@ -165,8 +165,8 @@
 <hr />
 <h3>supervisor 启动报错</h3>
 <p>supervisor 启动后异常退出，日志中显示以下错误信息：</p>
-<div class="highlight"><pre> <span class="mi">2015</span><span class="o">-</span><span class="mo">04</span><span class="o">-</span><span class="mi">29</span><span class="n">T09</span><span class="o">:</span><span class="mi">08</span><span class="o">:</span><span class="mf">59.771</span><span class="o">+</span><span class="mi">0800</span> <span class="n">b</span><span class="p">.</span><span class="n">s</span><span class="p">.</span><span class="n">event</span> <span class="p">[</span><span class="n">ERROR</span><span class="p">]</span> <span class="n">Error</span> <span class="n">when</span> <span class="n">processing</span> <span class="n">event</span>
- <span class="n">java</span><span class="p">.</span><span class="n">io</span><span class="p">.</span><span class="n">FileNotFoundException</span><span class="o">:</span> <span class="n">File</span> <span class="err">&#39;</span><span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">storm</span><span class="o">/</span><span class="n">workdir</span><span class="o">/</span><span class="n">supervisor</span><span class="o">/</span><span class="n">stormdist</span><span class="o">/</span><span class="n">storm</span><span class="o">-</span><span class="n">test</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="mi">1429603683</span><span class="o">/</span><span class="n">stormconf</span><span class="p">.</span><span class="n">ser</span><span class="err">&#39;</span> <span class="n">does</span> <span class="n">not</span> <span class="n">exist</span>
+<div class="highlight"><pre><span></span> 2015-04-29T09:08:59.771+0800 b.s.event [ERROR] Error when processing event
+ java.io.FileNotFoundException: File &#39;/home/storm/workdir/supervisor/stormdist/storm-test-1-1429603683/stormconf.ser&#39; does not exist
 </pre></div>
 
 
@@ -178,21 +178,21 @@
 <hr />
 <h3>expected '&lt;document start>', but found BlockMappingStart 错误</h3>
 <p>Storm 启动失败，在 nohup.out 中有如下错误信息</p>
-<div class="highlight"><pre><span class="n">Exception</span> <span class="n">in</span> <span class="kr">thread</span> <span class="s">&quot;main&quot;</span> <span class="n">expected</span> <span class="err">&#39;</span><span class="o">&lt;</span><span class="n">document</span> <span class="n">start</span><span class="o">&gt;</span><span class="err">&#39;</span><span class="p">,</span> <span class="n">but</span> <span class="n">found</span> <span class="n">BlockMappingStart</span>
+<div class="highlight"><pre><span></span>Exception in thread &quot;main&quot; expected &#39;&lt;document start&gt;&#39;, but found BlockMappingStart
 </pre></div>
 
 
 <p>一般在这类信息后会有相关错误位置说明信息，如</p>
-<div class="highlight"><pre><span class="n">in</span> <span class="err">&#39;</span><span class="n">reader</span><span class="err">&#39;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">23</span><span class="p">,</span> <span class="n">column</span> <span class="mi">2</span><span class="o">:</span>
-     <span class="n">nimbus</span><span class="p">.</span><span class="n">host</span><span class="o">:</span> <span class="s">&quot;hd124&quot;</span>
-     <span class="o">^</span>
+<div class="highlight"><pre><span></span>in &#39;reader&#39;, line 23, column 2:
+     nimbus.host: &quot;hd124&quot;
+     ^
 </pre></div>
 
 
 <p>或者</p>
-<div class="highlight"><pre><span class="n">in</span> <span class="err">&#39;</span><span class="n">reader</span><span class="err">&#39;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">7</span><span class="p">,</span> <span class="n">column</span> <span class="mi">1</span><span class="o">:</span>
-     <span class="n">storm</span><span class="p">.</span><span class="n">zookeeper</span><span class="p">.</span><span class="n">port</span><span class="o">:</span> <span class="mi">2181</span>
-     <span class="o">^</span>
+<div class="highlight"><pre><span></span>in &#39;reader&#39;, line 7, column 1:
+     storm.zookeeper.port: 2181
+     ^
 </pre></div>
 
 
@@ -203,7 +203,7 @@
 <p>本地模式运行 topology 时报错：</p>
 <p><code>java.lang.NoSuchMethodError: org.yaml.snakeyaml.Yaml.&lt;init&gt;(Lorg/yaml/snakeyaml/constructor...</code></p>
 <p>这是由于testng的包依赖冲突造成的，需要修改 <code>pom.xml</code>：</p>
-<div class="highlight"><pre>    <span class="nt">&lt;dependency&gt;</span>
+<div class="highlight"><pre><span></span>    <span class="nt">&lt;dependency&gt;</span>
       <span class="nt">&lt;groupId&gt;</span>org.testng<span class="nt">&lt;/groupId&gt;</span>
       <span class="nt">&lt;artifactId&gt;</span>testng<span class="nt">&lt;/artifactId&gt;</span>
       <span class="nt">&lt;version&gt;</span>6.8.5<span class="nt">&lt;/version&gt;</span>
@@ -224,11 +224,11 @@
 <p><code>conf.setNumWorkers(6);</code></p>
 <p>但是，集群中实际的 worker 数量却不到6。</p>
 <p>这是由于每个 supervisor 中有 worker 数量的上限，这个上限值除了要满足系统允许的最大 slot 上限值 <code>8</code> 之外，还需要小于 Storm 配置文件中的端口数量：</p>
-<div class="highlight"><pre><span class="n">supervisor</span><span class="p">.</span><span class="n">slots</span><span class="p">.</span><span class="n">ports</span><span class="o">:</span>
-    <span class="o">-</span> <span class="mi">6700</span>
-    <span class="o">-</span> <span class="mi">6701</span>
-    <span class="o">-</span> <span class="mi">6702</span>
-    <span class="o">-</span> <span class="mi">6703</span>
+<div class="highlight"><pre><span></span>supervisor.slots.ports:
+    - 6700
+    - 6701
+    - 6702
+    - 6703
 </pre></div>
 
 
@@ -239,15 +239,15 @@
 <hr />
 <h3>log4j 包冲突</h3>
 <p>传统的日志记录方法是如下所示引入 apache 的 log4j 包来记录日志</p>
-<div class="highlight"><pre><span class="n">import</span> <span class="n">org</span><span class="p">.</span><span class="n">apache</span><span class="p">.</span><span class="n">log4j</span><span class="p">.</span><span class="n">Logger</span><span class="p">;</span>
-<span class="n">public</span> <span class="n">class</span> <span class="n">ClassifyBolt</span> <span class="p">{</span>
-    <span class="n">private</span> <span class="k">static</span> <span class="n">final</span> <span class="n">Logger</span> <span class="n">LOG</span> <span class="o">=</span> <span class="n">Logger</span><span class="p">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">ClassifyBolt</span><span class="p">.</span><span class="n">class</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">org.apache.log4j.Logger</span><span class="p">;</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">ClassifyBolt</span> <span class="p">{</span>
+    <span class="n">private</span> <span class="n">static</span> <span class="n">final</span> <span class="n">Logger</span> <span class="n">LOG</span> <span class="o">=</span> <span class="n">Logger</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">ClassifyBolt</span><span class="o">.</span><span class="n">class</span><span class="p">);</span>
 <span class="p">}</span>
 </pre></div>
 
 
 <p>这种方式在 Storm 开发中会报包冲突错误</p>
-<div class="highlight"><pre><span class="n">SLF4J</span><span class="o">:</span> <span class="n">Class</span> <span class="n">path</span> <span class="n">contains</span> <span class="n">multiple</span> <span class="n">SLF4J</span> <span class="n">bindings</span><span class="o">.</span>
+<div class="highlight"><pre><span></span><span class="n">SLF4J</span><span class="o">:</span> <span class="n">Class</span> <span class="n">path</span> <span class="n">contains</span> <span class="n">multiple</span> <span class="n">SLF4J</span> <span class="n">bindings</span><span class="o">.</span>
 <span class="n">SLF4J</span><span class="o">:</span> <span class="n">Found</span> <span class="n">binding</span> <span class="k">in</span> <span class="o">[</span><span class="n">jar</span><span class="o">:</span><span class="n">file</span><span class="o">:/</span><span class="n">F</span><span class="o">:/</span><span class="n">maven</span><span class="sr">/repository/ch/qos/logback/logback-classic/1.0.13/logback-classic-1.0.13.jar!/org/slf4j/impl/</span><span class="n">StaticLoggerBinder</span><span class="o">.</span><span class="na">class</span><span class="o">]</span>
 <span class="n">SLF4J</span><span class="o">:</span> <span class="n">Found</span> <span class="n">binding</span> <span class="k">in</span> <span class="o">[</span><span class="n">jar</span><span class="o">:</span><span class="n">file</span><span class="o">:/</span><span class="n">F</span><span class="o">:/</span><span class="n">maven</span><span class="sr">/repository/org/slf4j/slf4j-log4j12/1.6.1/slf4j-log4j12-1.6.1.jar!/org/slf4j/impl/</span><span class="n">StaticLoggerBinder</span><span class="o">.</span><span class="na">class</span><span class="o">]</span>
 <span class="n">SLF4J</span><span class="o">:</span> <span class="n">See</span> <span class="n">http</span><span class="o">://</span><span class="n">www</span><span class="o">.</span><span class="na">slf4j</span><span class="o">.</span><span class="na">org</span><span class="o">/</span><span class="n">codes</span><span class="o">.</span><span class="na">html</span><span class="err">#</span><span class="n">multiple_bindings</span> <span class="k">for</span> <span class="n">an</span> <span class="n">explanation</span><span class="o">.</span>
@@ -266,11 +266,11 @@
 
 
 <p>解决方法是改变日志类处理方式，替换 apache 的依赖为 slf4j 原生包，如下所示</p>
-<div class="highlight"><pre><span class="n">import</span> <span class="n">org</span><span class="p">.</span><span class="n">slf4j</span><span class="p">.</span><span class="n">Logger</span><span class="p">;</span>
-<span class="n">import</span> <span class="n">org</span><span class="p">.</span><span class="n">slf4j</span><span class="p">.</span><span class="n">LoggerFactory</span><span class="p">;</span>
-<span class="n">public</span> <span class="n">class</span> <span class="n">ClassifyBolt</span> <span class="p">{</span>
-    <span class="n">private</span> <span class="k">static</span> <span class="n">final</span> <span class="n">Logger</span> <span class="n">LOG</span> <span class="o">=</span> <span class="n">LoggerFactory</span>
-            <span class="p">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">ClassifyBolt</span><span class="p">.</span><span class="n">class</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">org.slf4j.Logger</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">org.slf4j.LoggerFactory</span><span class="p">;</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">ClassifyBolt</span> <span class="p">{</span>
+    <span class="n">private</span> <span class="n">static</span> <span class="n">final</span> <span class="n">Logger</span> <span class="n">LOG</span> <span class="o">=</span> <span class="n">LoggerFactory</span>
+            <span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">ClassifyBolt</span><span class="o">.</span><span class="n">class</span><span class="p">);</span>
 <span class="p">}</span>
 </pre></div>
 
@@ -278,27 +278,27 @@
 <hr />
 <h3>部件命名重复错误</h3>
 <p>对于具有相似功能的 Bolt/Spout 可能会出现命名冲突问题，例如这里定义了三个中介者 Bolt：</p>
-<div class="highlight"><pre><span class="n">String</span> <span class="n">preInter</span> <span class="o">=</span> <span class="s">&quot;medium&quot;</span><span class="p">;</span>
-<span class="n">String</span> <span class="n">detInter</span> <span class="o">=</span> <span class="s">&quot;medium&quot;</span><span class="p">;</span>
-<span class="n">String</span> <span class="n">devInter</span> <span class="o">=</span> <span class="s">&quot;medium&quot;</span><span class="p">;</span>
+<div class="highlight"><pre><span></span>String preInter = &quot;medium&quot;;
+String detInter = &quot;medium&quot;;
+String devInter = &quot;medium&quot;;
 
-<span class="n">builder</span><span class="p">.</span><span class="n">setBolt</span><span class="p">(</span><span class="n">preInter</span><span class="p">,</span> <span class="n">new</span> <span class="n">InterBolt</span><span class="p">().</span><span class="n">shuffleGrouping</span><span class="p">(</span><span class="n">pre</span><span class="p">);</span> <span class="n">builder</span><span class="p">.</span><span class="n">setBolt</span><span class="p">(</span><span class="n">detInter</span><span class="p">,</span> <span class="n">new</span> <span class="n">InterBolt</span><span class="p">().</span><span class="n">shuffleGrouping</span><span class="p">(</span><span class="n">det</span><span class="p">);</span>
-<span class="n">builder</span><span class="p">.</span><span class="n">setBolt</span><span class="p">(</span><span class="n">devInter</span><span class="p">,</span> <span class="n">new</span> <span class="n">InterBolt</span><span class="p">().</span><span class="n">shuffleGrouping</span><span class="p">(</span><span class="n">dev</span><span class="p">);</span>
+builder.setBolt(preInter, new InterBolt().shuffleGrouping(pre); builder.setBolt(detInter, new InterBolt().shuffleGrouping(det);
+builder.setBolt(devInter, new InterBolt().shuffleGrouping(dev);
 </pre></div>
 
 
 <p>虽然他们的变量名不同，但是实际的字符串对象名称是相同的（都是“medium”），这就会产生如下的非法参数错误</p>
-<div class="highlight"><pre><span class="n">Exception</span> <span class="n">in</span> <span class="kr">thread</span> <span class="s">&quot;main&quot;</span> <span class="n">java</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">IllegalArgumentException</span><span class="o">:</span> <span class="n">Bolt</span> <span class="n">has</span> <span class="n">already</span> <span class="n">been</span> <span class="n">declared</span> <span class="k">for</span> <span class="n">id</span> <span class="n">medium</span>
-    <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">topology</span><span class="p">.</span><span class="n">TopologyBuilder</span><span class="p">.</span><span class="n">validateUnusedId</span><span class="p">(</span><span class="n">TopologyBuilder</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">212</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">topology</span><span class="p">.</span><span class="n">TopologyBuilder</span><span class="p">.</span><span class="n">setBolt</span><span class="p">(</span><span class="n">TopologyBuilder</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">139</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">com</span><span class="p">.</span><span class="n">enjoyor</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">estimation</span><span class="p">.</span><span class="n">topology</span><span class="p">.</span><span class="n">SimulationTopology</span><span class="p">.</span><span class="n">main</span><span class="p">(</span><span class="n">SimulationTopology</span><span class="p">.</span><span class="n">java</span><span class="o">:</span><span class="mi">182</span><span class="p">)</span>
+<div class="highlight"><pre><span></span>Exception in thread &quot;main&quot; java.lang.IllegalArgumentException: Bolt has already been declared for id medium
+    at backtype.storm.topology.TopologyBuilder.validateUnusedId(TopologyBuilder.java:212)
+    at backtype.storm.topology.TopologyBuilder.setBolt(TopologyBuilder.java:139)
+    at com.enjoyor.storm.estimation.topology.SimulationTopology.main(SimulationTopology.java:182)
 </pre></div>
 
 
 <p>所以，对于不同的部件（Spout/Bolt），务必要区别命名：</p>
-<div class="highlight"><pre><span class="n">String</span> <span class="n">preInter</span> <span class="o">=</span> <span class="s">&quot;premedium&quot;</span><span class="p">;</span>
-<span class="n">String</span> <span class="n">detInter</span> <span class="o">=</span> <span class="s">&quot;detmedium&quot;</span><span class="p">;</span>
-<span class="n">String</span> <span class="n">devInter</span> <span class="o">=</span> <span class="s">&quot;devmedium&quot;</span><span class="p">;</span>
+<div class="highlight"><pre><span></span>String preInter = &quot;premedium&quot;;
+String detInter = &quot;detmedium&quot;;
+String devInter = &quot;devmedium&quot;;
 </pre></div>
 
 
@@ -306,18 +306,18 @@
 <hr />
 <h3>下游Bolt未定义数据流错误</h3>
 <p>在下游Bolt接收数据时，往往会忽略具体的接收数据流名称，例如</p>
-<div class="highlight"><pre><span class="n">builder</span><span class="p">.</span><span class="n">setBolt</span><span class="p">(</span><span class="n">devInter</span><span class="p">,</span> <span class="n">new</span> <span class="n">InterBolt</span><span class="p">().</span><span class="n">shuffleGrouping</span><span class="p">(</span><span class="n">dev</span><span class="p">);</span>
+<div class="highlight"><pre><span></span>builder.setBolt(devInter, new InterBolt().shuffleGrouping(dev);
 </pre></div>
 
 
 <p>这里的 grouping 过程就忽略了“dev”的数据流ID（streamId），在运行时会报错</p>
-<div class="highlight"><pre><span class="mi">3839</span> <span class="p">[</span><span class="n">main</span><span class="p">]</span> <span class="n">WARN</span>  <span class="n">backtype</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">daemon</span><span class="p">.</span><span class="n">nimbus</span> <span class="o">-</span> <span class="n">Topology</span> <span class="n">submission</span> <span class="n">exception</span><span class="p">.</span> <span class="p">(</span><span class="n">topology</span> <span class="n">name</span><span class="o">=</span><span class="err">&#39;</span><span class="n">simulation</span><span class="err">&#39;</span><span class="p">)</span> <span class="err">#</span><span class="o">&lt;</span><span class="n">InvalidTopologyException</span> <span class="n">InvalidTopologyException</span><span class="p">(</span><span class="n">msg</span><span class="o">:</span><span class="n">Component</span><span class="o">:</span> <span class="p">[</span><span class="n">devInter</span><span class="p">]</span> <span class="n">subscribes</span> <span class="n">from</span> <span class="n">non</span><span class="o">-</span><span class="n">existent</span> <span class="n">stream</span><span class="o">:</span> <span class="p">[</span><span class="k">default</span><span class="p">]</span> <span class="n">of</span> <span class="n">component</span> <span class="p">[</span><span class="n">dev</span><span class="p">])</span><span class="o">&gt;</span>
-<span class="mi">7119</span> <span class="p">[</span><span class="n">main</span><span class="p">]</span> <span class="n">ERROR</span> <span class="n">org</span><span class="p">.</span><span class="n">apache</span><span class="p">.</span><span class="n">storm</span><span class="p">.</span><span class="n">zookeeper</span><span class="p">.</span><span class="n">server</span><span class="p">.</span><span class="n">NIOServerCnxnFactory</span> <span class="o">-</span> <span class="n">Thread</span> <span class="n">Thread</span><span class="p">[</span><span class="n">main</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="n">main</span><span class="p">]</span> <span class="n">died</span>
+<div class="highlight"><pre><span></span>3839 [main] WARN  backtype.storm.daemon.nimbus - Topology submission exception. (topology name=&#39;simulation&#39;) #&lt;InvalidTopologyException InvalidTopologyException(msg:Component: [devInter] subscribes from non-existent stream: [default] of component [dev])&gt;
+7119 [main] ERROR org.apache.storm.zookeeper.server.NIOServerCnxnFactory - Thread Thread[main,5,main] died
 </pre></div>
 
 
 <p>因为不定义数据流时Spout/Bolt 会默认发送/接收streamId为“default”的数据流，而当上游Bolt发送了包含自定义数据流ID的数据流时，下游Bolt就无法识别，所以此时需要在下游Bolt中定义数据流</p>
-<div class="highlight"><pre><span class="n">builder</span><span class="p">.</span><span class="n">setBolt</span><span class="p">(</span><span class="n">devInter</span><span class="p">,</span> <span class="n">new</span> <span class="n">InterBolt</span><span class="p">().</span><span class="n">shuffleGrouping</span><span class="p">(</span><span class="n">dev</span><span class="p">,</span> <span class="n">signalStream</span><span class="p">);</span>
+<div class="highlight"><pre><span></span>builder.setBolt(devInter, new InterBolt().shuffleGrouping(dev, signalStream);
 </pre></div>
 
 
@@ -380,121 +380,6 @@
 
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
-                                分布式计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/storm.html">
-                                Storm
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/translation.html">
-                                Translation
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
-                                环境搭建
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/kafka.html">
-                                Kafka
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
-                                实时计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/linux.html">
-                                Linux
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/java.html">
-                                Java
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/mapreduce.html">
-                                MapReduce
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/hadoop.html">
-                                Hadoop
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/flume.html">
-                                Flume
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/redis.html">
-                                Redis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/shell.html">
-                                Shell
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/virtualbox.html">
-                                VirtualBox
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/undefined.html">
-                                Undefined
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/benchmark.html">
-                                Benchmark
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/rpc.html">
-                                RPC
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/log4j.html">
-                                log4j
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/jedis.html">
-                                Jedis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/yaml.html">
-                                Yaml
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/zookeeper.html">
-                                ZooKeeper
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/windows.html">
-                                Windows
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/gnome.html">
-                                Gnome
-                            </a>
-                        </li>
         </ul>
     </section>
 </aside>        </div>

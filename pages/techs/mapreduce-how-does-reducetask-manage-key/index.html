@@ -125,62 +125,62 @@
                 </div>
                 <h1>Issues</h1>
 <p>最近在写 MapReduce Job 时发现 Reducer 输出的结果总是一组完全相同的 Key，而每个 Key 对应的 Value 却不尽相同。以最简单的 word-count 为例，假设我们有一个表示“特征”的对象 <code>Feature</code>（为简单起见，这里省略了部分构造器、方法）：</p>
-<div class="highlight"><pre><span class="n">class</span> <span class="n">Feature</span> <span class="p">{</span>
-    <span class="n">String</span> <span class="n">attribute</span><span class="p">;</span>
-    <span class="kt">int</span> <span class="n">num</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><span class="k">class</span> <span class="n">Feature</span> {
+    <span class="n">String</span> <span class="n">attribute</span>;
+    <span class="nb">int</span> <span class="nb">num</span>;
 
-    <span class="err">@</span><span class="n">Override</span>
-    <span class="n">public</span> <span class="n">String</span> <span class="n">toString</span><span class="p">()</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="n">String</span><span class="p">.</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;[attribute=%s,num=%d]&quot;</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">num</span><span class="p">);</span>    
-    <span class="p">}</span>
-<span class="p">}</span>
+    <span class="nv">@Override</span>
+    <span class="n">public</span> <span class="n">String</span> <span class="n">toString</span>() {
+        <span class="k">return</span> <span class="n">String</span>.<span class="n">format</span>(<span class="s">&quot;[attribute=%s,num=%d]&quot;</span>, <span class="n">attribute</span>, <span class="nb">num</span>);    
+    }
+}
 </pre></div>
 
 
 <p>Map 对象读取 sentence 中的第一个 word，并写入 <code>Feature</code> 对象：</p>
-<div class="highlight"><pre><span class="c1">//map</span>
-    <span class="n">private</span> <span class="n">word</span>  <span class="o">=</span> <span class="k">new</span> <span class="n">Text</span><span class="p">();</span>
+<div class="highlight"><pre><span></span>//map
+    private word  = new Text();
 
-    <span class="p">@</span><span class="n">Override</span>
-    <span class="n">public</span> <span class="k">void</span> <span class="n">map</span><span class="p">(</span><span class="n">Object</span> <span class="n">key</span><span class="p">,</span> <span class="n">Text</span> <span class="n">value</span><span class="p">,</span> <span class="n">Context</span> <span class="k">context</span><span class="p">)</span>
-            <span class="n">throws</span> <span class="n">IOException</span><span class="p">,</span> <span class="n">InterruptedException</span> <span class="p">{</span>
-        <span class="n">String</span> <span class="n">line</span> <span class="o">=</span> <span class="n">value</span><span class="p">.</span><span class="n">toString</span><span class="p">();</span>
-        <span class="n">String</span><span class="p">[]</span> <span class="n">words</span> <span class="o">=</span> <span class="n">line</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\\</span><span class="s">|&quot;</span><span class="p">);</span>
-        <span class="n">String</span> <span class="n">w</span> <span class="o">=</span> <span class="n">words</span><span class="p">[</span><span class="mh">0</span><span class="p">];</span>
+    @Override
+    public void map(Object key, Text value, Context context)
+            throws IOException, InterruptedException {
+        String line = value.toString();
+        String[] words = line.split(&quot;\\|&quot;);
+        String w = words[0];
 
-        <span class="n">word</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="n">w</span><span class="p">);</span>
-        <span class="n">Feature</span> <span class="n">f</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Feature</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">one</span><span class="p">);</span>
-        <span class="k">context</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">f</span><span class="p">);</span>
-    <span class="p">}</span>
+        word.set(w);
+        Feature f = new Feature(w, one);
+        context.write(word, f);
+    }
 </pre></div>
 
 
 <p>在 Reduce 对象中分两步处理，第一步是将收到的同类 <code>Feature</code> 进行汇总（汇总到一个 <code>HashMap</code> 中），然后在汇总完毕之后对结果进行统一处理：</p>
-<div class="highlight"><pre><span class="c1">// reduce</span>
-    <span class="n">private</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">Text</span><span class="p">,</span> <span class="n">Feature</span><span class="o">&gt;</span> <span class="n">map</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">Text</span><span class="p">,</span> <span class="n">Feature</span><span class="o">&gt;</span><span class="p">();</span>
+<div class="highlight"><pre><span></span><span class="o">//</span> <span class="nt">reduce</span>
+    <span class="nt">private</span> <span class="nt">Map</span><span class="o">&lt;</span><span class="nt">Text</span><span class="o">,</span> <span class="nt">Feature</span><span class="o">&gt;</span> <span class="nt">map</span> <span class="o">=</span> <span class="nt">new</span> <span class="nt">HashMap</span><span class="o">&lt;</span><span class="nt">Text</span><span class="o">,</span> <span class="nt">Feature</span><span class="o">&gt;();</span>
 
-    <span class="p">@</span><span class="n">Override</span>
-    <span class="n">public</span> <span class="k">void</span> <span class="n">reduce</span><span class="p">(</span><span class="n">Text</span> <span class="n">key</span><span class="p">,</span> <span class="n">Iterable</span><span class="o">&lt;</span><span class="n">Feature</span><span class="o">&gt;</span> <span class="n">values</span><span class="p">,</span> <span class="n">Context</span> <span class="k">context</span><span class="p">)</span>
-            <span class="n">throws</span> <span class="n">IOException</span><span class="p">,</span> <span class="n">InterruptedException</span> <span class="p">{</span>
-        <span class="n">Feature</span> <span class="n">sum</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Feature</span><span class="p">(</span><span class="n">key</span><span class="p">.</span><span class="n">toString</span><span class="p">());</span>
-        <span class="k">for</span> <span class="p">(</span><span class="n">Feature</span> <span class="n">f</span> <span class="o">:</span> <span class="n">values</span><span class="p">)</span> <span class="p">{</span>
-            <span class="n">sum</span><span class="p">.</span><span class="n">gather</span><span class="p">(</span><span class="n">f</span><span class="p">);</span>
+    <span class="k">@Override</span>
+    <span class="nt">public</span> <span class="nt">void</span> <span class="nt">reduce</span><span class="o">(</span><span class="nt">Text</span> <span class="nt">key</span><span class="o">,</span> <span class="nt">Iterable</span><span class="o">&lt;</span><span class="nt">Feature</span><span class="o">&gt;</span> <span class="nt">values</span><span class="o">,</span> <span class="nt">Context</span> <span class="nt">context</span><span class="o">)</span>
+            <span class="nt">throws</span> <span class="nt">IOException</span><span class="o">,</span> <span class="nt">InterruptedException</span> <span class="p">{</span>
+        <span class="nt">Feature</span> <span class="nt">sum</span> <span class="o">=</span> <span class="nt">new</span> <span class="nt">Feature</span><span class="o">(</span><span class="nt">key</span><span class="nc">.toString</span><span class="o">());</span>
+        <span class="nt">for</span> <span class="o">(</span><span class="nt">Feature</span> <span class="nt">f</span> <span class="o">:</span> <span class="nt">values</span><span class="o">)</span> <span class="p">{</span>
+            <span class="n">sum</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">f</span><span class="p">);</span>
         <span class="p">}</span>
 
-        <span class="n">map</span><span class="p">.</span><span class="n">put</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">sum</span><span class="p">);</span>
+        <span class="nt">map</span><span class="nc">.put</span><span class="o">(</span><span class="nt">key</span><span class="o">,</span> <span class="nt">sum</span><span class="o">);</span>
     <span class="p">}</span>
 
-    <span class="p">@</span><span class="n">Override</span>
-    <span class="n">public</span> <span class="k">void</span> <span class="n">cleanup</span><span class="p">(</span><span class="n">Context</span> <span class="k">context</span><span class="p">)</span> <span class="n">throws</span> <span class="n">IOException</span><span class="p">,</span>
-            <span class="n">InterruptedException</span> <span class="p">{</span>
-        <span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;Within Reduce, we got a map: &quot;</span> <span class="o">+</span> <span class="n">map</span><span class="p">);</span>
-        <span class="c1">// do something</span>
+    <span class="k">@Override</span>
+    <span class="nt">public</span> <span class="nt">void</span> <span class="nt">cleanup</span><span class="o">(</span><span class="nt">Context</span> <span class="nt">context</span><span class="o">)</span> <span class="nt">throws</span> <span class="nt">IOException</span><span class="o">,</span>
+            <span class="nt">InterruptedException</span> <span class="p">{</span>
+        <span class="nt">System</span><span class="nc">.out.println</span><span class="o">(</span><span class="s2">&quot;Within Reduce, we got a map: &quot;</span> <span class="o">+</span> <span class="nt">map</span><span class="o">);</span>
+        <span class="o">//</span> <span class="nt">do</span> <span class="nt">something</span>
     <span class="p">}</span>
 </pre></div>
 
 
 <p>运行这个 Job 就会出现类似下面的结果：</p>
-<div class="highlight"><pre><span class="n">Within</span> <span class="n">Reduce</span><span class="p">,</span> <span class="n">we</span> <span class="n">got</span> <span class="n">a</span> <span class="n">map</span><span class="o">:</span> <span class="p">{</span><span class="n">Tag</span><span class="o">=</span><span class="p">[</span><span class="n">attribute</span><span class="o">=</span><span class="n">Col</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="mi">25</span><span class="p">],</span> <span class="n">Tag</span><span class="o">=</span><span class="p">[</span><span class="n">attribute</span><span class="o">=</span><span class="n">Tag</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="mi">13</span><span class="p">],</span> <span class="n">Tag</span><span class="o">=</span><span class="p">[</span><span class="n">attribute</span><span class="o">=</span><span class="n">Row</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="mi">37</span><span class="p">]}</span>
+<div class="highlight"><pre><span></span>Within Reduce, we got a map: {Tag=[attribute=Col,num=25], Tag=[attribute=Tag,num=13], Tag=[attribute=Row,num=37]}
 </pre></div>
 
 
@@ -192,24 +192,24 @@
 <p>进一步在 debug 模式下运行 Job 可以发现，在 <code>reduce</code> 方法中，map 的每一个 put 操作都会造成 map 中所有已有的 key 的变化。一开始我认为这可能是由于 <code>reduce</code> 方法中传入了不同的 <code>Text</code> 对象，而对象中的值的引用（bytes 数组）相同的缘故造成的。因为 <code>Text</code> 中的 bytes 数组并不是一个 final 对象，而是在每次 set 的过程中都会变化的。<code>Text</code> 在写入过程中如果发现输入数据大小与本身的 bytes 大小一致，就会使用 <code>System.arraycopy(utf8, start, bytes, 0, len);</code> 直接将输入数组拷贝到已有的 bytes 数组中，而不会创建新的 bytes 对象来进行写入操作，也就是说，如果每次写入的对象大小不变，那么 <code>Text</code> 中的 bytes 域也是不会发生变化的。由于这里的 Job 中处理的 key 都是相同大小的字符串，也就是说 <code>Text</code> 对象中的引用不会变化，这有可能会导致所有的 <code>Text</code> 对象共用同一个 bytes 引用，从而出现新的 <code>Text</code> 对象的变化引起所有对象变化的问题。那么这个问题会不会就是由于这个原因造成的呢？</p>
 <p>答案是否定的。</p>
 <p>上面所述的情况只有可能在一种场景下出现，那就是新的 <code>Text</code> 对象通过调用旧的 <code>Text</code> 对象中的 bytes 数组来构造，如下面的这段代码所示：</p>
-<div class="highlight"><pre><span class="c1">// A fictitious example</span>
-<span class="n">Text</span> <span class="n">oldtext</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Text</span><span class="p">();</span>
-<span class="n">oldtext</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="n">string1</span><span class="p">);</span>
-<span class="n">Text</span> <span class="n">newtext</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Text</span><span class="p">(</span><span class="n">oldtext</span><span class="p">.</span><span class="n">getBytes</span><span class="p">());</span>
-<span class="n">newtext</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="n">string2</span><span class="p">);</span>
+<div class="highlight"><pre><span></span>// A fictitious example
+Text oldtext = new Text();
+oldtext.set(string1);
+Text newtext = new Text(oldtext.getBytes());
+newtext.set(string2);
 </pre></div>
 
 
 <p>但是，如果去运行这段代码，你会发现 <code>oldtext</code> 和 <code>newtext</code> 并不包含相同的引用，这是因为在构造 <code>Text</code> 对象时，程序会先通过 <code>setCapacity</code> 方法来检查自身的 bytes：</p>
-<div class="highlight"><pre>  <span class="n">private</span> <span class="kt">void</span> <span class="nf">setCapacity</span><span class="p">(</span><span class="kt">int</span> <span class="n">len</span><span class="p">,</span> <span class="n">boolean</span> <span class="n">keepData</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">bytes</span> <span class="o">==</span> <span class="n">null</span> <span class="o">||</span> <span class="n">bytes</span><span class="p">.</span><span class="n">length</span> <span class="o">&lt;</span> <span class="n">len</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">if</span> <span class="p">(</span><span class="n">bytes</span> <span class="o">!=</span> <span class="n">null</span> <span class="o">&amp;&amp;</span> <span class="n">keepData</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">bytes</span> <span class="o">=</span> <span class="n">Arrays</span><span class="p">.</span><span class="n">copyOf</span><span class="p">(</span><span class="n">bytes</span><span class="p">,</span> <span class="n">Math</span><span class="p">.</span><span class="n">max</span><span class="p">(</span><span class="n">len</span><span class="p">,</span><span class="n">length</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span><span class="p">));</span>
-      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-        <span class="n">bytes</span> <span class="o">=</span> <span class="n">new</span> <span class="n">byte</span><span class="p">[</span><span class="n">len</span><span class="p">];</span> <span class="c1">// case when bytes is null</span>
-      <span class="p">}</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
+<div class="highlight"><pre><span></span>  private void setCapacity(int len, boolean keepData) {
+    if (bytes == null || bytes.length &lt; len) {
+      if (bytes != null &amp;&amp; keepData) {
+        bytes = Arrays.copyOf(bytes, Math.max(len,length &lt;&lt; 1));
+      } else {
+        bytes = new byte[len]; // case when bytes is null
+      }
+    }
+  }
 </pre></div>
 
 
@@ -217,177 +217,177 @@
 <p>那么，如果不是这个原因那会是什么原因造成的呢？</p>
 <h2>Hashes in Java</h2>
 <p>我们再回过头来复习下 Java 中使用了哈希算法的集合。在 <code>HashMap</code> 、<code>HashSet</code> 这样的集合中，对于对象哈希值的计算都是通过下面的方法实现的：</p>
-<div class="highlight"><pre>    <span class="kr">final</span> <span class="kr">int</span> <span class="nx">hash</span><span class="p">(</span><span class="nb">Object</span> <span class="nx">k</span><span class="p">)</span> <span class="p">{</span>
-        <span class="kr">int</span> <span class="nx">h</span> <span class="o">=</span> <span class="nx">hashSeed</span><span class="p">;</span>
-        <span class="k">if</span> <span class="p">(</span><span class="mi">0</span> <span class="o">!=</span> <span class="nx">h</span> <span class="o">&amp;&amp;</span> <span class="nx">k</span> <span class="k">instanceof</span> <span class="nb">String</span><span class="p">)</span> <span class="p">{</span>
-            <span class="k">return</span> <span class="nb">sun</span><span class="p">.</span><span class="nx">misc</span><span class="p">.</span><span class="nx">Hashing</span><span class="p">.</span><span class="nx">stringHash32</span><span class="p">((</span><span class="nb">String</span><span class="p">)</span> <span class="nx">k</span><span class="p">);</span>
-        <span class="p">}</span>
+<div class="highlight"><pre><span></span>    final int hash(Object k) {
+        int h = hashSeed;
+        if (0 != h &amp;&amp; k instanceof String) {
+            return sun.misc.Hashing.stringHash32((String) k);
+        }
 
-        <span class="nx">h</span> <span class="o">^=</span> <span class="nx">k</span><span class="p">.</span><span class="nx">hashCode</span><span class="p">();</span> <span class="c1">// 哈希计算的关键步骤</span>
+        h ^= k.hashCode(); // 哈希计算的关键步骤
 
-        <span class="c1">// This function ensures that hashCodes that differ only by</span>
-        <span class="c1">// constant multiples at each bit position have a bounded</span>
-        <span class="c1">// number of collisions (approximately 8 at default load factor).</span>
-        <span class="nx">h</span> <span class="o">^=</span> <span class="p">(</span><span class="nx">h</span> <span class="o">&gt;&gt;&gt;</span> <span class="mi">20</span><span class="p">)</span> <span class="o">^</span> <span class="p">(</span><span class="nx">h</span> <span class="o">&gt;&gt;&gt;</span> <span class="mi">12</span><span class="p">);</span>
-        <span class="k">return</span> <span class="nx">h</span> <span class="o">^</span> <span class="p">(</span><span class="nx">h</span> <span class="o">&gt;&gt;&gt;</span> <span class="mi">7</span><span class="p">)</span> <span class="o">^</span> <span class="p">(</span><span class="nx">h</span> <span class="o">&gt;&gt;&gt;</span> <span class="mi">4</span><span class="p">);</span>
-    <span class="p">}</span>
+        // This function ensures that hashCodes that differ only by
+        // constant multiples at each bit position have a bounded
+        // number of collisions (approximately 8 at default load factor).
+        h ^= (h &gt;&gt;&gt; 20) ^ (h &gt;&gt;&gt; 12);
+        return h ^ (h &gt;&gt;&gt; 7) ^ (h &gt;&gt;&gt; 4);
+    }
 </pre></div>
 
 
 <p>可以看出，对于非 String 类型的对象，是通过调用对象本身的 <code>hashCode</code> 方法来计算哈希值的。这一点对于理解 <code>Text</code> 对象的一致性非常重要。</p>
 <h2>Hashes in Hadoop</h2>
 <p>再来看 <code>Text</code> 对象的 <code>hashCode</code> 实现。<code>Text</code> 的哈希值计算直接使用的父类 <code>BinaryComparable</code> 的 <code>hashCode</code> 方法实现的，而 <code>BinaryComparable</code> 最终又是通过下面的方法来实现哈希计算的：</p>
-<div class="highlight"><pre>  <span class="n">public</span> <span class="k">static</span> <span class="kt">int</span> <span class="nf">hashBytes</span><span class="p">(</span><span class="n">byte</span><span class="p">[]</span> <span class="n">bytes</span><span class="p">,</span> <span class="kt">int</span> <span class="n">offset</span><span class="p">,</span> <span class="kt">int</span> <span class="n">length</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kt">int</span> <span class="n">hash</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">offset</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">offset</span> <span class="o">+</span> <span class="n">length</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
-      <span class="n">hash</span> <span class="o">=</span> <span class="p">(</span><span class="mi">31</span> <span class="o">*</span> <span class="n">hash</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">bytes</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
-    <span class="k">return</span> <span class="n">hash</span><span class="p">;</span>
-  <span class="p">}</span>
+<div class="highlight"><pre><span></span>  public static int hashBytes(byte[] bytes, int offset, int length) {
+    int hash = 1;
+    for (int i = offset; i &lt; offset + length; i++)
+      hash = (31 * hash) + (int)bytes[i];
+    return hash;
+  }
 </pre></div>
 
 
 <p>也就是说，Hadoop 中的这类序列化对象都是通过字节数组的值来计算哈希值的。如果 <code>Text</code> 对象包含的内容（也就是 bytes 数组）发生了变化，那么该对象的哈希值也会相应改变；相对的，如果两个 <code>Text</code> 对象具有相同的字符串内容（也就是 bytes 数组的值相同），那么这两个对象的哈希值就会是相同的。明白了这一点，我们就可以通过 Hadoop 的任务调度机制来最终解决这个问题了。</p>
 <h2>Hadoop Task</h2>
 <p>我们知道，<code>Reducer</code> 的运行是在 <code>ReducerTask</code> 中定义的：</p>
-<div class="highlight"><pre>  <span class="kt">void</span> <span class="nf">runNewReducer</span><span class="p">(...)</span> <span class="p">{</span>
-    <span class="c1">// initializing...</span>
-    <span class="n">try</span> <span class="p">{</span>
-      <span class="n">reducer</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="n">reducerContext</span><span class="p">);</span>
-    <span class="p">}</span> <span class="n">finally</span> <span class="p">{</span>
-      <span class="n">trackedRW</span><span class="p">.</span><span class="n">close</span><span class="p">(</span><span class="n">reducerContext</span><span class="p">);</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
+<div class="highlight"><pre><span></span>  void runNewReducer(...) {
+    // initializing...
+    try {
+      reducer.run(reducerContext);
+    } finally {
+      trackedRW.close(reducerContext);
+    }
+  }
 </pre></div>
 
 
 <p>由于 <code>Reducer</code> 默认是以一种循环遍历的方式处理数据的，这里的 <code>reducerContext</code> 是伴随着 reducer 的整个生命周期的：</p>
-<div class="highlight"><pre>  <span class="k">public</span> <span class="nf">void</span> <span class="nb">run</span><span class="p">(</span><span class="nx">Context</span> <span class="nx">context</span><span class="p">)</span> <span class="nx">throws</span> <span class="nx">IOException</span><span class="p">,</span> <span class="nx">InterruptedException</span> <span class="p">{</span>
-    <span class="nx">setup</span><span class="p">(</span><span class="nx">context</span><span class="p">);</span>
-    <span class="nx">try</span> <span class="p">{</span>
-      <span class="k">while</span> <span class="p">(</span><span class="nx">context.nextKey</span><span class="p">())</span> <span class="p">{</span>
-        <span class="nx">reduce</span><span class="p">(</span><span class="nx">context.getCurrentKey</span><span class="p">(),</span> <span class="nx">context.getValues</span><span class="p">(),</span> <span class="nx">context</span><span class="p">);</span>
-        <span class="c1">// If a back up store is used, reset it</span>
-        <span class="nb">Iterator</span><span class="o">&lt;</span><span class="nx">VALUEIN</span><span class="o">&gt;</span> <span class="n">iter</span> <span class="o">=</span> <span class="nx">context.getValues</span><span class="p">()</span><span class="bp">.</span><span class="nb">iterator</span><span class="p">();</span>
-        <span class="k">if</span><span class="p">(</span><span class="nx">iter</span> <span class="nx">instanceof</span> <span class="nx">ReduceContext.ValueIterator</span><span class="p">)</span> <span class="p">{</span>
-          <span class="p">((</span><span class="nx">ReduceContext.ValueIterator</span><span class="o">&lt;</span><span class="nx">VALUEIN</span><span class="o">&gt;</span><span class="p">)</span><span class="nx">iter</span><span class="p">)</span><span class="bp">.</span><span class="nx">resetBackupStore</span><span class="p">();</span>        
-        <span class="p">}</span>
-      <span class="p">}</span>
-    <span class="p">}</span> <span class="nx">finally</span> <span class="p">{</span>
-      <span class="nx">cleanup</span><span class="p">(</span><span class="nx">context</span><span class="p">);</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
+<div class="highlight"><pre><span></span>  public void run(Context context) throws IOException, InterruptedException {
+    setup(context);
+    try {
+      while (context.nextKey()) {
+        reduce(context.getCurrentKey(), context.getValues(), context);
+        // If a back up store is used, reset it
+        Iterator&lt;VALUEIN&gt; iter = context.getValues().iterator();
+        if(iter instanceof ReduceContext.ValueIterator) {
+          ((ReduceContext.ValueIterator&lt;VALUEIN&gt;)iter).resetBackupStore();        
+        }
+      }
+    } finally {
+      cleanup(context);
+    }
+  }
 </pre></div>
 
 
 <p>可以看出，这里的 context 通过 <code>nextKey</code> 来判断是否还有输入值，再调用 <code>getCurrentKey</code> 和 <code>getValues</code> 来获取相应的 key 与 values。而 Context 的最终实现类就是 <code>org.apache.hadoop.mapreduce.task.ReduceContextImpl&lt;KEYIN,VALUEIN,KEYOUT,VALUEOUT&gt;</code>。</p>
 <p>继续观察 <code>ReduceContextImpl</code> 会发现，<code>Context</code> 中的 key 对象是保持不变的，也就是说，key 引用本身不变，改变的只是 key 中的域的取值（类似于添加了 final 关键字的效果）：</p>
-<div class="highlight"><pre><span class="n">private</span> <span class="n">KEYIN</span> <span class="n">key</span><span class="p">;</span>
-<span class="n">key</span> <span class="o">=</span> <span class="n">keyDeserializer</span><span class="p">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">key</span><span class="p">);</span>
+<div class="highlight"><pre><span></span>private KEYIN key;
+key = keyDeserializer.deserialize(key);
 </pre></div>
 
 
 <p>对于 <code>Text</code> 类型对象，这里的 keyDeserializer 就是 <code>org.apache.hadoop.io.serializer.WritableSerialization.WritableDeserializer</code>，它的反序列化操作非常简单粗暴：</p>
-<div class="highlight"><pre>    <span class="n">public</span> <span class="n">Writable</span> <span class="n">deserialize</span><span class="p">(</span><span class="n">Writable</span> <span class="n">w</span><span class="p">)</span> <span class="n">throws</span> <span class="n">IOException</span> <span class="p">{</span>
-      <span class="n">Writable</span> <span class="n">writable</span><span class="p">;</span>
-      <span class="k">if</span> <span class="p">(</span><span class="n">w</span> <span class="o">==</span> <span class="n">null</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">writable</span> 
-          <span class="o">=</span> <span class="p">(</span><span class="n">Writable</span><span class="p">)</span> <span class="n">ReflectionUtils</span><span class="p">.</span><span class="n">newInstance</span><span class="p">(</span><span class="n">writableClass</span><span class="p">,</span> <span class="n">getConf</span><span class="p">());</span>
-      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-        <span class="n">writable</span> <span class="o">=</span> <span class="n">w</span><span class="p">;</span>
-      <span class="p">}</span>
-      <span class="n">writable</span><span class="p">.</span><span class="n">readFields</span><span class="p">(</span><span class="n">dataIn</span><span class="p">);</span>
-      <span class="k">return</span> <span class="n">writable</span><span class="p">;</span>
-    <span class="p">}</span>
+<div class="highlight"><pre><span></span>    public Writable deserialize(Writable w) throws IOException {
+      Writable writable;
+      if (w == null) {
+        writable 
+          = (Writable) ReflectionUtils.newInstance(writableClass, getConf());
+      } else {
+        writable = w;
+      }
+      writable.readFields(dataIn);
+      return writable;
+    }
 </pre></div>
 
 
 <p>对于 null 对象，上述方法会创建一个新的 <code>Writable</code> 对象，而对于已有的对象，则会直接返回原对象，只是在返回之前先读入输入流中的数据。这里的输入流也是在 <code>Context</code> 中定义好的：</p>
-<div class="highlight"><pre><span class="c1">// initialize</span>
-<span class="n">private</span> <span class="n">RawKeyValueIterator</span> <span class="k">input</span><span class="p">;</span>
-<span class="n">private</span> <span class="n">DataInputBuffer</span> <span class="n">buffer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DataInputBuffer</span><span class="p">();</span>
-<span class="k">this</span><span class="p">.</span><span class="n">keyDeserializer</span><span class="p">.</span><span class="n">open</span><span class="p">(</span><span class="n">buffer</span><span class="p">);</span>
+<div class="highlight"><pre><span></span>// initialize
+private RawKeyValueIterator input;
+private DataInputBuffer buffer = new DataInputBuffer();
+this.keyDeserializer.open(buffer);
 
-<span class="c1">// nextKey()</span>
-<span class="n">DataInputBuffer</span> <span class="n">nextKey</span> <span class="o">=</span> <span class="k">input</span><span class="p">.</span><span class="n">getKey</span><span class="p">();</span>
-<span class="n">currentRawKey</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="n">nextKey</span><span class="p">.</span><span class="n">getData</span><span class="p">(),</span> <span class="n">nextKey</span><span class="p">.</span><span class="n">getPosition</span><span class="p">(),</span> 
-                  <span class="n">nextKey</span><span class="p">.</span><span class="n">getLength</span><span class="p">()</span> <span class="o">-</span> <span class="n">nextKey</span><span class="p">.</span><span class="n">getPosition</span><span class="p">());</span>
-<span class="n">buffer</span><span class="p">.</span><span class="n">reset</span><span class="p">(</span><span class="n">currentRawKey</span><span class="p">.</span><span class="n">getBytes</span><span class="p">(),</span> <span class="mh">0</span><span class="p">,</span> <span class="n">currentRawKey</span><span class="p">.</span><span class="n">getLength</span><span class="p">());</span>
+// nextKey()
+DataInputBuffer nextKey = input.getKey();
+currentRawKey.set(nextKey.getData(), nextKey.getPosition(), 
+                  nextKey.getLength() - nextKey.getPosition());
+buffer.reset(currentRawKey.getBytes(), 0, currentRawKey.getLength());
 </pre></div>
 
 
 <p>到这里顺便说一下 <code>RawKeyValueIterator</code>，它是真正用于获取 sort/merge 过程中产生的原始数据的迭代器。从实际实现类 <code>org.apache.hadoop.mapred.Merger.MergeQueue&lt;K, V&gt;</code> 的源码中可以看出，它是通过一个基于小根堆结构的 <code>PriorityQueue</code> 队列来实现有序的数据消费的。</p>
 <h2>Summary</h2>
 <p>从上面的叙述中我们已经知道了，不论数据生产的方式是什么样的，对于 <code>Reducer</code> 而言，它接收到的 <code>Text</code> 永远是同一个对象，变化的只是 <code>Text</code> 中 bytes 的取值。这大概可以称为 reduce 中 key 的不变性。这种对象本身的不变性加上实际取值的变化以及哈希值计算方法，就是造成本文开头所述问题的根本原因。我们再用一段代码来模拟一下 Hadoop 中 Reduce 任务运行的基本过程。</p>
-<div class="highlight"><pre><span class="kr">package</span> <span class="nx">me</span><span class="p">.</span><span class="nx">weyo</span><span class="p">.</span><span class="nx">mapred</span><span class="p">.</span><span class="nx">testing</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><span class="n">package</span> <span class="n">me</span><span class="o">.</span><span class="n">weyo</span><span class="o">.</span><span class="n">mapred</span><span class="o">.</span><span class="n">testing</span><span class="p">;</span>
 
-<span class="kr">import</span> <span class="nx">java</span><span class="p">.</span><span class="nx">io</span><span class="p">.</span><span class="nx">DataInputStream</span><span class="p">;</span>
-<span class="kr">import</span> <span class="nx">java</span><span class="p">.</span><span class="nx">io</span><span class="p">.</span><span class="nx">IOException</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">java.io.DataInputStream</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">java.io.IOException</span><span class="p">;</span>
 
-<span class="kr">import</span> <span class="nx">org</span><span class="p">.</span><span class="nx">apache</span><span class="p">.</span><span class="nx">hadoop</span><span class="p">.</span><span class="nx">conf</span><span class="p">.</span><span class="nx">Configuration</span><span class="p">;</span>
-<span class="kr">import</span> <span class="nx">org</span><span class="p">.</span><span class="nx">apache</span><span class="p">.</span><span class="nx">hadoop</span><span class="p">.</span><span class="nx">io</span><span class="p">.</span><span class="nx">DataInputBuffer</span><span class="p">;</span>
-<span class="kr">import</span> <span class="nx">org</span><span class="p">.</span><span class="nx">apache</span><span class="p">.</span><span class="nx">hadoop</span><span class="p">.</span><span class="nx">io</span><span class="p">.</span><span class="nx">Text</span><span class="p">;</span>
-<span class="kr">import</span> <span class="nx">org</span><span class="p">.</span><span class="nx">apache</span><span class="p">.</span><span class="nx">hadoop</span><span class="p">.</span><span class="nx">io</span><span class="p">.</span><span class="nx">Writable</span><span class="p">;</span>
-<span class="kr">import</span> <span class="nx">org</span><span class="p">.</span><span class="nx">apache</span><span class="p">.</span><span class="nx">hadoop</span><span class="p">.</span><span class="nx">util</span><span class="p">.</span><span class="nx">GenericOptionsParser</span><span class="p">;</span>
-<span class="kr">import</span> <span class="nx">org</span><span class="p">.</span><span class="nx">apache</span><span class="p">.</span><span class="nx">hadoop</span><span class="p">.</span><span class="nx">util</span><span class="p">.</span><span class="nx">ReflectionUtils</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.hadoop.conf.Configuration</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.hadoop.io.DataInputBuffer</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.hadoop.io.Text</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.hadoop.io.Writable</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.hadoop.util.GenericOptionsParser</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.hadoop.util.ReflectionUtils</span><span class="p">;</span>
 
-<span class="cm">/**</span>
-<span class="cm"> * @author weyo</span>
-<span class="cm"> * @date 2015-7-1</span>
-<span class="cm"> */</span>
-<span class="kr">public</span> <span class="kr">class</span> <span class="nx">MapKeys</span> <span class="p">{</span>
-    <span class="kr">private</span> <span class="kr">static</span> <span class="nx">Class</span><span class="cp">&lt;?</span><span class="o">&gt;</span> <span class="nx">writableClass</span><span class="p">;</span>
-    <span class="k">private</span> <span class="k">static</span> <span class="nx">DataInputStream</span> <span class="nx">dataIn</span><span class="p">;</span>
-    <span class="k">private</span> <span class="k">static</span> <span class="nx">Configuration</span> <span class="nx">conf</span><span class="p">;</span>
+<span class="o">/**</span>
+ <span class="o">*</span> <span class="nd">@author</span> <span class="n">weyo</span>
+ <span class="o">*</span> <span class="nd">@date</span> <span class="mi">2015</span><span class="o">-</span><span class="mi">7</span><span class="o">-</span><span class="mi">1</span>
+ <span class="o">*/</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">MapKeys</span> <span class="p">{</span>
+    <span class="n">private</span> <span class="n">static</span> <span class="n">Class</span><span class="o">&lt;</span><span class="err">?</span><span class="o">&gt;</span> <span class="n">writableClass</span><span class="p">;</span>
+    <span class="n">private</span> <span class="n">static</span> <span class="n">DataInputStream</span> <span class="n">dataIn</span><span class="p">;</span>
+    <span class="n">private</span> <span class="n">static</span> <span class="n">Configuration</span> <span class="n">conf</span><span class="p">;</span>
 
-    <span class="k">public</span> <span class="k">static</span> <span class="nx">Writable</span> <span class="nx">deserialize</span><span class="p">(</span><span class="nx">Writable</span> <span class="nx">w</span><span class="p">)</span> <span class="nx">throws</span> <span class="nx">IOException</span> <span class="p">{</span>
-        <span class="nx">Writable</span> <span class="nx">writable</span><span class="p">;</span>
-        <span class="k">if</span> <span class="p">(</span><span class="nx">w</span> <span class="o">==</span> <span class="k">null</span><span class="p">)</span> <span class="p">{</span>
-          <span class="nx">writable</span> 
-            <span class="o">=</span> <span class="p">(</span><span class="nx">Writable</span><span class="p">)</span> <span class="nx">ReflectionUtils</span><span class="o">.</span><span class="nx">newInstance</span><span class="p">(</span><span class="nx">writableClass</span><span class="p">,</span> <span class="nx">conf</span><span class="p">);</span>
+    <span class="n">public</span> <span class="n">static</span> <span class="n">Writable</span> <span class="n">deserialize</span><span class="p">(</span><span class="n">Writable</span> <span class="n">w</span><span class="p">)</span> <span class="n">throws</span> <span class="n">IOException</span> <span class="p">{</span>
+        <span class="n">Writable</span> <span class="n">writable</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">w</span> <span class="o">==</span> <span class="n">null</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">writable</span> 
+            <span class="o">=</span> <span class="p">(</span><span class="n">Writable</span><span class="p">)</span> <span class="n">ReflectionUtils</span><span class="o">.</span><span class="n">newInstance</span><span class="p">(</span><span class="n">writableClass</span><span class="p">,</span> <span class="n">conf</span><span class="p">);</span>
         <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-          <span class="nx">writable</span> <span class="o">=</span> <span class="nx">w</span><span class="p">;</span>
+          <span class="n">writable</span> <span class="o">=</span> <span class="n">w</span><span class="p">;</span>
         <span class="p">}</span>
-        <span class="nx">writable</span><span class="o">.</span><span class="nx">readFields</span><span class="p">(</span><span class="nx">dataIn</span><span class="p">);</span>
-        <span class="k">return</span> <span class="nx">writable</span><span class="p">;</span>
+        <span class="n">writable</span><span class="o">.</span><span class="n">readFields</span><span class="p">(</span><span class="n">dataIn</span><span class="p">);</span>
+        <span class="k">return</span> <span class="n">writable</span><span class="p">;</span>
       <span class="p">}</span>
 
-    <span class="k">public</span> <span class="k">static</span> <span class="nx">void</span> <span class="nx">main</span><span class="p">(</span><span class="nx">String</span><span class="p">[]</span> <span class="nx">args</span><span class="p">)</span> <span class="nx">throws</span> <span class="nx">IOException</span> <span class="p">{</span>
-        <span class="nx">HashMap</span><span class="o">&lt;</span><span class="nx">Text</span><span class="p">,</span> <span class="nx">String</span><span class="o">&gt;</span> <span class="nx">map</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">HashMap</span><span class="o">&lt;</span><span class="nx">Text</span><span class="p">,</span> <span class="nx">String</span><span class="o">&gt;</span><span class="p">();</span>
-        <span class="c1">// 模拟一般 MR Job 的初始化过程</span>
-        <span class="nx">conf</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Configuration</span><span class="p">();</span>
-        <span class="k">new</span> <span class="nx">GenericOptionsParser</span><span class="p">(</span><span class="nx">conf</span><span class="p">,</span> <span class="nx">args</span><span class="p">);</span>
-        <span class="nx">writableClass</span> <span class="o">=</span> <span class="nx">Text</span><span class="o">.</span><span class="nx">class</span><span class="p">;</span>
-        <span class="nx">Text</span> <span class="nx">text</span> <span class="o">=</span> <span class="k">null</span><span class="p">;</span>
-        <span class="c1">// Text 使用 UTF-8 编码格式</span>
-        <span class="nx">byte</span><span class="p">[]</span> <span class="nx">obytes</span> <span class="o">=</span> <span class="s2">&quot;1st&quot;</span><span class="o">.</span><span class="nx">getBytes</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">);</span>
-        <span class="c1">// 注意，这里 bytes 第一位必须用于设置内容长度，这是 Text 的变长机制决定的</span>
-        <span class="nx">byte</span><span class="p">[]</span> <span class="nx">bytes</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">byte</span><span class="p">[</span><span class="nx">obytes</span><span class="o">.</span><span class="nx">length</span> <span class="o">+</span> <span class="mi">1</span><span class="p">];</span>
-        <span class="nx">bytes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="nx">byte</span><span class="p">)</span> <span class="nx">obytes</span><span class="o">.</span><span class="nx">length</span><span class="p">;</span>
-        <span class="nx">System</span><span class="o">.</span><span class="nx">arraycopy</span><span class="p">(</span><span class="nx">obytes</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">bytes</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nx">obytes</span><span class="o">.</span><span class="nx">length</span><span class="p">);</span>
-        <span class="nx">DataInputBuffer</span> <span class="nx">buffer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">DataInputBuffer</span><span class="p">();</span>
-        <span class="nx">dataIn</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">DataInputStream</span><span class="p">(</span><span class="nx">buffer</span><span class="p">);</span>
-        <span class="nx">buffer</span><span class="o">.</span><span class="nb">reset</span><span class="p">(</span><span class="nx">bytes</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">bytes</span><span class="o">.</span><span class="nx">length</span><span class="p">);</span>
-        <span class="c1">// 第一次读入数据</span>
-        <span class="nx">text</span> <span class="o">=</span> <span class="p">(</span><span class="nx">Text</span><span class="p">)</span> <span class="nx">deserialize</span><span class="p">(</span><span class="nx">text</span><span class="p">);</span>
-        <span class="nx">map</span><span class="o">.</span><span class="nx">put</span><span class="p">(</span><span class="nx">text</span><span class="p">,</span> <span class="nx">text</span><span class="o">.</span><span class="nx">toString</span><span class="p">());</span>
-        <span class="nx">System</span><span class="o">.</span><span class="nx">out</span><span class="o">.</span><span class="nx">println</span><span class="p">(</span><span class="nx">text</span> <span class="o">+</span> <span class="s2">&quot;|text.hashCode=&quot;</span> <span class="o">+</span> <span class="nx">text</span><span class="o">.</span><span class="nx">hashCode</span><span class="p">());</span>
-        <span class="nx">obytes</span> <span class="o">=</span> <span class="s2">&quot;2nd&quot;</span><span class="o">.</span><span class="nx">getBytes</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">);</span>
-        <span class="nx">System</span><span class="o">.</span><span class="nx">arraycopy</span><span class="p">(</span><span class="nx">obytes</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">bytes</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nx">obytes</span><span class="o">.</span><span class="nx">length</span><span class="p">);</span>
-        <span class="nx">buffer</span><span class="o">.</span><span class="nb">reset</span><span class="p">(</span><span class="nx">bytes</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">bytes</span><span class="o">.</span><span class="nx">length</span><span class="p">);</span>
-        <span class="c1">// 第二次读入数据</span>
-        <span class="nx">text</span> <span class="o">=</span> <span class="p">(</span><span class="nx">Text</span><span class="p">)</span> <span class="nx">deserialize</span><span class="p">(</span><span class="nx">text</span><span class="p">);</span>
-        <span class="nx">map</span><span class="o">.</span><span class="nx">put</span><span class="p">(</span><span class="nx">text</span><span class="p">,</span> <span class="nx">text</span><span class="o">.</span><span class="nx">toString</span><span class="p">());</span>
-        <span class="nx">System</span><span class="o">.</span><span class="nx">out</span><span class="o">.</span><span class="nx">println</span><span class="p">(</span><span class="nx">text</span> <span class="o">+</span> <span class="s2">&quot;|text.hashCode=&quot;</span> <span class="o">+</span> <span class="nx">text</span><span class="o">.</span><span class="nx">hashCode</span><span class="p">());</span>
-        <span class="nx">System</span><span class="o">.</span><span class="nx">out</span><span class="o">.</span><span class="nx">println</span><span class="p">(</span><span class="s2">&quot;Map|&quot;</span> <span class="o">+</span> <span class="nx">map</span><span class="p">);</span>
+    <span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">main</span><span class="p">(</span><span class="n">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span> <span class="n">throws</span> <span class="n">IOException</span> <span class="p">{</span>
+        <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">Text</span><span class="p">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="nb">map</span> <span class="o">=</span> <span class="n">new</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">Text</span><span class="p">,</span> <span class="n">String</span><span class="o">&gt;</span><span class="p">();</span>
+        <span class="o">//</span> <span class="err">模拟一般</span> <span class="n">MR</span> <span class="n">Job</span> <span class="err">的初始化过程</span>
+        <span class="n">conf</span> <span class="o">=</span> <span class="n">new</span> <span class="n">Configuration</span><span class="p">();</span>
+        <span class="n">new</span> <span class="n">GenericOptionsParser</span><span class="p">(</span><span class="n">conf</span><span class="p">,</span> <span class="n">args</span><span class="p">);</span>
+        <span class="n">writableClass</span> <span class="o">=</span> <span class="n">Text</span><span class="o">.</span><span class="n">class</span><span class="p">;</span>
+        <span class="n">Text</span> <span class="n">text</span> <span class="o">=</span> <span class="n">null</span><span class="p">;</span>
+        <span class="o">//</span> <span class="n">Text</span> <span class="err">使用</span> <span class="n">UTF</span><span class="o">-</span><span class="mi">8</span> <span class="err">编码格式</span>
+        <span class="n">byte</span><span class="p">[]</span> <span class="n">obytes</span> <span class="o">=</span> <span class="s2">&quot;1st&quot;</span><span class="o">.</span><span class="n">getBytes</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">);</span>
+        <span class="o">//</span> <span class="err">注意，这里</span> <span class="nb">bytes</span> <span class="err">第一位必须用于设置内容长度，这是</span> <span class="n">Text</span> <span class="err">的变长机制决定的</span>
+        <span class="n">byte</span><span class="p">[]</span> <span class="nb">bytes</span> <span class="o">=</span> <span class="n">new</span> <span class="n">byte</span><span class="p">[</span><span class="n">obytes</span><span class="o">.</span><span class="n">length</span> <span class="o">+</span> <span class="mi">1</span><span class="p">];</span>
+        <span class="nb">bytes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">byte</span><span class="p">)</span> <span class="n">obytes</span><span class="o">.</span><span class="n">length</span><span class="p">;</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">arraycopy</span><span class="p">(</span><span class="n">obytes</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">obytes</span><span class="o">.</span><span class="n">length</span><span class="p">);</span>
+        <span class="n">DataInputBuffer</span> <span class="nb">buffer</span> <span class="o">=</span> <span class="n">new</span> <span class="n">DataInputBuffer</span><span class="p">();</span>
+        <span class="n">dataIn</span> <span class="o">=</span> <span class="n">new</span> <span class="n">DataInputStream</span><span class="p">(</span><span class="nb">buffer</span><span class="p">);</span>
+        <span class="nb">buffer</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">length</span><span class="p">);</span>
+        <span class="o">//</span> <span class="err">第一次读入数据</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="p">(</span><span class="n">Text</span><span class="p">)</span> <span class="n">deserialize</span><span class="p">(</span><span class="n">text</span><span class="p">);</span>
+        <span class="nb">map</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">text</span><span class="o">.</span><span class="n">toString</span><span class="p">());</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="n">text</span> <span class="o">+</span> <span class="s2">&quot;|text.hashCode=&quot;</span> <span class="o">+</span> <span class="n">text</span><span class="o">.</span><span class="n">hashCode</span><span class="p">());</span>
+        <span class="n">obytes</span> <span class="o">=</span> <span class="s2">&quot;2nd&quot;</span><span class="o">.</span><span class="n">getBytes</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">);</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">arraycopy</span><span class="p">(</span><span class="n">obytes</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">obytes</span><span class="o">.</span><span class="n">length</span><span class="p">);</span>
+        <span class="nb">buffer</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">length</span><span class="p">);</span>
+        <span class="o">//</span> <span class="err">第二次读入数据</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="p">(</span><span class="n">Text</span><span class="p">)</span> <span class="n">deserialize</span><span class="p">(</span><span class="n">text</span><span class="p">);</span>
+        <span class="nb">map</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">text</span><span class="o">.</span><span class="n">toString</span><span class="p">());</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="n">text</span> <span class="o">+</span> <span class="s2">&quot;|text.hashCode=&quot;</span> <span class="o">+</span> <span class="n">text</span><span class="o">.</span><span class="n">hashCode</span><span class="p">());</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="s2">&quot;Map|&quot;</span> <span class="o">+</span> <span class="nb">map</span><span class="p">);</span>
     <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
 
 
 <p>这段代码的输出结果为</p>
-<div class="highlight"><pre><span class="mi">1</span><span class="n">st</span><span class="o">|</span><span class="n">text</span><span class="p">.</span><span class="n">hashCode</span><span class="o">=</span><span class="mi">80561</span>
-<span class="mi">2</span><span class="n">nd</span><span class="o">|</span><span class="n">text</span><span class="p">.</span><span class="n">hashCode</span><span class="o">=</span><span class="mi">81351</span>
-<span class="n">Map</span><span class="o">|</span><span class="p">{</span><span class="mi">2</span><span class="n">nd</span><span class="o">=</span><span class="mi">2</span><span class="n">nd</span><span class="p">,</span> <span class="mi">2</span><span class="n">nd</span><span class="o">=</span><span class="mi">1</span><span class="n">st</span><span class="p">}</span>
+<div class="highlight"><pre><span></span>1st|text.hashCode=80561
+2nd|text.hashCode=81351
+Map|{2nd=2nd, 2nd=1st}
 </pre></div>
 
 
@@ -395,17 +395,17 @@
 <h2>Solutions</h2>
 <h3>Final object</h3>
 <p>考虑下面的 <code>HashSet</code> 的例子：</p>
-<div class="highlight"><pre><span class="nx">HashSet</span><span class="o">&lt;</span><span class="kt">Date</span><span class="o">&gt;</span> <span class="n">set</span> <span class="o">=</span> <span class="nb">new</span> <span class="nx">HashSet</span><span class="o">&lt;</span><span class="kt">Date</span><span class="o">&gt;</span><span class="p">();</span>
-<span class="kt">Date</span> <span class="kt">date</span> <span class="o">=</span> <span class="nb">new</span> <span class="kt">Date</span><span class="p">();</span>
-<span class="nx">set.add</span><span class="p">(</span><span class="kt">date</span><span class="p">);</span>
-<span class="kt">date</span><span class="bp">.</span><span class="nx">setTime</span><span class="p">(</span><span class="nx">System.currentTimeMillis</span><span class="p">()</span> <span class="o">+</span> <span class="mi">60000</span><span class="p">);</span> <span class="c1">// 增加 1 分钟时间</span>
-<span class="nx">set.add</span><span class="p">(</span><span class="kt">date</span><span class="p">);</span>
-<span class="nx">System.out.println</span><span class="p">(</span><span class="nb">set</span><span class="p">);</span>
+<div class="highlight"><pre><span></span>HashSet&lt;Date&gt; set = new HashSet&lt;Date&gt;();
+Date date = new Date();
+set.add(date);
+date.setTime(System.currentTimeMillis() + 60000); // 增加 1 分钟时间
+set.add(date);
+System.out.println(set);
 </pre></div>
 
 
 <p>这段代码的输出结果大概是这样的：</p>
-<div class="highlight"><pre><span class="p">[</span><span class="n">Thu</span> <span class="n">Jul</span> <span class="mo">02</span> <span class="mi">19</span><span class="o">:</span><span class="mo">02</span><span class="o">:</span><span class="mi">36</span> <span class="n">CST</span> <span class="mi">2015</span><span class="p">,</span> <span class="n">Thu</span> <span class="n">Jul</span> <span class="mo">02</span> <span class="mi">19</span><span class="o">:</span><span class="mo">02</span><span class="o">:</span><span class="mi">36</span> <span class="n">CST</span> <span class="mi">2015</span><span class="p">]</span>
+<div class="highlight"><pre><span></span>[Thu Jul 02 19:02:36 CST 2015, Thu Jul 02 19:02:36 CST 2015]
 </pre></div>
 
 
@@ -432,8 +432,8 @@
 </ul>
 <h3>Different data structure</h3>
 <p>由于这个问题是哈希集合数据结构的特征造成的，那么更换一种数据结构也是可以解决问题的。对于 <code>HashSet</code> 的例子，可以使用 <code>TreeSet</code> 来代替；对于 <code>HashMap</code> 的例子就可以使用 <code>TreeMap</code> 来代替（前提是 key 必须实现 <code>Comparable</code> 接口，不过 Hadoop 的序列化对象基本上都符合这个条件）。不过由于 <code>TreeSet</code> 与 <code>TreeMap</code> 只允许保存同一个对象的一个引用，这里的 add/put 操作必须针对 new 的新对象。这一点与上面的存入新对象的思路相似，只是使用 Tree 结构之后可以实现更多功能（比如 key 的自动排序），同时也能够更好地定位问题。</p>
-<div class="highlight"><pre><span class="n">Map</span><span class="o">&lt;</span><span class="n">Text</span><span class="p">,</span> <span class="n">Feature</span><span class="o">&gt;</span> <span class="n">map</span> <span class="o">=</span> <span class="n">new</span> <span class="n">TreeMap</span><span class="o">&lt;</span><span class="n">Text</span><span class="p">,</span> <span class="n">Feature</span><span class="o">&gt;</span><span class="p">();</span>
-<span class="n">map</span><span class="p">.</span><span class="n">put</span><span class="p">(</span><span class="n">new</span> <span class="n">Text</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="n">sum</span><span class="p">);</span>
+<div class="highlight"><pre><span></span>Map&lt;Text, Feature&gt; map = new TreeMap&lt;Text, Feature&gt;();
+map.put(new Text(key), sum);
 </pre></div>
 
 
@@ -501,121 +501,6 @@
 
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
-                                分布式计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/storm.html">
-                                Storm
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/translation.html">
-                                Translation
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
-                                环境搭建
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/kafka.html">
-                                Kafka
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
-                                实时计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/linux.html">
-                                Linux
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/java.html">
-                                Java
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/mapreduce.html">
-                                MapReduce
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/hadoop.html">
-                                Hadoop
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/flume.html">
-                                Flume
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/redis.html">
-                                Redis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/shell.html">
-                                Shell
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/virtualbox.html">
-                                VirtualBox
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/undefined.html">
-                                Undefined
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/benchmark.html">
-                                Benchmark
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/rpc.html">
-                                RPC
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/log4j.html">
-                                log4j
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/jedis.html">
-                                Jedis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/yaml.html">
-                                Yaml
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/zookeeper.html">
-                                ZooKeeper
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/windows.html">
-                                Windows
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/gnome.html">
-                                Gnome
-                            </a>
-                        </li>
         </ul>
     </section>
 </aside>        </div>

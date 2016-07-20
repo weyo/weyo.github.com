@@ -149,23 +149,23 @@
 <p>在讨论“模糊事务型” spout 之前，让我们先来看看如何为事务型 spout 设计一种支持恰好一次语义的 State。这个 State 就称为 “事务型 state”，它支持对于特定的 txid 永远只与同一组 tuple 相关联的特性。</p>
 <p>假如你的拓扑需要计算单词数，而且你准备将计数结果存入一个 K-V 型数据库中。这里的 key 就是单词，value 对应于单词数。从上面的讨论中你应该已经明白了仅仅存储计数结果是无法确定某个 batch 中的tuple 是否已经被处理过的。所以，现在你应该将 txid 作为一种原子化的值与计数值一起存入数据库。随后，在更新计数值的时候，你就可以将数据库中的 txid 与当前处理的 batch 的 txid 进行比对。如果两者相同，你就可以跳过更新操作 —— 由于 Trident 的强有序性处理机制，可以确定数据库中的值是对应于当前的 batch 的。如果两者不同，你就可以放心地增加计数值。由于一个 batch 的 txid 永远不会改变，而且 Trident 能够保证 state 的更新操作完全是按照 batch 的顺序进行的，所以，这样的处理逻辑是完全可行的。</p>
 <p>下面来看一个例子。假如你正在处理 txid 3，其中包含有以下几个 tuple：</p>
-<div class="highlight"><pre><span class="k">[&quot;man&quot;]</span>
+<div class="highlight"><pre><span></span><span class="k">[&quot;man&quot;]</span>
 <span class="k">[&quot;man&quot;]</span>
 <span class="k">[&quot;dog&quot;]</span>
 </pre></div>
 
 
 <p>假如数据库中有以下几个 key-value 对：</p>
-<div class="highlight"><pre><span class="n">man</span> <span class="o">=&gt;</span> <span class="p">[</span><span class="n">count</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">txid</span><span class="o">=</span><span class="mi">1</span><span class="p">]</span>
-<span class="n">dog</span> <span class="o">=&gt;</span> <span class="p">[</span><span class="n">count</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">txid</span><span class="o">=</span><span class="mi">3</span><span class="p">]</span>
-<span class="n">apple</span> <span class="o">=&gt;</span> <span class="p">[</span><span class="n">count</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">txid</span><span class="o">=</span><span class="mi">2</span><span class="p">]</span>
+<div class="highlight"><pre><span></span>man =&gt; [count=3, txid=1]
+dog =&gt; [count=4, txid=3]
+apple =&gt; [count=10, txid=2]
 </pre></div>
 
 
 <p>其中与 “man” 相关联的 txid 为 1。由于当前处理的 txid 为 3，你就可以确定当前处理的 batch 与数据库中存储的值无关，这样你就可以放心地将 “man” 的计数值加上 2 并更新 txid 为 3。另一方面，由于 “dog” 的 txid 与当前的 txid 相同，所以，“dog” 的计数是之前已经处理过的，现在不能再对数据库中的计数值进行更新操作。这样，在结束 txid3 的更新操作之后，数据库中的结果就会变成这样：</p>
-<div class="highlight"><pre><span class="n">man</span> <span class="o">=&gt;</span> <span class="p">[</span><span class="n">count</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">txid</span><span class="o">=</span><span class="mi">3</span><span class="p">]</span>
-<span class="n">dog</span> <span class="o">=&gt;</span> <span class="p">[</span><span class="n">count</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">txid</span><span class="o">=</span><span class="mi">3</span><span class="p">]</span>
-<span class="n">apple</span> <span class="o">=&gt;</span> <span class="p">[</span><span class="n">count</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">txid</span><span class="o">=</span><span class="mi">2</span><span class="p">]</span>
+<div class="highlight"><pre><span></span>man =&gt; [count=5, txid=3]
+dog =&gt; [count=4, txid=3]
+apple =&gt; [count=10, txid=2]
 </pre></div>
 
 
@@ -178,30 +178,30 @@
 <p><a href="https://github.com/apache/storm/tree/master/external/storm-kafka/src/jvm/storm/kafka/trident/OpaqueTridentKafkaSpout.java">OpaqueTridentKafkaSpout</a> 就具有这样的特性，同时它对 Kafka 节点的丢失问题具有很好的容错性。<code>OpaqueTridentKafkaSpout</code> 在发送一个 batch 的时候总会总上一个 batch 结束的地方开始发送新 tuple。这一点可以保证 tuple 不会被遗漏，而且也不会被多个 batch 处理。</p>
 <p>不过，模糊事务型 spout 的缺点就在于不能通过 txid 来识别数据库中的 state 是否是已经处理过的。这是因为在 state 的更新的过程中，batch 有可能会发生变化。</p>
 <p>在这种情况下，你应该在数据库中存储更多的 state 信息。除了一个结果值和 txid 之外，你还应该存入前一个结果值。我们再以上面的计数值的例子来分析以下这个问题。假如你的 batch 的部分计数值是 “2”，现在你需要应用一个更新操作。假定现在数据库中的值是这样的：</p>
-<div class="highlight"><pre><span class="p">{</span> <span class="n">value</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
-  <span class="n">prevValue</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-  <span class="n">txid</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="p">}</span>
+<div class="highlight"><pre><span></span>{ value = 4,
+  prevValue = 1,
+  txid = 2
+}
 </pre></div>
 
 
 <ul>
 <li>情形1：假如当前处理的 txid 为 3，这与数据库中的 txid 不同。这时可以将 “prevValue” 的值设为 “value” 的值，再为 “value” 的值加上部分计数的结果并更新 txid。执行完这一系列操作之后的数据库中的值就会变成这样：</li>
 </ul>
-<div class="highlight"><pre><span class="p">{</span> <span class="n">value</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span>
-  <span class="n">prevValue</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
-  <span class="n">txid</span> <span class="o">=</span> <span class="mi">3</span>
-<span class="p">}</span>
+<div class="highlight"><pre><span></span>{ value = 6,
+  prevValue = 4,
+  txid = 3
+}
 </pre></div>
 
 
 <ul>
 <li>情形2：如果当前处理的 txid 为 2，也就是和数据库中存储的 txid 一致，这种情况下的处理逻辑与上面的 txid 不一致的情况又有所不同。因为此时你会知道数据库中的更新操作是由上一个拥有相同 txid 的batch 做出的。不过那个 batch 有可能与当前的 batch 并不相同，所以你需要忽略它的操作。这个时候，你应该将 “prevValue” 加上 batch 中的部分计数值来计算新的 “value”。在这个操作之后数据库中的值就会变成这样：</li>
 </ul>
-<div class="highlight"><pre><span class="p">{</span> <span class="n">value</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
-  <span class="n">prevValue</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-  <span class="n">txid</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="p">}</span>
+<div class="highlight"><pre><span></span>{ value = 3,
+  prevValue = 1,
+  txid = 2
+}
 </pre></div>
 
 
@@ -215,19 +215,19 @@
 <p>你选择 state 与 spout 的时候必须在容错性与存储空间占用之间权衡。可以根据你的应用的需求来确定哪种组合最适合你。</p>
 <h2>State API</h2>
 <p>从上文的描述中你已经了解到了恰好一次的消息执行语义的原理是多么的复杂。不过作为用户你并不需要处理这些复杂的 txid 比对、多值存储等操作，Trident 已经在 State 中封装了所有的容错性处理逻辑，你只需要像下面这样写代码即可：</p>
-<div class="highlight"><pre><span class="n">TridentTopology</span> <span class="n">topology</span> <span class="o">=</span> <span class="n">new</span> <span class="n">TridentTopology</span><span class="p">();</span>        
-<span class="n">TridentState</span> <span class="n">wordCounts</span> <span class="o">=</span>
-      <span class="n">topology</span><span class="p">.</span><span class="n">newStream</span><span class="p">(</span><span class="s">&quot;spout1&quot;</span><span class="p">,</span> <span class="n">spout</span><span class="p">)</span>
-        <span class="p">.</span><span class="n">each</span><span class="p">(</span><span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;sentence&quot;</span><span class="p">),</span> <span class="n">new</span> <span class="n">Split</span><span class="p">(),</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;word&quot;</span><span class="p">))</span>
-        <span class="p">.</span><span class="n">groupBy</span><span class="p">(</span><span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;word&quot;</span><span class="p">))</span>
-        <span class="p">.</span><span class="n">persistentAggregate</span><span class="p">(</span><span class="n">MemcachedState</span><span class="p">.</span><span class="n">opaque</span><span class="p">(</span><span class="n">serverLocations</span><span class="p">),</span> <span class="n">new</span> <span class="n">Count</span><span class="p">(),</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;count&quot;</span><span class="p">))</span>                
-        <span class="p">.</span><span class="n">parallelismHint</span><span class="p">(</span><span class="mi">6</span><span class="p">);</span>
+<div class="highlight"><pre><span></span>TridentTopology topology = new TridentTopology();        
+TridentState wordCounts =
+      topology.newStream(&quot;spout1&quot;, spout)
+        .each(new Fields(&quot;sentence&quot;), new Split(), new Fields(&quot;word&quot;))
+        .groupBy(new Fields(&quot;word&quot;))
+        .persistentAggregate(MemcachedState.opaque(serverLocations), new Count(), new Fields(&quot;count&quot;))                
+        .parallelismHint(6);
 </pre></div>
 
 
 <p>所有处理模糊事务型 state 的逻辑已经封装在 <code>MemcachedState.opaque</code> 的调用中了。另外，状态更新都会自动调整为批处理操作，这样可以减小与数据库的反复交互的资源损耗。</p>
 <p>基本的 <code>State</code> 接口只有两个方法：</p>
-<div class="highlight"><pre><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">State</span> <span class="o">{</span>
+<div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">State</span> <span class="o">{</span>
     <span class="kt">void</span> <span class="nf">beginCommit</span><span class="o">(</span><span class="n">Long</span> <span class="n">txid</span><span class="o">);</span> <span class="c1">// 对于类似于在 DRPC 流上进行 partitionPersist 的操作，此方法可以为空</span>
     <span class="kt">void</span> <span class="nf">commit</span><span class="o">(</span><span class="n">Long</span> <span class="n">txid</span><span class="o">);</span>
 <span class="o">}</span>
@@ -236,7 +236,7 @@
 
 <p>前面已经说过，state 更新操作的开始时和结束时都会获取一个 txid。对于你的 state 怎么工作，你在其中使用什么样的方法执行更新操作，或者使用什么样的方法从 state 中读取数据，Trident 并不关心。</p>
 <p>假如你有一个包含有用户的地址信息的定制数据库，你需要使用 Trident 与该数据库交互。你的 State 的实现就会包含有用于获取与设置用户信息的方法，比如下面这样：</p>
-<div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">LocationDB</span> <span class="kd">implements</span> <span class="n">State</span> <span class="o">{</span>
+<div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">LocationDB</span> <span class="kd">implements</span> <span class="n">State</span> <span class="o">{</span>
     <span class="kd">public</span> <span class="kt">void</span> <span class="nf">beginCommit</span><span class="o">(</span><span class="n">Long</span> <span class="n">txid</span><span class="o">)</span> <span class="o">{</span>    
     <span class="o">}</span>
 
@@ -255,27 +255,27 @@
 
 
 <p>接着你就可以为 Trident 提供一个 StateFactory 来创建 Trident 任务内部的 State 对象的实例。对应于你的数据库（LocationDB）的 StateFactory 大概是这样的：</p>
-<div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">LocationDBFactory</span> <span class="kd">implements</span> <span class="n">StateFactory</span> <span class="o">{</span>
+<div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">LocationDBFactory</span> <span class="kd">implements</span> <span class="n">StateFactory</span> <span class="o">{</span>
    <span class="kd">public</span> <span class="n">State</span> <span class="nf">makeState</span><span class="o">(</span><span class="n">Map</span> <span class="n">conf</span><span class="o">,</span> <span class="kt">int</span> <span class="n">partitionIndex</span><span class="o">,</span> <span class="kt">int</span> <span class="n">numPartitions</span><span class="o">)</span> <span class="o">{</span>
-      <span class="k">return</span> <span class="k">new</span> <span class="nf">LocationDB</span><span class="o">();</span>
+      <span class="k">return</span> <span class="k">new</span> <span class="n">LocationDB</span><span class="o">();</span>
    <span class="o">}</span> 
 <span class="o">}</span>
 </pre></div>
 
 
 <p>Trident 提供了一个用于查询 state 数据源的 <code>QueryFunction</code> 接口，以及一个用于更新 state 数据源的 <code>StateUpdater</code> 接口。例如，我们可以写一个查询 LocationDB 中的用户地址信息的 “QueryLocation”。让我们从你在拓扑中使用这个操作的方式开始。假如在拓扑中需要读取输入流中的 userid 信息：</p>
-<div class="highlight"><pre><span class="n">TridentTopology</span> <span class="n">topology</span> <span class="o">=</span> <span class="n">new</span> <span class="n">TridentTopology</span><span class="p">();</span>
-<span class="n">TridentState</span> <span class="n">locations</span> <span class="o">=</span> <span class="n">topology</span><span class="p">.</span><span class="n">newStaticState</span><span class="p">(</span><span class="n">new</span> <span class="n">LocationDBFactory</span><span class="p">());</span>
-<span class="n">topology</span><span class="p">.</span><span class="n">newStream</span><span class="p">(</span><span class="s">&quot;myspout&quot;</span><span class="p">,</span> <span class="n">spout</span><span class="p">)</span>
-        <span class="p">.</span><span class="n">stateQuery</span><span class="p">(</span><span class="n">locations</span><span class="p">,</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;userid&quot;</span><span class="p">),</span> <span class="n">new</span> <span class="n">QueryLocation</span><span class="p">(),</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;location&quot;</span><span class="p">))</span>
+<div class="highlight"><pre><span></span>TridentTopology topology = new TridentTopology();
+TridentState locations = topology.newStaticState(new LocationDBFactory());
+topology.newStream(&quot;myspout&quot;, spout)
+        .stateQuery(locations, new Fields(&quot;userid&quot;), new QueryLocation(), new Fields(&quot;location&quot;))
 </pre></div>
 
 
 <p>这里的 <code>QueryLocation</code> 的实现可能是这样的：</p>
-<div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">QueryLocation</span> <span class="kd">extends</span> <span class="n">BaseQueryFunction</span><span class="o">&lt;</span><span class="n">LocationDB</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="o">{</span>
+<div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">QueryLocation</span> <span class="kd">extends</span> <span class="n">BaseQueryFunction</span><span class="o">&lt;</span><span class="n">LocationDB</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="o">{</span>
     <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="nf">batchRetrieve</span><span class="o">(</span><span class="n">LocationDB</span> <span class="n">state</span><span class="o">,</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">TridentTuple</span><span class="o">&gt;</span> <span class="n">inputs</span><span class="o">)</span> <span class="o">{</span>
         <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">ret</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">();</span>
-        <span class="k">for</span><span class="o">(</span><span class="n">TridentTuple</span> <span class="nl">input:</span> <span class="n">inputs</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">for</span><span class="o">(</span><span class="n">TridentTuple</span> <span class="n">input</span><span class="o">:</span> <span class="n">inputs</span><span class="o">)</span> <span class="o">{</span>
             <span class="n">ret</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">state</span><span class="o">.</span><span class="na">getLocation</span><span class="o">(</span><span class="n">input</span><span class="o">.</span><span class="na">getLong</span><span class="o">(</span><span class="mi">0</span><span class="o">)));</span>
         <span class="o">}</span>
         <span class="k">return</span> <span class="n">ret</span><span class="o">;</span>
@@ -290,62 +290,62 @@
 
 <p><code>QueryFunction</code> 的执行包含两个步骤。首先，Trident 会将读取的一些数据中汇总为一个 batch 传入 batchRetrieve 方法中。在这个例子中，batchRetrieve 方法会收到一些用户 id。然后 batchRetrieve 会返回一个与输入 tuple 列表大小相同的队列。结果队列的第一个元素与第一个输入 tuple 对应，第二个元素与第二个输入 tuple 相对应，以此类推。</p>
 <p>你会发现这段代码并没有发挥出 Trident 批处理的优势，因为这段代码仅仅一次查询一下 LocationDB。所以，实现 LocationDB 的更好的方式应该是这样的：</p>
-<div class="highlight"><pre><span class="k">public</span> <span class="nf">class</span> <span class="nx">LocationDB</span> <span class="nx">implements</span> <span class="nx">State</span> <span class="p">{</span>
-    <span class="k">public</span> <span class="nf">void</span> <span class="nx">beginCommit</span><span class="p">(</span><span class="nx">Long</span> <span class="nx">txid</span><span class="p">)</span> <span class="p">{</span>    
-    <span class="p">}</span>
+<div class="highlight"><pre><span></span>public class LocationDB implements State {
+    public void beginCommit(Long txid) {    
+    }
 
-    <span class="k">public</span> <span class="nf">void</span> <span class="nx">commit</span><span class="p">(</span><span class="nx">Long</span> <span class="nx">txid</span><span class="p">)</span> <span class="p">{</span>    
-    <span class="p">}</span>
+    public void commit(Long txid) {    
+    }
 
-    <span class="k">public</span> <span class="nf">void</span> <span class="nx">setLocationsBulk</span><span class="p">(</span><span class="nb">List</span><span class="o">&lt;</span><span class="nx">Long</span><span class="o">&gt;</span> <span class="nx">userIds</span><span class="p">,</span> <span class="nb">List</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span> <span class="nx">locations</span><span class="p">)</span> <span class="p">{</span>
-      <span class="c1">// set locations in bulk</span>
-    <span class="p">}</span>
+    public void setLocationsBulk(List&lt;Long&gt; userIds, List&lt;String&gt; locations) {
+      // set locations in bulk
+    }
 
-    <span class="k">public</span> <span class="nf">List</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span> <span class="nx">bulkGetLocations</span><span class="p">(</span><span class="nb">List</span><span class="o">&lt;</span><span class="nx">Long</span><span class="o">&gt;</span> <span class="nx">userIds</span><span class="p">)</span> <span class="p">{</span>
-      <span class="c1">// get locations in bulk</span>
-    <span class="p">}</span>
-<span class="p">}</span>
+    public List&lt;String&gt; bulkGetLocations(List&lt;Long&gt; userIds) {
+      // get locations in bulk
+    }
+}
 </pre></div>
 
 
 <p>然后，你可以这样实现 <code>QueryLocation</code> 方法：</p>
-<div class="highlight"><pre><span class="k">public</span> <span class="nf">class</span> <span class="nx">QueryLocation</span> <span class="nx">extends</span> <span class="nx">BaseQueryFunction</span><span class="o">&lt;</span><span class="nx">LocationDB</span><span class="p">,</span> <span class="kt">String</span><span class="o">&gt;</span> <span class="p">{</span>
-    <span class="k">public</span> <span class="nf">List</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span> <span class="nx">batchRetrieve</span><span class="p">(</span><span class="nx">LocationDB</span> <span class="nx">state</span><span class="p">,</span> <span class="nb">List</span><span class="o">&lt;</span><span class="nx">TridentTuple</span><span class="o">&gt;</span> <span class="nx">inputs</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nb">List</span><span class="o">&lt;</span><span class="nx">Long</span><span class="o">&gt;</span> <span class="n">userIds</span> <span class="o">=</span> <span class="nb">new</span> <span class="nx">ArrayList</span><span class="o">&lt;</span><span class="nx">Long</span><span class="o">&gt;</span><span class="p">();</span>
-        <span class="nb">for</span><span class="p">(</span><span class="nx">TridentTuple</span> <span class="nb">input</span><span class="p">:</span> <span class="nx">inputs</span><span class="p">)</span> <span class="p">{</span>
-            <span class="nx">userIds.add</span><span class="p">(</span><span class="nx">input.getLong</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span>
-        <span class="p">}</span>
-        <span class="k">return</span> <span class="nx">state.bulkGetLocations</span><span class="p">(</span><span class="nx">userIds</span><span class="p">);</span>
-    <span class="p">}</span>
+<div class="highlight"><pre><span></span>public class QueryLocation extends BaseQueryFunction&lt;LocationDB, String&gt; {
+    public List&lt;String&gt; batchRetrieve(LocationDB state, List&lt;TridentTuple&gt; inputs) {
+        List&lt;Long&gt; userIds = new ArrayList&lt;Long&gt;();
+        for(TridentTuple input: inputs) {
+            userIds.add(input.getLong(0));
+        }
+        return state.bulkGetLocations(userIds);
+    }
 
-    <span class="k">public</span> <span class="nf">void</span> <span class="nb">execute</span><span class="p">(</span><span class="nx">TridentTuple</span> <span class="nx">tuple</span><span class="p">,</span> <span class="kt">String</span> <span class="nx">location</span><span class="p">,</span> <span class="nx">TridentCollector</span> <span class="nx">collector</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nx">collector.emit</span><span class="p">(</span><span class="nb">new</span> <span class="nb">Values</span><span class="p">(</span><span class="nx">location</span><span class="p">));</span>
-    <span class="p">}</span>    
-<span class="p">}</span>
+    public void execute(TridentTuple tuple, String location, TridentCollector collector) {
+        collector.emit(new Values(location));
+    }    
+}
 </pre></div>
 
 
 <p>这段代码大幅减少了域数据库的IO，具有更高的执行效率。</p>
 <p>你需要使用 <code>StateUpdater</code> 接口来更新 state。下面是一个更新 LocationDB 的地址信息的 StateUpdater 实现：</p>
-<div class="highlight"><pre><span class="k">public</span> <span class="nf">class</span> <span class="nx">LocationUpdater</span> <span class="nx">extends</span> <span class="nx">BaseStateUpdater</span><span class="o">&lt;</span><span class="nx">LocationDB</span><span class="o">&gt;</span> <span class="p">{</span>
-    <span class="k">public</span> <span class="nf">void</span> <span class="nx">updateState</span><span class="p">(</span><span class="nx">LocationDB</span> <span class="nx">state</span><span class="p">,</span> <span class="nb">List</span><span class="o">&lt;</span><span class="nx">TridentTuple</span><span class="o">&gt;</span> <span class="nx">tuples</span><span class="p">,</span> <span class="nx">TridentCollector</span> <span class="nx">collector</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nb">List</span><span class="o">&lt;</span><span class="nx">Long</span><span class="o">&gt;</span> <span class="n">ids</span> <span class="o">=</span> <span class="nb">new</span> <span class="nx">ArrayList</span><span class="o">&lt;</span><span class="nx">Long</span><span class="o">&gt;</span><span class="p">();</span>
-        <span class="nb">List</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span> <span class="n">locations</span> <span class="o">=</span> <span class="nb">new</span> <span class="nx">ArrayList</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span><span class="p">();</span>
-        <span class="nb">for</span><span class="p">(</span><span class="nx">TridentTuple</span> <span class="nb">t</span><span class="p">:</span> <span class="nx">tuples</span><span class="p">)</span> <span class="p">{</span>
-            <span class="nx">ids.add</span><span class="p">(</span><span class="nx">t.getLong</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span>
-            <span class="nx">locations.add</span><span class="p">(</span><span class="nx">t.getString</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
-        <span class="p">}</span>
-        <span class="nx">state.setLocationsBulk</span><span class="p">(</span><span class="nx">ids</span><span class="p">,</span> <span class="nx">locations</span><span class="p">);</span>
-    <span class="p">}</span>
-<span class="p">}</span>
+<div class="highlight"><pre><span></span>public class LocationUpdater extends BaseStateUpdater&lt;LocationDB&gt; {
+    public void updateState(LocationDB state, List&lt;TridentTuple&gt; tuples, TridentCollector collector) {
+        List&lt;Long&gt; ids = new ArrayList&lt;Long&gt;();
+        List&lt;String&gt; locations = new ArrayList&lt;String&gt;();
+        for(TridentTuple t: tuples) {
+            ids.add(t.getLong(0));
+            locations.add(t.getString(1));
+        }
+        state.setLocationsBulk(ids, locations);
+    }
+}
 </pre></div>
 
 
 <p>然后你就可以在 Trident 拓扑中这样使用这个操作：</p>
-<div class="highlight"><pre><span class="n">TridentTopology</span> <span class="n">topology</span> <span class="o">=</span> <span class="n">new</span> <span class="n">TridentTopology</span><span class="p">();</span>
-<span class="n">TridentState</span> <span class="n">locations</span> <span class="o">=</span> 
-    <span class="n">topology</span><span class="p">.</span><span class="n">newStream</span><span class="p">(</span><span class="s">&quot;locations&quot;</span><span class="p">,</span> <span class="n">locationsSpout</span><span class="p">)</span>
-        <span class="p">.</span><span class="n">partitionPersist</span><span class="p">(</span><span class="n">new</span> <span class="n">LocationDBFactory</span><span class="p">(),</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;userid&quot;</span><span class="p">,</span> <span class="s">&quot;location&quot;</span><span class="p">),</span> <span class="n">new</span> <span class="n">LocationUpdater</span><span class="p">())</span>
+<div class="highlight"><pre><span></span>TridentTopology topology = new TridentTopology();
+TridentState locations = 
+    topology.newStream(&quot;locations&quot;, locationsSpout)
+        .partitionPersist(new LocationDBFactory(), new Fields(&quot;userid&quot;, &quot;location&quot;), new LocationUpdater())
 </pre></div>
 
 
@@ -354,40 +354,40 @@
 <p>你也许注意到了 StateUpdater 中有一个 TridentCollector 参数。发送到这个 collector 的 tuple 会进入一个“新的数值流”中。在这个例子里向这个新的流发送 tuple 并没有意义，不过如果你需要处理类似于更新数据库中的计数值这样的操作，你可以考虑将更新后的技术结果发送到这个流中。可以通过 <code>TridentState.newValuesStream</code> 方法来获取新的流的数据。</p>
 <h2>persistentAggregate</h2>
 <p>Trident 使用一个称为 <code>persistentAggregate</code> 的方法来更新 State。你已经在前面的数据流单词统计的例子里见过了这个方法，这里再写一遍：</p>
-<div class="highlight"><pre><span class="n">TridentTopology</span> <span class="n">topology</span> <span class="o">=</span> <span class="n">new</span> <span class="n">TridentTopology</span><span class="p">();</span>        
-<span class="n">TridentState</span> <span class="n">wordCounts</span> <span class="o">=</span>
-      <span class="n">topology</span><span class="p">.</span><span class="n">newStream</span><span class="p">(</span><span class="s">&quot;spout1&quot;</span><span class="p">,</span> <span class="n">spout</span><span class="p">)</span>
-        <span class="p">.</span><span class="n">each</span><span class="p">(</span><span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;sentence&quot;</span><span class="p">),</span> <span class="n">new</span> <span class="n">Split</span><span class="p">(),</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;word&quot;</span><span class="p">))</span>
-        <span class="p">.</span><span class="n">groupBy</span><span class="p">(</span><span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;word&quot;</span><span class="p">))</span>
-        <span class="p">.</span><span class="n">persistentAggregate</span><span class="p">(</span><span class="n">new</span> <span class="n">MemoryMapState</span><span class="p">.</span><span class="n">Factory</span><span class="p">(),</span> <span class="n">new</span> <span class="n">Count</span><span class="p">(),</span> <span class="n">new</span> <span class="n">Fields</span><span class="p">(</span><span class="s">&quot;count&quot;</span><span class="p">))</span>
+<div class="highlight"><pre><span></span>TridentTopology topology = new TridentTopology();        
+TridentState wordCounts =
+      topology.newStream(&quot;spout1&quot;, spout)
+        .each(new Fields(&quot;sentence&quot;), new Split(), new Fields(&quot;word&quot;))
+        .groupBy(new Fields(&quot;word&quot;))
+        .persistentAggregate(new MemoryMapState.Factory(), new Count(), new Fields(&quot;count&quot;))
 </pre></div>
 
 
 <p>partitionPersist 是一个接收 Trident 聚合器作为参数并对 state  数据源进行更新的方法，persistentAggregate 就是构建于 partitionPersist 上层的一个编程抽象。在这个例子里，由于是一个分组数据流（grouped stream），Trident 需要你提供一个实现 <code>MapState</code> 接口的 state。被分组的域就是 state 中的 key，而聚合的结果就是 state 中的 value。<code>MapState</code> 接口是这样的：</p>
-<div class="highlight"><pre><span class="k">public</span> <span class="nf">interface</span> <span class="nx">MapState</span><span class="o">&lt;</span><span class="nb">T</span><span class="o">&gt;</span> <span class="nx">extends</span> <span class="nx">State</span> <span class="p">{</span>
-    <span class="nb">List</span><span class="o">&lt;</span><span class="nb">T</span><span class="o">&gt;</span> <span class="nx">multiGet</span><span class="p">(</span><span class="nb">List</span><span class="o">&lt;</span><span class="nb">List</span><span class="o">&lt;</span><span class="nb">Object</span><span class="o">&gt;&gt;</span> <span class="nb">keys</span><span class="p">);</span>
-    <span class="nb">List</span><span class="o">&lt;</span><span class="nb">T</span><span class="o">&gt;</span> <span class="nx">multiUpdate</span><span class="p">(</span><span class="nb">List</span><span class="o">&lt;</span><span class="nb">List</span><span class="o">&lt;</span><span class="nb">Object</span><span class="o">&gt;&gt;</span> <span class="nb">keys</span><span class="p">,</span> <span class="nb">List</span><span class="o">&lt;</span><span class="nx">ValueUpdater</span><span class="o">&gt;</span> <span class="nx">updaters</span><span class="p">);</span>
-    <span class="bp">void</span> <span class="nx">multiPut</span><span class="p">(</span><span class="nb">List</span><span class="o">&lt;</span><span class="nb">List</span><span class="o">&lt;</span><span class="nb">Object</span><span class="o">&gt;&gt;</span> <span class="nb">keys</span><span class="p">,</span> <span class="nb">List</span><span class="o">&lt;</span><span class="nb">T</span><span class="o">&gt;</span> <span class="nx">vals</span><span class="p">);</span>
-<span class="p">}</span>
+<div class="highlight"><pre><span></span>public interface MapState&lt;T&gt; extends State {
+    List&lt;T&gt; multiGet(List&lt;List&lt;Object&gt;&gt; keys);
+    List&lt;T&gt; multiUpdate(List&lt;List&lt;Object&gt;&gt; keys, List&lt;ValueUpdater&gt; updaters);
+    void multiPut(List&lt;List&lt;Object&gt;&gt; keys, List&lt;T&gt; vals);
+}
 </pre></div>
 
 
 <p>而当你在非分组数据流上执行聚合操作时（全局聚合操作），Trident 需要你提供一个实现了 <code>Snapshottable</code> 接口的对象：</p>
-<div class="highlight"><pre><span class="k">public</span> <span class="nf">interface</span> <span class="nx">Snapshottable</span><span class="o">&lt;</span><span class="nb">T</span><span class="o">&gt;</span> <span class="nx">extends</span> <span class="nx">State</span> <span class="p">{</span>
-    <span class="nb">T</span> <span class="nb">get</span><span class="p">();</span>
-    <span class="nb">T</span> <span class="nx">update</span><span class="p">(</span><span class="nx">ValueUpdater</span> <span class="nx">updater</span><span class="p">);</span>
-    <span class="bp">void</span> <span class="nb">set</span><span class="p">(</span><span class="nb">T</span> <span class="nx">o</span><span class="p">);</span>
-<span class="p">}</span>
+<div class="highlight"><pre><span></span>public interface Snapshottable&lt;T&gt; extends State {
+    T get();
+    T update(ValueUpdater updater);
+    void set(T o);
+}
 </pre></div>
 
 
 <p><a href="https://github.com/apache/storm/blob/master/storm-core/src/jvm/storm/trident/testing/MemoryMapState.java">MemoryMapState</a> 与 <a href="https://github.com/nathanmarz/trident-memcached/blob/master/src/jvm/trident/memcached/MemcachedState.java">MemcachedState</a> 都实现了上面两个接口。</p>
 <h2>实现 Map State 接口</h2>
 <p>实现 <code>MapState</code> 接口非常简单，Trident 几乎已经为你做好了所有的准备工作。<code>OpaqueMap</code>、<code>TransactionalMap</code>、与 <code>NonTransactionalMap</code> 类都分别实现了各自的容错性语义。你只需要为这些类提供一个用于对不同的 key/value 进行 multiGets 与 multiPuts 处理的 IBackingMap 实现类。<code>IBackingMap</code> 接口是这样的：</p>
-<div class="highlight"><pre><span class="k">public</span> <span class="nf">interface</span> <span class="nx">IBackingMap</span><span class="o">&lt;</span><span class="nb">T</span><span class="o">&gt;</span> <span class="p">{</span>
-    <span class="nb">List</span><span class="o">&lt;</span><span class="nb">T</span><span class="o">&gt;</span> <span class="nx">multiGet</span><span class="p">(</span><span class="nb">List</span><span class="o">&lt;</span><span class="nb">List</span><span class="o">&lt;</span><span class="nb">Object</span><span class="o">&gt;&gt;</span> <span class="nb">keys</span><span class="p">);</span> 
-    <span class="bp">void</span> <span class="nx">multiPut</span><span class="p">(</span><span class="nb">List</span><span class="o">&lt;</span><span class="nb">List</span><span class="o">&lt;</span><span class="nb">Object</span><span class="o">&gt;&gt;</span> <span class="nb">keys</span><span class="p">,</span> <span class="nb">List</span><span class="o">&lt;</span><span class="nb">T</span><span class="o">&gt;</span> <span class="nx">vals</span><span class="p">);</span> 
-<span class="p">}</span>
+<div class="highlight"><pre><span></span>public interface IBackingMap&lt;T&gt; {
+    List&lt;T&gt; multiGet(List&lt;List&lt;Object&gt;&gt; keys); 
+    void multiPut(List&lt;List&lt;Object&gt;&gt; keys, List&lt;T&gt; vals); 
+}
 </pre></div>
 
 
@@ -449,121 +449,6 @@
 
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
-                                分布式计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/storm.html">
-                                Storm
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/translation.html">
-                                Translation
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
-                                环境搭建
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/kafka.html">
-                                Kafka
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
-                                实时计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/linux.html">
-                                Linux
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/java.html">
-                                Java
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/mapreduce.html">
-                                MapReduce
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/hadoop.html">
-                                Hadoop
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/flume.html">
-                                Flume
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/redis.html">
-                                Redis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/shell.html">
-                                Shell
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/virtualbox.html">
-                                VirtualBox
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/undefined.html">
-                                Undefined
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/benchmark.html">
-                                Benchmark
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/rpc.html">
-                                RPC
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/log4j.html">
-                                log4j
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/jedis.html">
-                                Jedis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/yaml.html">
-                                Yaml
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/zookeeper.html">
-                                ZooKeeper
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/windows.html">
-                                Windows
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/gnome.html">
-                                Gnome
-                            </a>
-                        </li>
         </ul>
     </section>
 </aside>        </div>

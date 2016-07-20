@@ -169,9 +169,9 @@
 </li>
 </ul>
 <p>以下是配置上述参数的一个简单示例代码：</p>
-<div class="highlight"><pre><span class="n">topologyBuilder</span><span class="p">.</span><span class="n">setBolt</span><span class="p">(</span><span class="s">&quot;green-bolt&quot;</span><span class="p">,</span> <span class="n">new</span> <span class="n">GreenBolt</span><span class="p">(),</span> <span class="mi">2</span><span class="p">)</span>
-               <span class="p">.</span><span class="n">setNumTasks</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
-               <span class="p">.</span><span class="n">shuffleGrouping</span><span class="p">(</span><span class="s">&quot;blue-spout);</span>
+<div class="highlight"><pre><span></span>topologyBuilder.setBolt(&quot;green-bolt&quot;, new GreenBolt(), 2)
+               .setNumTasks(4)
+               .shuffleGrouping(&quot;blue-spout);
 </pre></div>
 
 
@@ -183,23 +183,23 @@
 <p>图中是一个包含有两个 worker 进程的拓扑。其中，蓝色的 <code>BlueSpout</code> 有两个 executor，每个 executor 中有一个 task，并行度为 2；绿色的 <code>GreenBolt</code> 有两个 executor，每个 executor 有两个 task，并行度也为2；而黄色的 <code>YellowBolt</code> 有 6 个 executor，每个 executor 中有一个 task，并行度为 6，因此，这个拓扑的总并行度就是 2 + 2 + 6 = 10。具体分配到每个 worker 就有 10 / 2 = 5 个 executor。</p>
 </blockquote>
 <p>上图中，<code>GreenBolt</code> 配置了 task 数，而 <code>BlueSpout</code> 和 <code>YellowBolt</code> 仅仅配置了 executor 数。下面是相关代码：</p>
-<div class="highlight"><pre><span class="n">Config</span> <span class="n">conf</span> <span class="o">=</span> <span class="n">new</span> <span class="n">Config</span><span class="p">();</span>
-<span class="n">conf</span><span class="p">.</span><span class="n">setNumWorkers</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span> <span class="c1">// use two worker processes</span>
+<div class="highlight"><pre><span></span>Config conf = new Config();
+conf.setNumWorkers(2); // use two worker processes
 
-<span class="n">topologyBuilder</span><span class="p">.</span><span class="n">setSpout</span><span class="p">(</span><span class="s">&quot;blue-spout&quot;</span><span class="p">,</span> <span class="n">new</span> <span class="n">BlueSpout</span><span class="p">(),</span> <span class="mi">2</span><span class="p">);</span> <span class="c1">// set parallelism hint to 2</span>
+topologyBuilder.setSpout(&quot;blue-spout&quot;, new BlueSpout(), 2); // set parallelism hint to 2
 
-<span class="n">topologyBuilder</span><span class="p">.</span><span class="n">setBolt</span><span class="p">(</span><span class="s">&quot;green-bolt&quot;</span><span class="p">,</span> <span class="n">new</span> <span class="n">GreenBolt</span><span class="p">(),</span> <span class="mi">2</span><span class="p">)</span>
-               <span class="p">.</span><span class="n">setNumTasks</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
-               <span class="p">.</span><span class="n">shuffleGrouping</span><span class="p">(</span><span class="s">&quot;blue-spout&quot;</span><span class="p">);</span>
+topologyBuilder.setBolt(&quot;green-bolt&quot;, new GreenBolt(), 2)
+               .setNumTasks(4)
+               .shuffleGrouping(&quot;blue-spout&quot;);
 
-<span class="n">topologyBuilder</span><span class="p">.</span><span class="n">setBolt</span><span class="p">(</span><span class="s">&quot;yellow-bolt&quot;</span><span class="p">,</span> <span class="n">new</span> <span class="n">YellowBolt</span><span class="p">(),</span> <span class="mi">6</span><span class="p">)</span>
-               <span class="p">.</span><span class="n">shuffleGrouping</span><span class="p">(</span><span class="s">&quot;green-bolt&quot;</span><span class="p">);</span>
+topologyBuilder.setBolt(&quot;yellow-bolt&quot;, new YellowBolt(), 6)
+               .shuffleGrouping(&quot;green-bolt&quot;);
 
-<span class="n">StormSubmitter</span><span class="p">.</span><span class="n">submitTopology</span><span class="p">(</span>
-        <span class="s">&quot;mytopology&quot;</span><span class="p">,</span>
-        <span class="n">conf</span><span class="p">,</span>
-        <span class="n">topologyBuilder</span><span class="p">.</span><span class="n">createTopology</span><span class="p">()</span>
-    <span class="p">);</span>
+StormSubmitter.submitTopology(
+        &quot;mytopology&quot;,
+        conf,
+        topologyBuilder.createTopology()
+    );
 </pre></div>
 
 
@@ -215,11 +215,11 @@
 <li>使用以下所示的客户端（CLI）工具</li>
 </ol>
 <p>下面是使用 CLI 工具的一个简单示例：</p>
-<div class="highlight"><pre><span class="cp">## 重新配置拓扑 &quot;mytopology&quot;，使得该拓扑拥有 5 个 worker processes，</span>
-<span class="cp">## 另外，配置名为 &quot;blue-spout&quot; 的 spout 使用 3 个 executor，</span>
-<span class="cp">## 配置名为 &quot;yellow-bolt&quot; 的 bolt 使用 10 个 executor。</span>
+<div class="highlight"><pre><span></span>## 重新配置拓扑 &quot;mytopology&quot;，使得该拓扑拥有 5 个 worker processes，
+## 另外，配置名为 &quot;blue-spout&quot; 的 spout 使用 3 个 executor，
+## 配置名为 &quot;yellow-bolt&quot; 的 bolt 使用 10 个 executor。
 
-<span class="err">$</span> <span class="n">storm</span> <span class="n">rebalance</span> <span class="n">mytopology</span> <span class="o">-</span><span class="n">n</span> <span class="mi">5</span> <span class="o">-</span><span class="n">e</span> <span class="n">blue</span><span class="o">-</span><span class="n">spout</span><span class="o">=</span><span class="mi">3</span> <span class="o">-</span><span class="n">e</span> <span class="n">yellow</span><span class="o">-</span><span class="n">bolt</span><span class="o">=</span><span class="mi">10</span>
+$ storm rebalance mytopology -n 5 -e blue-spout=3 -e yellow-bolt=10
 </pre></div>
 
 
@@ -278,121 +278,6 @@
 
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
-                                分布式计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/storm.html">
-                                Storm
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/translation.html">
-                                Translation
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
-                                环境搭建
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/kafka.html">
-                                Kafka
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
-                                实时计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/linux.html">
-                                Linux
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/java.html">
-                                Java
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/mapreduce.html">
-                                MapReduce
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/hadoop.html">
-                                Hadoop
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/flume.html">
-                                Flume
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/redis.html">
-                                Redis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/shell.html">
-                                Shell
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/virtualbox.html">
-                                VirtualBox
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/undefined.html">
-                                Undefined
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/benchmark.html">
-                                Benchmark
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/rpc.html">
-                                RPC
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/log4j.html">
-                                log4j
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/jedis.html">
-                                Jedis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/yaml.html">
-                                Yaml
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/zookeeper.html">
-                                ZooKeeper
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/windows.html">
-                                Windows
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/gnome.html">
-                                Gnome
-                            </a>
-                        </li>
         </ul>
     </section>
 </aside>        </div>

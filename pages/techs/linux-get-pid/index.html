@@ -149,24 +149,24 @@
 2
 3
 4
-5</pre></div></td><td class="code"><div class="highlight"><pre><span class="c">#! /bin/bash</span>
-<span class="c"># process-monitor.sh</span>
+5</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="ch">#! /bin/bash</span>
+<span class="c1"># process-monitor.sh</span>
 <span class="nv">process</span><span class="o">=</span><span class="nv">$1</span>
-<span class="nv">pid</span><span class="o">=</span><span class="k">$(</span>ps x | grep <span class="nv">$process</span> | grep -v grep | awk <span class="s1">&#39;{print $1}&#39;</span><span class="k">)</span>
+<span class="nv">pid</span><span class="o">=</span><span class="k">$(</span>ps x <span class="p">|</span> grep <span class="nv">$process</span> <span class="p">|</span> grep -v grep <span class="p">|</span> awk <span class="s1">&#39;{print $1}&#39;</span><span class="k">)</span>
 <span class="nb">echo</span> <span class="nv">$pid</span>
 </pre></div>
 </td></tr></table>
 
 <p>执行 <code>process-monitor.sh</code> 会出现多个结果：</p>
-<div class="highlight"><pre><span class="err">$</span><span class="o">&gt;</span> <span class="n">sh</span> <span class="n">process</span><span class="o">-</span><span class="n">monitor</span><span class="p">.</span><span class="n">sh</span>
-<span class="mi">3036</span>  <span class="mi">3098</span>  <span class="mi">3099</span>
+<div class="highlight"><pre><span></span>$&gt; sh process-monitor.sh
+3036  3098  3099
 </pre></div>
 
 
 <p>进一步排查可以发现，多出来的几个进程实际上是子 Shell 的（临时）进程：</p>
-<div class="highlight"><pre><span class="n">root</span>      <span class="mi">3036</span>  <span class="mi">2905</span>  <span class="mi">0</span> <span class="mi">09</span><span class="o">:</span><span class="mo">03</span> <span class="n">pts</span><span class="o">/</span><span class="mi">1</span>    <span class="mo">00</span><span class="o">:</span><span class="mo">00</span><span class="o">:</span><span class="mi">45</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">java</span><span class="o">/</span><span class="n">jdk1</span><span class="mf">.7.0</span><span class="n">_71</span><span class="o">/</span><span class="n">bin</span><span class="o">/</span><span class="n">java</span> <span class="p">...</span><span class="n">name</span>
-<span class="n">root</span>      <span class="mi">4522</span>  <span class="mi">2905</span>  <span class="mi">0</span> <span class="mi">16</span><span class="o">:</span><span class="mi">12</span> <span class="n">pts</span><span class="o">/</span><span class="mi">1</span>    <span class="mo">00</span><span class="o">:</span><span class="mo">00</span><span class="o">:</span><span class="mo">00</span> <span class="n">sh</span> <span class="n">process</span><span class="o">-</span><span class="n">monitor</span><span class="p">.</span><span class="n">sh</span> <span class="n">name</span>
-<span class="n">root</span>      <span class="mi">4523</span>  <span class="mi">4522</span>  <span class="mi">0</span> <span class="mi">16</span><span class="o">:</span><span class="mi">12</span> <span class="n">pts</span><span class="o">/</span><span class="mi">1</span>    <span class="mo">00</span><span class="o">:</span><span class="mo">00</span><span class="o">:</span><span class="mo">00</span> <span class="n">sh</span> <span class="n">process</span><span class="o">-</span><span class="n">monitor</span><span class="p">.</span><span class="n">sh</span> <span class="n">name</span>
+<div class="highlight"><pre><span></span>root      3036  2905  0 09:03 pts/1    00:00:45 /usr/java/jdk1.7.0_71/bin/java ...name
+root      4522  2905  0 16:12 pts/1    00:00:00 sh process-monitor.sh name
+root      4523  4522  0 16:12 pts/1    00:00:00 sh process-monitor.sh name
 </pre></div>
 
 
@@ -176,10 +176,10 @@
 2
 3
 4
-5</pre></div></td><td class="code"><div class="highlight"><pre><span class="c">#! /bin/bash</span>
-<span class="c"># process-monitor.sh</span>
+5</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="ch">#! /bin/bash</span>
+<span class="c1"># process-monitor.sh</span>
 <span class="nv">process</span><span class="o">=</span><span class="nv">$1</span>
-<span class="nv">pid</span><span class="o">=</span><span class="k">$(</span>ps -ef | grep <span class="nv">$process</span> | grep <span class="s1">&#39;/bin/java&#39;</span> | grep -v grep | awk <span class="s1">&#39;{print $2}&#39;</span><span class="k">)</span>
+<span class="nv">pid</span><span class="o">=</span><span class="k">$(</span>ps -ef <span class="p">|</span> grep <span class="nv">$process</span> <span class="p">|</span> grep <span class="s1">&#39;/bin/java&#39;</span> <span class="p">|</span> grep -v grep <span class="p">|</span> awk <span class="s1">&#39;{print $2}&#39;</span><span class="k">)</span>
 <span class="nb">echo</span> <span class="nv">$pid</span>
 </pre></div>
 </td></tr></table>
@@ -190,8 +190,8 @@
  1. <code>$$</code> ：当前 Shell 进程的 pid
  2. <code>$!</code> ：上一个后台进程的 pid
 可以使用这两个指令来获取相应的进程 pid。例如，如果需要获取某个正在执行的进程的 pid（并写入指定的文件）：</p>
-<div class="highlight"><pre><span class="n">myCommand</span> <span class="o">&amp;&amp;</span> <span class="n">pid</span><span class="o">=</span><span class="err">$</span><span class="o">!</span>
-<span class="n">myCommand</span> <span class="o">&amp;</span> <span class="n">echo</span> <span class="err">$</span><span class="o">!</span> <span class="o">&gt;/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">pid</span><span class="p">.</span><span class="n">file</span>
+<div class="highlight"><pre><span></span>myCommand &amp;&amp; pid=$!
+myCommand &amp; echo $! &gt;/path/to/pid.file
 </pre></div>
 
 
@@ -201,11 +201,11 @@
 <hr />
 <h2>查看指定进程是否存在</h2>
 <p>在获取到 pid 之后，还可以根据 pid 查看对应的进程是否存在（运行），这个方法也可以用于 kill 指定的进程。</p>
-<div class="highlight"><pre><span class="k">if</span> <span class="n">ps</span> <span class="o">-</span><span class="n">p</span> <span class="err">$</span><span class="n">PID</span> <span class="o">&gt;</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">null</span>
-<span class="n">then</span>
-   <span class="n">echo</span> <span class="s">&quot;$PID is running&quot;</span>
-   <span class="err">#</span> <span class="n">Do</span> <span class="n">something</span> <span class="n">knowing</span> <span class="n">the</span> <span class="n">pid</span> <span class="n">exists</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">e</span><span class="p">.</span> <span class="n">the</span> <span class="n">process</span> <span class="n">with</span> <span class="err">$</span><span class="n">PID</span> <span class="n">is</span> <span class="n">running</span>
-<span class="n">fi</span>
+<div class="highlight"><pre><span></span><span class="x">if ps -p </span><span class="p">$</span><span class="nv">PID</span><span class="x"> &gt; /dev/null</span>
+<span class="x">then</span>
+<span class="x">   echo &quot;</span><span class="p">$</span><span class="nv">PID</span><span class="x"> is running&quot;</span>
+<span class="x">   </span><span class="err">#</span><span class="x"> Do something knowing the pid exists, i.e. the process with </span><span class="p">$</span><span class="nv">PID</span><span class="x"> is running</span>
+<span class="x">fi</span>
 </pre></div>
             </div>
             <!-- /.entry-content -->
@@ -261,121 +261,6 @@
 
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
-                                分布式计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/storm.html">
-                                Storm
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/translation.html">
-                                Translation
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
-                                环境搭建
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/kafka.html">
-                                Kafka
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
-                                实时计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/linux.html">
-                                Linux
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/java.html">
-                                Java
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/mapreduce.html">
-                                MapReduce
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/hadoop.html">
-                                Hadoop
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/flume.html">
-                                Flume
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/redis.html">
-                                Redis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/shell.html">
-                                Shell
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/virtualbox.html">
-                                VirtualBox
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/undefined.html">
-                                Undefined
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/benchmark.html">
-                                Benchmark
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/rpc.html">
-                                RPC
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/log4j.html">
-                                log4j
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/jedis.html">
-                                Jedis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/yaml.html">
-                                Yaml
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/zookeeper.html">
-                                ZooKeeper
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/windows.html">
-                                Windows
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/gnome.html">
-                                Gnome
-                            </a>
-                        </li>
         </ul>
     </section>
 </aside>        </div>

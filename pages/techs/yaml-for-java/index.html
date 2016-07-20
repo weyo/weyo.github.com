@@ -125,7 +125,7 @@
                 </div>
                 <p>最近在学 Storm 的时候发现 Storm 的配置文件是 yaml 格式的，就好奇地查了下这个没听说过的格式（<a href="https://en.wikipedia.org/?title=YAML">YAML - Wikipedia</a>），这才发现原来不是什么新新物种，而是 2001 年就推出来了的文件格式。虽然 Yaml 相对于 XML 这种老大哥还差远了，但是后辈小子胜在年轻，有干劲，语法简单，功能强大，而且这几年相关工具的解析速度也提升了不少，大有超越 XML 这种大块头的趋势。简单地试用了下，发现压马路（“yaml”的拼音打出来就是这个）的语法真的是既简洁又优雅，让人爱不释手。于是，就这么愉快地决定了，以后的项目中没有其他要求的情况下全部使用 yaml 来做格式化，让 XML 先飞一会儿……</p>
 <p>言归正传，Google 了一下，评价最好的解析工具还是 snakeyaml：</p>
-<div class="highlight"><pre><span class="nt">&lt;dependency&gt;</span>
+<div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
     <span class="nt">&lt;groupId&gt;</span>org.yaml<span class="nt">&lt;/groupId&gt;</span>
     <span class="nt">&lt;artifactId&gt;</span>snakeyaml<span class="nt">&lt;/artifactId&gt;</span>
     <span class="nt">&lt;version&gt;</span>1.15<span class="nt">&lt;/version&gt;</span>
@@ -134,11 +134,11 @@
 
 
 <p>对于下面这样基本的配置文件：</p>
-<div class="highlight"><pre><span class="n">redis</span><span class="p">.</span><span class="n">host</span><span class="o">:</span> <span class="n">rhost</span>
-<span class="n">redis</span><span class="p">.</span><span class="n">port</span><span class="o">:</span> <span class="mi">6379</span>
-<span class="n">parse</span><span class="p">.</span><span class="n">rule</span><span class="o">:</span>
-    <span class="o">-</span> <span class="n">light</span>
-    <span class="o">-</span> <span class="n">weighted</span>
+<div class="highlight"><pre><span></span>redis.host: rhost
+redis.port: 6379
+parse.rule:
+    - light
+    - weighted
 </pre></div>
 
 
@@ -152,7 +152,7 @@
  7
  8
  9
-10</pre></div></td><td class="code"><div class="highlight"><pre><span class="kd">public</span> <span class="kd">static</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="n">loadMap</span><span class="o">(</span><span class="n">String</span> <span class="n">file</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
+10</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">static</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="nf">loadMap</span><span class="o">(</span><span class="n">String</span> <span class="n">file</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
     <span class="n">Yaml</span> <span class="n">yaml</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Yaml</span><span class="o">();</span>
     <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="n">map</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
     <span class="n">InputStream</span> <span class="n">is</span> <span class="o">=</span> <span class="n">YamlUtil</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getResourceAsStream</span><span class="o">(</span><span class="n">file</span><span class="o">);</span>
@@ -166,18 +166,18 @@
 </td></tr></table>
 
 <p>对于下面这样比较复杂的对象 dump 文件：</p>
-<div class="highlight"><pre><span class="o">!!</span><span class="n">me</span><span class="p">.</span><span class="n">weyo</span><span class="p">.</span><span class="n">yaml</span><span class="p">.</span><span class="n">Dev</span> <span class="p">{</span>
-  <span class="nl">enabled:</span> <span class="nb">false</span><span class="p">,</span>
-  <span class="nl">inn:</span> <span class="p">{</span><span class="n">name</span><span class="o">:</span> <span class="n">III</span><span class="p">,</span> <span class="n">timeout</span><span class="o">:</span> <span class="mi">600000000</span><span class="p">},</span>
-  <span class="nl">port:</span> <span class="mi">33333</span><span class="p">,</span>
-  <span class="nl">type:</span> <span class="n">T1</span>
-<span class="p">}</span>
-<span class="o">---</span> <span class="o">!!</span><span class="n">me</span><span class="p">.</span><span class="n">weyo</span><span class="p">.</span><span class="n">yaml</span><span class="p">.</span><span class="n">Dev</span> <span class="p">{</span> 
-  <span class="n">enabled</span><span class="o">:</span> <span class="nb">true</span><span class="p">,</span>
-  <span class="nl">inn:</span> <span class="p">{</span><span class="n">name</span><span class="o">:</span> <span class="n">UH</span><span class="p">,</span> <span class="n">timeout</span><span class="o">:</span> <span class="mi">180003300</span><span class="p">},</span>
-  <span class="nl">port:</span> <span class="mi">10028</span><span class="p">,</span>
-  <span class="nl">type:</span> <span class="n">T2</span>
-<span class="p">}</span>
+<div class="highlight"><pre><span></span>!!me.weyo.yaml.Dev {
+  enabled: false,
+  inn: {name: III, timeout: 600000000},
+  port: 33333,
+  type: T1
+}
+--- !!me.weyo.yaml.Dev { 
+  enabled: true,
+  inn: {name: UH, timeout: 180003300},
+  port: 10028,
+  type: T2
+}
 </pre></div>
 
 
@@ -194,7 +194,7 @@
 10
 11
 12
-13</pre></div></td><td class="code"><div class="highlight"><pre><span class="kd">public</span> <span class="kd">static</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="nf">loadObjects</span><span class="o">(</span><span class="n">String</span> <span class="n">file</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
+13</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">static</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="nf">loadObjects</span><span class="o">(</span><span class="n">String</span> <span class="n">file</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
     <span class="n">Yaml</span> <span class="n">yaml</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Yaml</span><span class="o">();</span>
     <span class="n">List</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">list</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
     <span class="n">InputStream</span> <span class="n">is</span> <span class="o">=</span> <span class="n">YamlUtil</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getResourceAsStream</span><span class="o">(</span><span class="n">file</span><span class="o">);</span>
@@ -224,7 +224,7 @@
 11
 12
 13
-14</pre></div></td><td class="code"><div class="highlight"><pre><span class="n">Yaml</span> <span class="n">yaml</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Yaml</span><span class="o">();</span>
+14</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="n">Yaml</span> <span class="n">yaml</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Yaml</span><span class="o">();</span>
 <span class="n">RedisConnection</span> <span class="n">redis</span> <span class="o">=</span> <span class="k">new</span> <span class="n">RedisConnection</span><span class="o">();</span>
 <span class="n">redis</span><span class="o">.</span><span class="na">setHost</span><span class="o">(</span><span class="s">&quot;rh134&quot;</span><span class="o">);</span>
 <span class="n">redis</span><span class="o">.</span><span class="na">setPort</span><span class="o">(</span><span class="mi">10029</span><span class="o">);</span>
@@ -245,59 +245,59 @@
 <hr />
 <h1>Q &amp; A</h1>
 <h3>无法创建 Java 对象</h3>
-<div class="highlight"><pre><span class="n">Exception</span> <span class="k">in</span> <span class="k">thread</span> <span class="s2">&quot;main&quot;</span> <span class="nx">Can</span><span class="s1">&#39;t construct a java object for tag:yaml.org,2002:me.weyo.yaml.Dev; exception=java.lang.NoSuchMethodException: me.weyo.yaml.Dev.&lt;init&gt;()</span>
-<span class="s1"> in &#39;</span><span class="nx">reader</span><span class="s1">&#39;, line 1, column 1:</span>
-<span class="s1">    !!me.weyo.yaml.Dev ... </span>
-<span class="s1">    ^</span>
+<div class="highlight"><pre><span></span><span class="nt">Exception</span> <span class="nt">in</span> <span class="nt">thread</span> <span class="s2">&quot;main&quot;</span> <span class="nt">Can</span><span class="s1">&#39;t construct a java object for tag:yaml.org,2002:me.weyo.yaml.Dev; exception=java.lang.NoSuchMethodException: me.weyo.yaml.Dev.&lt;init&gt;()</span>
+<span class="s1"> in &#39;</span><span class="nt">reader</span><span class="err">&#39;</span><span class="o">,</span> <span class="nt">line</span> <span class="nt">1</span><span class="o">,</span> <span class="nt">column</span> <span class="nt">1</span><span class="o">:</span>
+    <span class="o">!!</span><span class="nt">me</span><span class="nc">.weyo.yaml.Dev</span> <span class="o">...</span> 
+    <span class="o">^</span>
 </pre></div>
 
 
 <p>这个错误表明被解析的对象（Dev）中没有默认的构造器（即只有带参数的构造器，没有无参构造器，snakeyaml 无法将对象解析为 Bean）。</p>
 <h3>解析错误异常</h3>
-<div class="highlight"><pre><span class="n">Exception</span> <span class="n">in</span> <span class="kr">thread</span> <span class="s">&quot;main&quot;</span> <span class="k">while</span> <span class="n">parsing</span> <span class="n">a</span> <span class="n">flow</span> <span class="n">mapping</span>
- <span class="n">in</span> <span class="err">&#39;</span><span class="n">reader</span><span class="err">&#39;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1</span><span class="p">,</span> <span class="n">column</span> <span class="mi">40</span><span class="o">:</span>
-     <span class="p">...</span> <span class="n">me</span><span class="p">.</span><span class="n">weyo</span><span class="p">.</span><span class="n">yaml</span><span class="p">.</span><span class="n">Dev</span> <span class="p">{</span>
-                                         <span class="o">^</span>
-<span class="n">expected</span> <span class="sc">&#39;,&#39;</span> <span class="n">or</span> <span class="sc">&#39;}&#39;</span><span class="p">,</span> <span class="n">but</span> <span class="n">got</span> <span class="n">Value</span>
- <span class="n">in</span> <span class="err">&#39;</span><span class="n">reader</span><span class="err">&#39;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">3</span><span class="p">,</span> <span class="n">column</span> <span class="mi">7</span><span class="o">:</span>
-      <span class="nl">port:</span> <span class="mi">33333</span>
-          <span class="o">^</span>
+<div class="highlight"><pre><span></span>Exception in thread &quot;main&quot; while parsing a flow mapping
+ in &#39;reader&#39;, line 1, column 40:
+     ... me.weyo.yaml.Dev {
+                                         ^
+expected &#39;,&#39; or &#39;}&#39;, but got Value
+ in &#39;reader&#39;, line 3, column 7:
+      port: 33333
+          ^
 </pre></div>
 
 
 <p>这是被解析的文件中有属性没有以逗号结束的缘故，例如，下面这样的文件描述就少了逗号：</p>
-<div class="highlight"><pre><span class="cp"># 错误的配置方式！</span>
-<span class="o">!!</span><span class="n">me</span><span class="p">.</span><span class="n">weyo</span><span class="p">.</span><span class="n">yaml</span><span class="p">.</span><span class="n">Dev</span> <span class="p">{</span>
-  <span class="nl">enabled:</span> <span class="nb">false</span> <span class="err">#</span> <span class="err">缺少逗号</span>
-  <span class="nl">inn:</span> <span class="p">{</span><span class="n">name</span><span class="o">:</span> <span class="n">III</span><span class="p">,</span> <span class="n">timeout</span><span class="o">:</span> <span class="mi">600000000</span><span class="p">}</span>
-  <span class="nl">port:</span> <span class="mi">33333</span>
-  <span class="nl">type:</span> <span class="n">T1</span>
-<span class="p">}</span>
+<div class="highlight"><pre><span></span># 错误的配置方式！
+!!me.weyo.yaml.Dev {
+  enabled: false # 缺少逗号
+  inn: {name: III, timeout: 600000000}
+  port: 33333
+  type: T1
+}
 </pre></div>
 
 
 <h3>标记识别异常</h3>
-<div class="highlight"><pre><span class="n">Exception</span> <span class="n">in</span> <span class="kr">thread</span> <span class="s">&quot;main&quot;</span> <span class="n">expected</span> <span class="err">&#39;</span><span class="o">&lt;</span><span class="n">document</span> <span class="n">start</span><span class="o">&gt;</span><span class="err">&#39;</span><span class="p">,</span> <span class="n">but</span> <span class="n">found</span> <span class="n">Tag</span>
- <span class="n">in</span> <span class="err">&#39;</span><span class="n">reader</span><span class="err">&#39;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">6</span><span class="p">,</span> <span class="n">column</span> <span class="mi">1</span><span class="o">:</span>
-    <span class="o">!!</span><span class="n">me</span><span class="p">.</span><span class="n">weyo</span><span class="p">.</span><span class="n">yaml</span><span class="p">.</span><span class="n">Dev</span> <span class="p">...</span> 
-    <span class="o">^</span>
+<div class="highlight"><pre><span></span>Exception in thread &quot;main&quot; expected &#39;&lt;document start&gt;&#39;, but found Tag
+ in &#39;reader&#39;, line 6, column 1:
+    !!me.weyo.yaml.Dev ... 
+    ^
 </pre></div>
 
 
 <p>这是由于缺少不同对象之间的分隔标识，例如这样的定义：</p>
-<div class="highlight"><pre><span class="cp"># 错误的配置方式！</span>
-<span class="o">!!</span><span class="n">me</span><span class="p">.</span><span class="n">weyo</span><span class="p">.</span><span class="n">yaml</span><span class="p">.</span><span class="n">Dev</span> <span class="p">{</span>
-  <span class="nl">enabled:</span> <span class="nb">false</span><span class="p">,</span>
-  <span class="nl">inn:</span> <span class="p">{</span><span class="n">name</span><span class="o">:</span> <span class="n">III</span><span class="p">,</span> <span class="n">timeout</span><span class="o">:</span> <span class="mi">600000000</span><span class="p">},</span>
-  <span class="nl">port:</span> <span class="mi">33333</span><span class="p">,</span>
-  <span class="nl">type:</span> <span class="n">T1</span>
-<span class="p">}</span>
-<span class="o">!!</span><span class="n">me</span><span class="p">.</span><span class="n">weyo</span><span class="p">.</span><span class="n">yaml</span><span class="p">.</span><span class="n">Dev</span> <span class="p">{</span> <span class="err">#</span> <span class="err">缺少分隔符</span>
-  <span class="nl">enabled:</span> <span class="nb">true</span><span class="p">,</span>
-  <span class="nl">inn:</span> <span class="p">{</span><span class="n">name</span><span class="o">:</span> <span class="n">UH</span><span class="p">,</span> <span class="n">timeout</span><span class="o">:</span> <span class="mi">180003300</span><span class="p">},</span>
-  <span class="nl">port:</span> <span class="mi">10028</span><span class="p">,</span>
-  <span class="nl">type:</span> <span class="n">T2</span>
-<span class="p">}</span>
+<div class="highlight"><pre><span></span># 错误的配置方式！
+!!me.weyo.yaml.Dev {
+  enabled: false,
+  inn: {name: III, timeout: 600000000},
+  port: 33333,
+  type: T1
+}
+!!me.weyo.yaml.Dev { # 缺少分隔符
+  enabled: true,
+  inn: {name: UH, timeout: 180003300},
+  port: 10028,
+  type: T2
+}
 </pre></div>
 
 
@@ -356,121 +356,6 @@
 
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
-                                分布式计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/storm.html">
-                                Storm
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/translation.html">
-                                Translation
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
-                                环境搭建
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/kafka.html">
-                                Kafka
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
-                                实时计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/linux.html">
-                                Linux
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/java.html">
-                                Java
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/mapreduce.html">
-                                MapReduce
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/hadoop.html">
-                                Hadoop
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/flume.html">
-                                Flume
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/redis.html">
-                                Redis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/shell.html">
-                                Shell
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/virtualbox.html">
-                                VirtualBox
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/undefined.html">
-                                Undefined
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/benchmark.html">
-                                Benchmark
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/rpc.html">
-                                RPC
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/log4j.html">
-                                log4j
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/jedis.html">
-                                Jedis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/yaml.html">
-                                Yaml
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/zookeeper.html">
-                                ZooKeeper
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/windows.html">
-                                Windows
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/gnome.html">
-                                Gnome
-                            </a>
-                        </li>
         </ul>
     </section>
 </aside>        </div>
