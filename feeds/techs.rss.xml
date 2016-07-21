@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0"><channel><title>Let There Be Light</title><link>http://weyo.me/</link><description></description><lastBuildDate>Fri, 15 Jan 2016 00:00:00 +0800</lastBuildDate><item><title>[转]分布式系统经典论文翻译集</title><link>http://weyo.me/pages/techs/distributed-essays-translation-cc/</link><description>&lt;p&gt;最近兴致来了准备研究一下分布式领域的经典论文，顺便把大牛的文章给翻译一下，想想能够做点微小的工作就很激动。结果兴冲冲地跑去查资料才发现，已经有大神（phylips@bmy）把事情做完了（http://duanple.blog.163.com/blog/static/709717672011330101333271/），甚至结集出了 PDF 版本。phylips@bmy 整理的论文包括：&lt;/p&gt;
+<rss version="2.0"><channel><title>Let There Be Light</title><link>http://weyo.me/</link><description></description><lastBuildDate>Fri, 15 Jan 2016 00:00:00 +0800</lastBuildDate><item><title>[转]分布式系统经典论文翻译集</title><link>http://weyo.me/pages/techs/distributed-essays-translation-cc/</link><description>&lt;p&gt;最近兴致来了准备研究一下分布式领域的经典论文，顺便把大牛的文章给翻译一下，想想能够做点微小的工作就很激动。结果兴冲冲地跑去查资料才发现，已经有大神（phylips@bmy）把事情做完了：
+&lt;a href="http://duanple.blog.163.com/blog/static/709717672011330101333271/"&gt;http://duanple.blog.163.com/blog/static/709717672011330101333271/&lt;/a&gt;，甚至结集出了 PDF 版本。phylips@bmy 整理的论文包括：&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Google 论文系列&lt;/li&gt;
 &lt;li&gt;分布式理论系列&lt;/li&gt;
