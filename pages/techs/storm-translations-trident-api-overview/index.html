@@ -378,7 +378,20 @@ a” 和 “b” 域与 stream1 的 “val1” 和 “val2” 域对应；而 �
 <p>在对不同的 spout 发送出的流进行 join 时，这些 spout 上会按照他们发送 batch 的方式进行同步处理。也就是说，一个处理中的 batch 中含有每个 spout 发送出的 tuple。</p>
 <p>到这里你大概仍然会对如何进行窗口 join 操作感到困惑。窗口操作（包括平滑窗口、滚动窗口等 —— 译者注）主要是指将当前的 tuple 与过去若干小时时间段内的 tuple 联结起来的过程。</p>
 <p>你可以使用 partitionPersist 和 stateQuery 来实现这个过程。过去一段时间内的 tuple 会以 join 域为关键字被保存到一个 state 源中。然后就可以使用 stateQuery 查询 join 域来实现这个“联结”（join）的过程。</p>
-            </div>
+ <ul style="list-style-type: none; margin-left: -38px">
+     <li>
+         <span class="label label-default"><i class="icon-chevron-up"></i>上一篇</span>
+         <a href="http://weyo.me/pages/techs/storm-translations-trident-tutorial/">
+             Storm 官方文档翻译(7) —— Trident 教程
+         </a>
+     </li>
+     <li style="margin-top: 5px">
+         <span class="label label-default"><i class="icon-chevron-down"></i>下一篇</span>
+         <a href="http://weyo.me/pages/techs/storm-translations-trident-state/">
+             Storm 官方文档翻译(9) —— Trident State
+         </a>
+     </li>
+</ul>            </div>
             <!-- /.entry-content -->
     <hr />
     <section class="comments" id="comments">
@@ -433,11 +446,6 @@ a” 和 “b” 域与 stream1 的 “val1” 和 “val2” 域对应；而 �
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
                         <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/storm.html">
-                                Storm
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
                             <a href="http://weyo.me/tag/translation.html">
                                 translation
                             </a>
@@ -447,9 +455,14 @@ a” 和 “b” 域与 stream1 的 “val1” 和 “val2” 域对应；而 �
                                 分布式计算
                             </a>
                         </li>
+                        <li class="list-group-item tag-1">
+                            <a href="http://weyo.me/tag/storm.html">
+                                Storm
+                            </a>
+                        </li>
                         <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
-                                环境搭建
+                            <a href="http://weyo.me/tag/kafka.html">
+                                Kafka
                             </a>
                         </li>
                         <li class="list-group-item tag-2">
@@ -458,13 +471,18 @@ a” 和 “b” 域与 stream1 的 “val1” 和 “val2” 域对应；而 �
                             </a>
                         </li>
                         <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/kafka.html">
-                                Kafka
+                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
+                                环境搭建
                             </a>
                         </li>
                         <li class="list-group-item tag-3">
                             <a href="http://weyo.me/tag/java.html">
                                 Java
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-3">
+                            <a href="http://weyo.me/tag/linux.html">
+                                Linux
                             </a>
                         </li>
                         <li class="list-group-item tag-3">
@@ -477,29 +495,29 @@ a” 和 “b” 域与 stream1 的 “val1” 和 “val2” 域对应；而 �
                                 MapReduce
                             </a>
                         </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/linux.html">
-                                Linux
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/rpc.html">
+                                RPC
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/shell.html">
-                                Shell
+                            <a href="http://weyo.me/tag/undefined.html">
+                                Undefined
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/flume.html">
+                                Flume
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/algorithm.html">
+                                Algorithm
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
                             <a href="http://weyo.me/tag/zookeeper.html">
                                 ZooKeeper
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/yaml.html">
-                                Yaml
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/jedis.html">
-                                Jedis
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -513,28 +531,28 @@ a” 和 “b” 域与 stream1 的 “val1” 和 “val2” 域对应；而 �
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/rpc.html">
-                                RPC
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
                             <a href="http://weyo.me/tag/gnome.html">
                                 Gnome
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/flume.html">
-                                Flume
+                            <a href="http://weyo.me/tag/shell.html">
+                                Shell
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/yaml.html">
+                                Yaml
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/jedis.html">
+                                Jedis
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
                             <a href="http://weyo.me/tag/redis.html">
                                 Redis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/undefined.html">
-                                Undefined
                             </a>
                         </li>
         </ul>

@@ -255,7 +255,20 @@
 <ul>
 <li>这个问题是由于多个线程同时调用 <code>OutputCollector</code> 中的方法造成的。Storm 中所有的 emit、ack、fail 方法必须在同一个线程中运行。出现这个问题的一种场景是在一个 <code>IBasicBolt</code> 中创建了一个独立的线程。由于 <code>IBasicBolt</code> 会在 <code>execute</code> 方法调用之后自动调用 <code>ack</code>，所以这就会出现多个线程同时使用 <code>OutputCollector</code> 的情况，进而抛出这个异常。也就是说，在使用 <code>IBasicBolt</code> 时，所有的消息发送操作必须在同一个线程的 <code>execute</code> 方法中执行。</li>
 </ul>
-            </div>
+ <ul style="list-style-type: none; margin-left: -38px">
+     <li>
+         <span class="label label-default"><i class="icon-chevron-up"></i>上一篇</span>
+         <a href="http://weyo.me/pages/techs/mr-writable-coding-problem/">
+             MR 中定义 Writable 对象的坑
+         </a>
+     </li>
+     <li style="margin-top: 5px">
+         <span class="label label-default"><i class="icon-chevron-down"></i>下一篇</span>
+         <a href="http://weyo.me/pages/techs/how-does-hashmap-keySet-return-a-keyset/">
+             How does HashMap.keySet() return a keySet
+         </a>
+     </li>
+</ul>            </div>
             <!-- /.entry-content -->
     <hr />
     <section class="comments" id="comments">
@@ -310,11 +323,6 @@
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
                         <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/storm.html">
-                                Storm
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
                             <a href="http://weyo.me/tag/translation.html">
                                 translation
                             </a>
@@ -324,9 +332,14 @@
                                 分布式计算
                             </a>
                         </li>
+                        <li class="list-group-item tag-1">
+                            <a href="http://weyo.me/tag/storm.html">
+                                Storm
+                            </a>
+                        </li>
                         <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
-                                环境搭建
+                            <a href="http://weyo.me/tag/kafka.html">
+                                Kafka
                             </a>
                         </li>
                         <li class="list-group-item tag-2">
@@ -335,13 +348,18 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/kafka.html">
-                                Kafka
+                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
+                                环境搭建
                             </a>
                         </li>
                         <li class="list-group-item tag-3">
                             <a href="http://weyo.me/tag/java.html">
                                 Java
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-3">
+                            <a href="http://weyo.me/tag/linux.html">
+                                Linux
                             </a>
                         </li>
                         <li class="list-group-item tag-3">
@@ -354,29 +372,29 @@
                                 MapReduce
                             </a>
                         </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/linux.html">
-                                Linux
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/rpc.html">
+                                RPC
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/shell.html">
-                                Shell
+                            <a href="http://weyo.me/tag/undefined.html">
+                                Undefined
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/flume.html">
+                                Flume
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/algorithm.html">
+                                Algorithm
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
                             <a href="http://weyo.me/tag/zookeeper.html">
                                 ZooKeeper
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/yaml.html">
-                                Yaml
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/jedis.html">
-                                Jedis
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -390,28 +408,28 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/rpc.html">
-                                RPC
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
                             <a href="http://weyo.me/tag/gnome.html">
                                 Gnome
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/flume.html">
-                                Flume
+                            <a href="http://weyo.me/tag/shell.html">
+                                Shell
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/yaml.html">
+                                Yaml
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/jedis.html">
+                                Jedis
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
                             <a href="http://weyo.me/tag/redis.html">
                                 Redis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/undefined.html">
-                                Undefined
                             </a>
                         </li>
         </ul>

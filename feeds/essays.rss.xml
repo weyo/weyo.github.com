@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0"><channel><title>Let There Be Light</title><link>http://weyo.me/</link><description></description><lastBuildDate>Wed, 13 May 2015 00:00:00 +0800</lastBuildDate><item><title>神奇的三门问题</title><link>http://weyo.me/pages/essays/monty-hall-problem/</link><description>&lt;p&gt;前几天遇到这么一道智力题：
+<rss version="2.0"><channel><title>Let There Be Light</title><link>http://weyo.me/</link><description></description><lastBuildDate>Sat, 16 Jul 2016 00:00:00 +0800</lastBuildDate><item><title>那些年水过的算法(序)</title><link>http://weyo.me/pages/essays/my-models-review-preface/</link><description>&lt;p&gt;这段时间已经攒了好几个 ideas 了，但是一直没想好怎么去写，Blog 就一直没更新。最近看到自己四年前暑假的时候拍脑袋写出来的一篇算法发明专利居然被地图圈大名鼎鼎的 Here 公司（被诺基亚卖掉了也许是好事）引用了，顿时觉得脑袋有点方——我写的可是中文……
+&lt;br /&gt;
+ &lt;img src="../../../images/pics/my-models-review-preface/fig1.png" width = "600" height = "380" alt="pic1" align=center /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;br /&gt;
+想起了上次发现有人一本正经地用 Google Translate 把“&lt;a href="http://weyo.me/pages/techs/kafka-problem-with-log4j/"&gt;KafkaSpout 引起的 log4j 的问题&lt;/a&gt;”翻译成中文：&lt;/p&gt;
+&lt;p&gt;&lt;br /&gt;
+ &lt;img src="../../../images/pics/my-models-review-preface/fig2.jpg" width = "330" height = "279" alt="pic2" align=center /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;br /&gt;
+突然有种奇妙的感觉，难道现在中文已经成为国际通行学术语言了？&lt;/p&gt;
+&lt;p&gt;既然被国际友人关注了，干脆就把过去写过的东西整理一下，一方面是回顾一下算法模型，另一方面也是看看能不能对现在做的其他技术有所启发。&lt;/p&gt;
+&lt;p&gt;是为序。&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Sat, 16 Jul 2016 00:00:00 +0800</pubDate><guid isPermaLink="false">tag:weyo.me,2016-07-16:pages/essays/my-models-review-preface/</guid><category>Algorithm</category></item><item><title>神奇的三门问题</title><link>http://weyo.me/pages/essays/monty-hall-problem/</link><description>&lt;p&gt;前几天遇到这么一道智力题：
 在一场游戏中，主持人拿出了三个完全一样的密封盒子，其中一个盒子内有奖品，另外两个为空盒子。主持人首先让你挑选一个你认为有奖品的盒子。然后，主持人在剩下的两个盒子中拿走一个必然为空的盒子。现在，主持人问：你愿不愿意用你手中的盒子和主持人手中的盒子交换？你手中的盒子和主持人手中的盒子里面有奖品的概率各有多少？&lt;/p&gt;
 &lt;p&gt;这其实就是大名鼎鼎的 &lt;strong&gt;三门问题&lt;/strong&gt; 了。&lt;/p&gt;
 &lt;p&gt;&lt;img src=http://images.cnitblog.com/blog/329852/201311/24200658-c442dec3691a4e929938ba98a52d78c5.png width="60%" height="60%"  /&gt;&lt;/p&gt;
