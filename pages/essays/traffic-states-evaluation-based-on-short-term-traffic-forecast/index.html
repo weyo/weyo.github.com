@@ -3,7 +3,9 @@
       xmlns:og="http://ogp.me/ns#"
       xmlns:fb="https://www.facebook.com/2008/fbml">
 <head>
-    <title>Let There Be Light - 环境搭建</title>
+    <title>那些年水过的算法(1) - 基于短时预测的交通状态分析
+   - Let There Be Light
+</title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8">
@@ -12,10 +14,10 @@
 
     <!-- Open Graph tags -->
 
-            <meta property="og:type" content="website"/>
-            <meta property="og:title" content="Let There Be Light"/>
-            <meta property="og:url" content="http://weyo.me"/>
-            <meta property="og:description" content="Let There Be Light"/>
+            <meta property="og:type" content="article"/>
+            <meta property="og:title" content="那些年水过的算法(1) - 基于短时预测的交通状态分析"/>
+            <meta property="og:url" content="http://weyo.me/pages/essays/traffic-states-evaluation-based-on-short-term-traffic-forecast/"/>
+            <meta property="og:description" content="Traffic states evaluation based on short-term traffic forecast."/>
 
     <!-- Bootstrap -->
         <link rel="stylesheet" href="http://weyo.me/theme/css/bootstrap.min.css" type="text/css"/>
@@ -65,7 +67,7 @@
                          <li><a href="http://weyo.me/pages/gallery.html">
                              Gallery
                           </a></li>
-                        <li >
+                        <li class="active">
                             <a href="http://weyo.me/category/essays.html">Essays</a>
                         </li>
                         <li >
@@ -83,27 +85,113 @@
 <div class="container">
     <div class="row">
         <div class="col-lg-9">
-            <article>
-                <h2><a href="http://weyo.me/pages/techs/kafka-storm-integration/">Kafka-Storm 集成部署</a></h2>
-                <div class="summary"><p>分布式实时计算的主要组件采用基于流式计算的 Apache Storm，而实时计算的数据源来自基础数据输入组件中的 Kafka，本文主要讨论如何将 Kafka 的消息数据传入 Storm。</p>
-                    <a class="btn btn-default btn-xs" href="http://weyo.me/pages/techs/kafka-storm-integration/">more ...</a>
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="http://weyo.me/pages/essays/traffic-states-evaluation-based-on-short-term-traffic-forecast/"
+                       rel="bookmark"
+                       title="Permalink to 那些年水过的算法(1) - 基于短时预测的交通状态分析">
+                        那些年水过的算法(1) - 基于短时预测的交通状态分析
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="icon-calendar"></i>2016-07-17
+    </span>
+	<span style="font-size:12px;">&nbsp;&nbsp;</span>
+    <!--     <span class="label label-default">By</span>
+    <a href="http://weyo.me/author/weyo.html"><i class="icon-user"></i>WeYo</a>
+	<span style="font-size:12px;">&nbsp;&nbsp;</span>
+ -->
+
+    <span class="label label-default">Category</span>
+    <a href="http://weyo.me/category/essays.html">Essays</a>
+	<span style="font-size:12px;">&nbsp;&nbsp;</span>
+
+
+<span class="label label-default">Tags</span>
+	<a href="http://weyo.me/tag/algorithm.html">Algorithm</a>
+	
+	<br /><br />Posted by <span style="font-weight:bold;"><a href="http://github.com/weyo">WeYo</a></span>. 转载请注明出处：<a href="http://weyo.me/pages/essays/traffic-states-evaluation-based-on-short-term-traffic-forecast/">http://weyo.me/pages/essays/traffic-states-evaluation-based-on-short-term-traffic-forecast/</a>
+</footer><!-- /.post-info -->                    </div>
                 </div>
-            </article>
-            <hr/>
-            <article>
-                <h2><a href="http://weyo.me/pages/techs/storm-basis/">Apache Storm —— 分布式实时计算基础篇</a></h2>
-                <div class="summary"><p>Apache Storm 是分布式计算领域目前最热门的实时计算系统。本文主要涉及 Storm 集群的分布式部署。</p>
-                    <a class="btn btn-default btn-xs" href="http://weyo.me/pages/techs/storm-basis/">more ...</a>
-                </div>
-            </article>
-            <hr/>
-            <article>
-                <h2><a href="http://weyo.me/pages/techs/flume-kafka-integration/">Flume-Kafka 集成部署</a></h2>
-                <div class="summary"><p>Flume-ng 与 Kafka 是 Apache 家族的两个热门的数据采集与传输系统，本文主要讨论如何将两者结合构造分布式计算集群的基础数据输入组件。</p>
-                    <a class="btn btn-default btn-xs" href="http://weyo.me/pages/techs/flume-kafka-integration/">more ...</a>
-                </div>
-            </article>
-            <hr/>
+                <h2>Abstract</h2>
+<p>对于道路交通状态的分析评判一直是交通领域的一个重要研究课题。基于短时预测的交通状态分析，顾名思义，是一种通过短时交通预测建立模型的交通状态分析方法。本方法有两个创新点：</p>
+<ul>
+<li>使用预测数据代替实时数据作为分析评判的输入</li>
+<li>建立数据的特征相似性模型</li>
+</ul>
+<h2>States</h2>
+<p>对于如下的一条普通道路：</p>
+<p><img src="../../../images/pics/traffic-states-evaluation-based-on-short-term-traffic-forecast/fig1.jpg" width = "493" height = "250" alt="pic1" align=center /></p>
+<p>可以划分出这样四类状态（也可以划分为三类，依需求而定）：</p>
+<p><img src="../../../images/pics/traffic-states-evaluation-based-on-short-term-traffic-forecast/fig2.jpg" width = "431" height = "250" alt="pic2" align=center /></p>
+<p>这里的状态划分就需要应用聚类模型了。</p>
+<h2>Preprocessing</h2>
+<h3>数据准备</h3>
+<p>状态划分的准备工作有很多，其中最重要的一项是数据的采集，该方法需要使用路段流量(q)、时间占有率(θ)、平均行程速度(v)、排队长度(l)和平均延误时间(d)等五个交通参数进行统计分析。为简化准备过程，可以选择提取 01:00 ~ 03:00、11:00 ~ 13:00、15:00 ~ 17:00 以及 17:00 ~ 19:00 四个时间段的数据作为代表。当然，其中还需要包含简单的数据过滤工作。</p>
+<h3>聚类分析</h3>
+<p>成熟的聚类算法有很多，这里由于包含隐变量的估计，所以可以选择 k 近邻或者 EM 这样的无监督分类算法。聚类的结果是对应于前文所定义状态的四个特征向量</p>
+<p><img src="../../../images/pics/traffic-states-evaluation-based-on-short-term-traffic-forecast/fig3.jpg" width = "401" height = "300" alt="pic3" align=center /></p>
+<p>T<sub>i</sub> = (q<sub>i</sub>, θ<sub>i</sub>, v<sub>i</sub>, l<sub>i</sub>, d<sub>i</sub>)，i = 1, 2, 3, 4.</p>
+<p>四个特征向量分别代表畅通、正常、过渡和拥挤这四种交通状态。</p>
+<p>接下来就是实时数据处理过程了。</p>
+<h2>Real-time analysis</h2>
+<h3>短时流量预测</h3>
+<p>由于采集数据固有的延时性特征，对于交通状态的表征理论上会存在偏差，这里就采用了短时交通预测的思想，使用预测值作为分析算法的输入来降低这种误差。预测方法为修正的平均法：</p>
+<p>q<sub>0</sub> = αQ + (1 - α)Q'</p>
+<p>这里修正系数 α 使用 Sigmoid 函数构造：</p>
+<p>α = 1 / (1 + e<sup>-z</sup>)</p>
+<p>处理完流量后，对所有的输入参数做归一化处理，可以得到表征路段当前状态的特征向量：</p>
+<p>T = (q, θ, v, l, d)</p>
+<h3>状态判定</h3>
+<p>实际的状态确定过程比较简单，分别比较实时特征量与四个聚类特征量：</p>
+<p>s<sub>i</sub> = |cos&lt; T, T<sub>i</sub>&gt;|，i = 1, 2, 3, 4.</p>
+<p>取 s<sub>j</sub> = max(s<sub>i</sub>)，即选择与聚类特征量最接近的状态作为最终交通状态结果。</p>
+<h2>Conclusion</h2>
+<p>本文使用的特征量相似性度量方法是机器学习中文本分类的常用方法，短时交通预测也是交通领域的常用方法，两者结合构造的模型虽然很简单，但也不失为一种有效的创新方法（自卖自夸脸）。以前常常思考我们这些普通人一辈子也做不出什么惊天动地的技术突破，那所做的努力的意义何在呢？后来看了 <a href="https://www.zhihu.com/question/41996685/answer/94768921">意识到了自己没有办法成为 top 1% 的程序员，还应该选择程序员的道路么？</a> 这样的问题之后才豁然开朗，其实只要努力的方向靠谱，达到比较“优秀”的目标远比想象中的容易，就算不能达到，在这种过程中所做的成果也是有意义的，因为科学技术正是靠着无数的微创新推动的，而不仅仅是大牛们的灵光一现。而这也正是这个 Blog 存在的意义 :-)</p>
+            </div>
+            <!-- /.entry-content -->
+<hr />
+<ul style="list-style-type: none; margin-left: -38px">
+     <li>
+         <span class="label label-default"><i class="icon-chevron-down"></i>下一篇</span>
+         <a href="http://weyo.me/pages/essays/my-models-review-preface/">
+             那些年水过的算法(序)
+         </a>
+     </li>
+</ul>    <hr />
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'weyo'; // required: replace example with your forum shortname
+            var disqus_identifier = 'traffic-states-evaluation-based-on-short-term-traffic-forecast';
+            var disqus_url = 'http://weyo.me/pages/essays/traffic-states-evaluation-based-on-short-term-traffic-forecast/';
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
 
         </div>
         <div class="col-lg-3 well well-sm" id="sidebar">
@@ -261,7 +349,7 @@
         <p class="pull-right"><i class="icon-arrow-up"></i> <a href="#">Back to top</a></p>
 
 
-        <p>&copy; 2015 WeYo &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+        <p>&copy; 2016 WeYo &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
             <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
             <a href="http://getbootstrap.com" target="_blank">Bootstrap</a></p>
     </div>

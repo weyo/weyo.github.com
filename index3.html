@@ -84,6 +84,20 @@
     <div class="row">
         <div class="col-lg-9">
             <article>
+                <h2><a href="http://weyo.me/pages/techs/kafka-problem-with-log4j/">KafkaSpout 引起的 log4j 的问题</a></h2>
+                <div class="summary"><p>KafkaSpout 引起的 log4j 的问题，实际上还是 Kafka 的问题。</p>
+                    <a class="btn btn-default btn-xs" href="http://weyo.me/pages/techs/kafka-problem-with-log4j/">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="http://weyo.me/pages/techs/storm-translations-guaranteeing-message-processing/">Storm 官方文档翻译(4) —— 消息的可靠性保障</a></h2>
+                <div class="summary"><p>Storm 能够保证每一个由 Spout 发送的消息都能够得到完整地处理。本文详细解释了 Storm 如何实现这种保障机制，以及作为用户如何使用好 Storm 的可靠性机制。</p>
+                    <a class="btn btn-default btn-xs" href="http://weyo.me/pages/techs/storm-translations-guaranteeing-message-processing/">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
                 <h2><a href="http://weyo.me/pages/techs/storm-translations-fault-tolerance/">Storm 官方文档翻译(3) —— 容错性</a></h2>
                 <div class="summary"><p>本文通过问答的形式解释了 Storm 的容错性原理。</p>
                     <a class="btn btn-default btn-xs" href="http://weyo.me/pages/techs/storm-translations-fault-tolerance/">more ...</a>
@@ -139,20 +153,6 @@
                 </div>
             </article>
             <hr/>
-            <article>
-                <h2><a href="http://weyo.me/pages/techs/storm-best-practices/">Best Practices of Storm —— 分布式实时计算应用篇(二)</a></h2>
-                <div class="summary"><p>[Updating] Storm 学习与应用最佳实践。</p>
-                    <a class="btn btn-default btn-xs" href="http://weyo.me/pages/techs/storm-best-practices/">more ...</a>
-                </div>
-            </article>
-            <hr/>
-            <article>
-                <h2><a href="http://weyo.me/pages/techs/storm-with-zookeeper/">Storm 与 ZooKeeper —— 分布式实时计算提升篇(一)</a></h2>
-                <div class="summary"><p>结合 Storm 在 ZooKeeper 中的目录结构分析 Storm 系统的运行逻辑。</p>
-                    <a class="btn btn-default btn-xs" href="http://weyo.me/pages/techs/storm-with-zookeeper/">more ...</a>
-                </div>
-            </article>
-            <hr/>
 
     <ul class="pagination">
             <li class="prev"><a href="http://weyo.me/index2.html">&laquo;</a>
@@ -194,8 +194,8 @@
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
                         <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/storm.html">
-                                Storm
+                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
+                                分布式计算
                             </a>
                         </li>
                         <li class="list-group-item tag-1">
@@ -204,8 +204,8 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
-                                分布式计算
+                            <a href="http://weyo.me/tag/storm.html">
+                                Storm
                             </a>
                         </li>
                         <li class="list-group-item tag-2">
@@ -214,18 +214,18 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
-                                环境搭建
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
                             <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
                                 实时计算
                             </a>
                         </li>
+                        <li class="list-group-item tag-2">
+                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
+                                环境搭建
+                            </a>
+                        </li>
                         <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/hadoop.html">
-                                Hadoop
+                            <a href="http://weyo.me/tag/algorithm.html">
+                                Algorithm
                             </a>
                         </li>
                         <li class="list-group-item tag-3">
@@ -243,29 +243,9 @@
                                 MapReduce
                             </a>
                         </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/shell.html">
-                                Shell
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/yaml.html">
-                                Yaml
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/algorithm.html">
-                                Algorithm
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/gnome.html">
-                                Gnome
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/undefined.html">
-                                Undefined
+                        <li class="list-group-item tag-3">
+                            <a href="http://weyo.me/tag/hadoop.html">
+                                Hadoop
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -274,13 +254,13 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/flume.html">
-                                Flume
+                            <a href="http://weyo.me/tag/windows.html">
+                                Windows
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/benchmark.html">
-                                Benchmark
+                            <a href="http://weyo.me/tag/shell.html">
+                                Shell
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -289,8 +269,38 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/benchmark.html">
+                                Benchmark
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/undefined.html">
+                                Undefined
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/zookeeper.html">
+                                ZooKeeper
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
                             <a href="http://weyo.me/tag/log4j.html">
                                 log4j
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/virtualbox.html">
+                                VirtualBox
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/gnome.html">
+                                Gnome
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/flume.html">
+                                Flume
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -299,8 +309,8 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/zookeeper.html">
-                                ZooKeeper
+                            <a href="http://weyo.me/tag/yaml.html">
+                                Yaml
                             </a>
                         </li>
         </ul>

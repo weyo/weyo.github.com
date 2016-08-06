@@ -5,49 +5,56 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://weyo.me/</loc>
-<lastmod>2016-07-23T23:10:42-00:00</lastmod>
+<lastmod>2016-08-06T22:33:37-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://weyo.me/archives.html</loc>
-<lastmod>2016-07-23T23:10:42-00:00</lastmod>
+<lastmod>2016-08-06T22:33:37-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://weyo.me/tags.html</loc>
-<lastmod>2016-07-23T23:10:42-00:00</lastmod>
+<lastmod>2016-08-06T22:33:37-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://weyo.me/categories.html</loc>
-<lastmod>2016-07-23T23:10:42-00:00</lastmod>
+<lastmod>2016-08-06T22:33:37-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://weyo.me/pages/about.html</loc>
-<lastmod>2016-07-23T23:10:42-00:00</lastmod>
+<lastmod>2016-08-06T22:33:37-00:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://weyo.me/pages/gallery.html</loc>
-<lastmod>2016-07-23T23:10:42-00:00</lastmod>
+<lastmod>2016-08-06T22:33:37-00:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
+<loc>http://weyo.me/pages/essays/traffic-states-evaluation-based-on-short-term-traffic-forecast/</loc>
+<lastmod>2016-07-17T00:00:00+08:00</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.7</priority>
+</url>
+
+<url>
 <loc>http://weyo.me/pages/essays/my-models-review-preface/</loc>
-<lastmod>2016-07-16T00:00:00+08:00</lastmod>
+<lastmod>2016-07-10T00:00:00+08:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.7</priority>
 </url>
@@ -55,6 +62,13 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
 <loc>http://weyo.me/pages/techs/distributed-essays-translation-cc/</loc>
 <lastmod>2016-01-15T00:00:00+08:00</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.7</priority>
+</url>
+
+<url>
+<loc>http://weyo.me/pages/techs/cannot-access-virtualbox-host-after-updating-to-windows10/</loc>
+<lastmod>2015-11-17T22:38:03+08:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.7</priority>
 </url>
@@ -306,7 +320,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://weyo.me/category/essays.html</loc>
-<lastmod>2016-07-16T00:00:00+08:06</lastmod>
+<lastmod>2016-07-17T00:00:00+08:06</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
@@ -356,6 +370,13 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
 <loc>http://weyo.me/tag/shi-shi-ji-suan.html</loc>
 <lastmod>2015-05-24T00:00:00+08:06</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>http://weyo.me/tag/virtualbox.html</loc>
+<lastmod>2015-11-17T22:38:03+08:06</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
@@ -453,7 +474,14 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://weyo.me/tag/algorithm.html</loc>
-<lastmod>2016-07-16T00:00:00+08:06</lastmod>
+<lastmod>2016-07-17T00:00:00+08:06</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>http://weyo.me/tag/windows.html</loc>
+<lastmod>2015-11-17T22:38:03+08:06</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
@@ -474,7 +502,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://weyo.me/author/weyo.html</loc>
-<lastmod>2016-07-16T00:00:00+08:06</lastmod>
+<lastmod>2016-07-17T00:00:00+08:06</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>

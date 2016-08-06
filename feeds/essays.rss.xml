@@ -1,5 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0"><channel><title>Let There Be Light</title><link>http://weyo.me/</link><description></description><lastBuildDate>Sat, 16 Jul 2016 00:00:00 +0800</lastBuildDate><item><title>那些年水过的算法(序)</title><link>http://weyo.me/pages/essays/my-models-review-preface/</link><description>&lt;p&gt;这段时间对新文章的想法倒是挺多，但是一直没想好怎么去写，Blog 就一直没怎么更新。直到最近看到自己四年前暑假的时候拍脑袋写出来的一篇算法发明专利居然被地图圈大名鼎鼎的 Here 公司（被诺基亚卖掉了也许是好事）引用了，顿时觉得脑袋有点方——我写的可是中文……&lt;/p&gt;
+<rss version="2.0"><channel><title>Let There Be Light</title><link>http://weyo.me/</link><description></description><lastBuildDate>Sun, 17 Jul 2016 00:00:00 +0800</lastBuildDate><item><title>那些年水过的算法(1) - 基于短时预测的交通状态分析</title><link>http://weyo.me/pages/essays/traffic-states-evaluation-based-on-short-term-traffic-forecast/</link><description>&lt;h2&gt;Abstract&lt;/h2&gt;
+&lt;p&gt;对于道路交通状态的分析评判一直是交通领域的一个重要研究课题。基于短时预测的交通状态分析，顾名思义，是一种通过短时交通预测建立模型的交通状态分析方法。本方法有两个创新点：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;使用预测数据代替实时数据作为分析评判的输入&lt;/li&gt;
+&lt;li&gt;建立数据的特征相似性模型&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;States&lt;/h2&gt;
+&lt;p&gt;对于如下的一条普通道路：&lt;/p&gt;
+&lt;p&gt;&lt;img src="../../../images/pics/traffic-states-evaluation-based-on-short-term-traffic-forecast/fig1.jpg" width = "493" height = "250" alt="pic1" align=center /&gt;&lt;/p&gt;
+&lt;p&gt;可以划分出这样四类状态（也可以划分为三类，依需求而定）：&lt;/p&gt;
+&lt;p&gt;&lt;img src="../../../images/pics/traffic-states-evaluation-based-on-short-term-traffic-forecast/fig2.jpg" width = "431" height = "250" alt="pic2" align=center /&gt;&lt;/p&gt;
+&lt;p&gt;这里的状态划分就需要应用聚类模型了。&lt;/p&gt;
+&lt;h2&gt;Preprocessing&lt;/h2&gt;
+&lt;h3&gt;数据准备&lt;/h3&gt;
+&lt;p&gt;状态划分的准备工作有很多，其中最重要的一项是数据的采集，该方法需要使用路段流量(q)、时间占有率(θ)、平均行程速度(v)、排队长度(l)和平均延误时间(d)等五个交通参数进行统计分析。为简化准备过程，可以选择提取 01:00 ~ 03:00、11:00 ~ 13:00、15:00 ~ 17:00 以及 17:00 ~ 19:00 四个时间段的数据作为代表。当然，其中还需要包含简单的数据过滤工作。&lt;/p&gt;
+&lt;h3&gt;聚类分析&lt;/h3&gt;
+&lt;p&gt;成熟的聚类算法有很多，这里由于包含隐变量的估计，所以可以选择 k 近邻或者 EM 这样的无监督分类算法。聚类的结果是对应于前文所定义状态的四个特征向量&lt;/p&gt;
+&lt;p&gt;&lt;img src="../../../images/pics/traffic-states-evaluation-based-on-short-term-traffic-forecast/fig3.jpg" width = "401" height = "300" alt="pic3" align=center /&gt;&lt;/p&gt;
+&lt;p&gt;T&lt;sub&gt;i&lt;/sub&gt; = (q&lt;sub&gt;i&lt;/sub&gt;, θ&lt;sub&gt;i&lt;/sub&gt;, v&lt;sub&gt;i&lt;/sub&gt;, l&lt;sub&gt;i&lt;/sub&gt;, d&lt;sub&gt;i&lt;/sub&gt;)，i = 1, 2, 3, 4.&lt;/p&gt;
+&lt;p&gt;四个特征向量分别代表畅通、正常、过渡和拥挤这四种交通状态。&lt;/p&gt;
+&lt;p&gt;接下来就是实时数据处理过程了。&lt;/p&gt;
+&lt;h2&gt;Real-time analysis&lt;/h2&gt;
+&lt;h3&gt;短时流量预测&lt;/h3&gt;
+&lt;p&gt;由于采集数据固有的延时性特征，对于交通状态的表征理论上会存在偏差，这里就采用了短时交通预测的思想，使用预测值作为分析算法的输入来降低这种误差。预测方法为修正的平均法：&lt;/p&gt;
+&lt;p&gt;q&lt;sub&gt;0&lt;/sub&gt; = αQ + (1 - α)Q'&lt;/p&gt;
+&lt;p&gt;这里修正系数 α 使用 Sigmoid 函数构造：&lt;/p&gt;
+&lt;p&gt;α = 1 / (1 + e&lt;sup&gt;-z&lt;/sup&gt;)&lt;/p&gt;
+&lt;p&gt;处理完流量后，对所有的输入参数做归一化处理，可以得到表征路段当前状态的特征向量：&lt;/p&gt;
+&lt;p&gt;T = (q, θ, v, l, d)&lt;/p&gt;
+&lt;h3&gt;状态判定&lt;/h3&gt;
+&lt;p&gt;实际的状态确定过程比较简单，分别比较实时特征量与四个聚类特征量：&lt;/p&gt;
+&lt;p&gt;s&lt;sub&gt;i&lt;/sub&gt; = |cos&amp;lt; T, T&lt;sub&gt;i&lt;/sub&gt;&amp;gt;|，i = 1, 2, 3, 4.&lt;/p&gt;
+&lt;p&gt;取 s&lt;sub&gt;j&lt;/sub&gt; = max(s&lt;sub&gt;i&lt;/sub&gt;)，即选择与聚类特征量最接近的状态作为最终交通状态结果。&lt;/p&gt;
+&lt;h2&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;本文使用的特征量相似性度量方法是机器学习中文本分类的常用方法，短时交通预测也是交通领域的常用方法，两者结合构造的模型虽然很简单，但也不失为一种有效的创新方法（自卖自夸脸）。以前常常思考我们这些普通人一辈子也做不出什么惊天动地的技术突破，那所做的努力的意义何在呢？后来看了 &lt;a href="https://www.zhihu.com/question/41996685/answer/94768921"&gt;意识到了自己没有办法成为 top 1% 的程序员，还应该选择程序员的道路么？&lt;/a&gt; 这样的问题之后才豁然开朗，其实只要努力的方向靠谱，达到比较“优秀”的目标远比想象中的容易，就算不能达到，在这种过程中所做的成果也是有意义的，因为科学技术正是靠着无数的微创新推动的，而不仅仅是大牛们的灵光一现。而这也正是这个 Blog 存在的意义 :-)&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Sun, 17 Jul 2016 00:00:00 +0800</pubDate><guid isPermaLink="false">tag:weyo.me,2016-07-17:pages/essays/traffic-states-evaluation-based-on-short-term-traffic-forecast/</guid><category>Algorithm</category></item><item><title>那些年水过的算法(序)</title><link>http://weyo.me/pages/essays/my-models-review-preface/</link><description>&lt;p&gt;这段时间对新文章的想法倒是挺多，但是一直没想好怎么去写，Blog 就一直没怎么更新。直到最近看到自己四年前暑假的时候拍脑袋写出来的一篇算法发明专利居然被地图圈大名鼎鼎的 Here 公司（被诺基亚卖掉了也许是好事）引用了，顿时觉得脑袋有点方——我写的可是中文……&lt;/p&gt;
 &lt;p&gt;&lt;br /&gt;
  &lt;img src="../../../images/pics/my-models-review-preface/fig1.png" width = "550" height = "349" alt="pic1" align=center /&gt;&lt;/p&gt;
 &lt;p&gt;&lt;br /&gt;
@@ -9,7 +43,7 @@
 &lt;p&gt;&lt;br /&gt;
 突然有种奇妙的感觉，难道现在中文已经成为国际通行学术语言了？&lt;/p&gt;
 &lt;p&gt;既然被国际友人关注了，干脆就把过去写过的东西整理一下，一方面是回顾一下算法模型，另一方面也是看看能不能对现在做的其他技术有所启发。&lt;/p&gt;
-&lt;p&gt;是为序。&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Sat, 16 Jul 2016 00:00:00 +0800</pubDate><guid isPermaLink="false">tag:weyo.me,2016-07-16:pages/essays/my-models-review-preface/</guid><category>Algorithm</category></item><item><title>神奇的三门问题</title><link>http://weyo.me/pages/essays/monty-hall-problem/</link><description>&lt;p&gt;前几天遇到这么一道智力题：
+&lt;p&gt;是为序。&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Sun, 10 Jul 2016 00:00:00 +0800</pubDate><guid isPermaLink="false">tag:weyo.me,2016-07-10:pages/essays/my-models-review-preface/</guid><category>Algorithm</category></item><item><title>神奇的三门问题</title><link>http://weyo.me/pages/essays/monty-hall-problem/</link><description>&lt;p&gt;前几天遇到这么一道智力题：
 在一场游戏中，主持人拿出了三个完全一样的密封盒子，其中一个盒子内有奖品，另外两个为空盒子。主持人首先让你挑选一个你认为有奖品的盒子。然后，主持人在剩下的两个盒子中拿走一个必然为空的盒子。现在，主持人问：你愿不愿意用你手中的盒子和主持人手中的盒子交换？你手中的盒子和主持人手中的盒子里面有奖品的概率各有多少？&lt;/p&gt;
 &lt;p&gt;这其实就是大名鼎鼎的 &lt;strong&gt;三门问题&lt;/strong&gt; 了。&lt;/p&gt;
 &lt;p&gt;&lt;img src=http://images.cnitblog.com/blog/329852/201311/24200658-c442dec3691a4e929938ba98a52d78c5.png width="60%" height="60%"  /&gt;&lt;/p&gt;

@@ -3,7 +3,9 @@
       xmlns:og="http://ogp.me/ns#"
       xmlns:fb="https://www.facebook.com/2008/fbml">
 <head>
-    <title>Let There Be Light - 环境搭建</title>
+    <title>升级 Windows 10 后无法访问 VirtualBox 虚拟机
+   - Let There Be Light
+</title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8">
@@ -12,10 +14,10 @@
 
     <!-- Open Graph tags -->
 
-            <meta property="og:type" content="website"/>
-            <meta property="og:title" content="Let There Be Light"/>
-            <meta property="og:url" content="http://weyo.me"/>
-            <meta property="og:description" content="Let There Be Light"/>
+            <meta property="og:type" content="article"/>
+            <meta property="og:title" content="升级 Windows 10 后无法访问 VirtualBox 虚拟机"/>
+            <meta property="og:url" content="http://weyo.me/pages/techs/cannot-access-virtualbox-host-after-updating-to-windows10/"/>
+            <meta property="og:description" content="Surface 的 Windows 8.1 系统升级到 Windows 10 后遇到的 VirtualBox 虚拟机问题。"/>
 
     <!-- Bootstrap -->
         <link rel="stylesheet" href="http://weyo.me/theme/css/bootstrap.min.css" type="text/css"/>
@@ -68,7 +70,7 @@
                         <li >
                             <a href="http://weyo.me/category/essays.html">Essays</a>
                         </li>
-                        <li >
+                        <li class="active">
                             <a href="http://weyo.me/category/techs.html">Techs</a>
                         </li>
             </ul>
@@ -83,27 +85,90 @@
 <div class="container">
     <div class="row">
         <div class="col-lg-9">
-            <article>
-                <h2><a href="http://weyo.me/pages/techs/kafka-storm-integration/">Kafka-Storm 集成部署</a></h2>
-                <div class="summary"><p>分布式实时计算的主要组件采用基于流式计算的 Apache Storm，而实时计算的数据源来自基础数据输入组件中的 Kafka，本文主要讨论如何将 Kafka 的消息数据传入 Storm。</p>
-                    <a class="btn btn-default btn-xs" href="http://weyo.me/pages/techs/kafka-storm-integration/">more ...</a>
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="http://weyo.me/pages/techs/cannot-access-virtualbox-host-after-updating-to-windows10/"
+                       rel="bookmark"
+                       title="Permalink to 升级 Windows 10 后无法访问 VirtualBox 虚拟机">
+                        升级 Windows 10 后无法访问 VirtualBox 虚拟机
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="icon-calendar"></i>2015-11-17
+    </span>
+	<span style="font-size:12px;">&nbsp;&nbsp;</span>
+    <!--     <span class="label label-default">By</span>
+    <a href="http://weyo.me/author/weyo.html"><i class="icon-user"></i>WeYo</a>
+	<span style="font-size:12px;">&nbsp;&nbsp;</span>
+ -->
+
+    <span class="label label-default">Category</span>
+    <a href="http://weyo.me/category/techs.html">Techs</a>
+	<span style="font-size:12px;">&nbsp;&nbsp;</span>
+
+
+<span class="label label-default">Tags</span>
+	<a href="http://weyo.me/tag/virtualbox.html">VirtualBox</a>
+        /
+	<a href="http://weyo.me/tag/windows.html">Windows</a>
+	
+	<br /><br />Posted by <span style="font-weight:bold;"><a href="http://github.com/weyo">WeYo</a></span>. 转载请注明出处：<a href="http://weyo.me/pages/techs/cannot-access-virtualbox-host-after-updating-to-windows10/">http://weyo.me/pages/techs/cannot-access-virtualbox-host-after-updating-to-windows10/</a>
+</footer><!-- /.post-info -->                    </div>
                 </div>
-            </article>
-            <hr/>
-            <article>
-                <h2><a href="http://weyo.me/pages/techs/storm-basis/">Apache Storm —— 分布式实时计算基础篇</a></h2>
-                <div class="summary"><p>Apache Storm 是分布式计算领域目前最热门的实时计算系统。本文主要涉及 Storm 集群的分布式部署。</p>
-                    <a class="btn btn-default btn-xs" href="http://weyo.me/pages/techs/storm-basis/">more ...</a>
-                </div>
-            </article>
-            <hr/>
-            <article>
-                <h2><a href="http://weyo.me/pages/techs/flume-kafka-integration/">Flume-Kafka 集成部署</a></h2>
-                <div class="summary"><p>Flume-ng 与 Kafka 是 Apache 家族的两个热门的数据采集与传输系统，本文主要讨论如何将两者结合构造分布式计算集群的基础数据输入组件。</p>
-                    <a class="btn btn-default btn-xs" href="http://weyo.me/pages/techs/flume-kafka-integration/">more ...</a>
-                </div>
-            </article>
-            <hr/>
+                <p><del>在微软发布 Windows 10 正式版之后，就第一时间将苏菲婆的 Win 8.1 升级到了 Windows 10。Windows 10 的各种不兼容、用户界面不友好的问题就先不吐槽了，先来说说 VirtualBox 的问题。</del></p>
+<p><del>首先要承认，微软在系统兼容性上确实下了不少功夫，升级之后基本上所有的程序都能够正常运行，但是（there is always a but），正常运行不代表运行良好，时不时总是闹点小问题，让人烦不胜烦。尤其是 VirtualBox 这种对硬件、虚拟化技术有要求的大型程序，兼容性还是差得很远。比如这次升级后，虚拟机的网络就无法正常配置实用了。</del></p>
+<p>...</p>
+<p>已删除，最后还是不能接受直接升级带来的各种系统问题，使用了终极大招——重装。虽然兼容问题好了不少，但是 Windows 10 对 Surface 的支持真的说不上友好，以后再也不买 MS 家的硬件了（flag</p>
+            </div>
+            <!-- /.entry-content -->
+<hr />
+<ul style="list-style-type: none; margin-left: -38px">
+     <li style="margin-top: 5px">
+         <span class="label label-default"><i class="icon-chevron-up"></i>上一篇</span>
+         <a href="http://weyo.me/pages/techs/distributed-essays-translation-cc/">
+             [转]分布式系统经典论文翻译集
+         </a>
+     </li>
+     <li>
+         <span class="label label-default"><i class="icon-chevron-down"></i>下一篇</span>
+         <a href="http://weyo.me/pages/techs/storm-documents-translation/">
+             Storm 官方文档翻译说明
+         </a>
+     </li>
+</ul>    <hr />
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'weyo'; // required: replace example with your forum shortname
+            var disqus_identifier = 'cannot-access-virtualbox-host-after-updating-to-windows10';
+            var disqus_url = 'http://weyo.me/pages/techs/cannot-access-virtualbox-host-after-updating-to-windows10/';
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
 
         </div>
         <div class="col-lg-3 well well-sm" id="sidebar">
@@ -261,7 +326,7 @@
         <p class="pull-right"><i class="icon-arrow-up"></i> <a href="#">Back to top</a></p>
 
 
-        <p>&copy; 2015 WeYo &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+        <p>&copy; 2016 WeYo &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
             <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
             <a href="http://getbootstrap.com" target="_blank">Bootstrap</a></p>
     </div>
