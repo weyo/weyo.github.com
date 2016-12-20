@@ -12,9 +12,15 @@
 &lt;/ul&gt;
 &lt;p&gt;放一张全家福——&lt;/p&gt;
 &lt;p&gt;&lt;br /&gt;
- &lt;img src="../../../images/pics/magic-mirror-hardware/fig1.jpg" width = "640" height = "480" alt="pic1" align=center /&gt;&lt;/p&gt;
-&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+ &lt;img src="../../../images/pics/magic-mirror-hardware/fig1.jpg" width = "640" height = "480" alt="pic1" align=center /&gt;
+&lt;br /&gt;&lt;/p&gt;
 &lt;p&gt;当然，除了上面的工具之外，最好还要有 USB 键盘、鼠标等外设（便于调试软件）。&lt;/p&gt;
+&lt;h2&gt;树莓派&lt;/h2&gt;
+&lt;p&gt;制作魔镜的第一步当然是购买一个合适的树莓派，这个不用我多说，网上到处都是卖的，买个最新的性能比较好的即可。这里要说的是树莓派需要的配件。我买了很多周边配件，像散热片、风扇、框架什么的，最后发现都用不上，真正能用上的只有 TF 卡和 USB 无线网卡。购买配件的时候需要注意硬件兼容性，一定要选择能够兼容该款树莓派的配件，特别是无线网卡。作为参考，我是在 X东上购买的 EDUP EP-N8508GS 迷你 USB 无线网卡，这款网卡能够免驱启动，效果还不错。&lt;/p&gt;
+&lt;p&gt;&lt;br /&gt;
+ &lt;img src="../../../images/pics/magic-mirror-hardware/fig3.jpg" width = "640" height = "480" alt="pic3" align=center /&gt;
+&lt;br /&gt;&lt;/p&gt;
+&lt;p&gt;当然，由于显示器上面带有静电，最后安装的时候要避免树莓派和显示器的直接接触（否则会造成树莓派反复重启，不要问我是怎么知道的），最好要用绝缘的材料简单包装一下。&lt;/p&gt;
 &lt;h2&gt;拆解&lt;/h2&gt;
 &lt;p&gt;这里需要拆解的对象是显示器，主要目的是减小魔镜的体积，便于安装镜框。现代的 LCD 基本上还是比较容易拆解的，先卸下前盖，然后再拆掉后盖，拆解的时候注意不要伤害到内部线路和显示屏：&lt;/p&gt;
 &lt;p&gt;&lt;br /&gt;
