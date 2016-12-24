@@ -3,7 +3,9 @@
       xmlns:og="http://ogp.me/ns#"
       xmlns:fb="https://www.facebook.com/2008/fbml">
 <head>
-    <title>Let There Be Light - Categories</title>
+    <title>魔镜制作——软件篇
+   - Let There Be Light
+</title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8">
@@ -12,10 +14,10 @@
 
     <!-- Open Graph tags -->
 
-            <meta property="og:type" content="website"/>
-            <meta property="og:title" content="Let There Be Light"/>
-            <meta property="og:url" content="http://weyo.me"/>
-            <meta property="og:description" content="Let There Be Light"/>
+            <meta property="og:type" content="article"/>
+            <meta property="og:title" content="魔镜制作——软件篇"/>
+            <meta property="og:url" content="http://weyo.me/pages/techs/magic-mirror-software/"/>
+            <meta property="og:description" content="私人订制版魔镜制作说明软件部分。"/>
 
     <!-- Bootstrap -->
         <link rel="stylesheet" href="http://weyo.me/theme/css/bootstrap.min.css" type="text/css"/>
@@ -68,7 +70,7 @@
                         <li >
                             <a href="http://weyo.me/category/essays.html">Essays</a>
                         </li>
-                        <li >
+                        <li class="active">
                             <a href="http://weyo.me/category/techs.html">Techs</a>
                         </li>
             </ul>
@@ -83,13 +85,208 @@
 <div class="container">
     <div class="row">
         <div class="col-lg-9">
-    <section id="categories">
-        <h1>Categories for Let There Be Light</h1>
-        <ul>
-                <li><a href="http://weyo.me/category/essays.html">Essays</a></li>
-                <li><a href="http://weyo.me/category/techs.html">Techs</a></li>
-        </ul>
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="http://weyo.me/pages/techs/magic-mirror-software/"
+                       rel="bookmark"
+                       title="Permalink to 魔镜制作——软件篇">
+                        魔镜制作——软件篇
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="icon-calendar"></i>2016-12-20
+    </span>
+	<span style="font-size:12px;">&nbsp;&nbsp;</span>
+    <!--     <span class="label label-default">By</span>
+    <a href="http://weyo.me/author/weyo.html"><i class="icon-user"></i>WeYo</a>
+	<span style="font-size:12px;">&nbsp;&nbsp;</span>
+ -->
+
+    <span class="label label-default">Category</span>
+    <a href="http://weyo.me/category/techs.html">Techs</a>
+	<span style="font-size:12px;">&nbsp;&nbsp;</span>
+
+
+<span class="label label-default">Tags</span>
+	<a href="http://weyo.me/tag/magic-mirror.html">Magic Mirror</a>
+	
+	<br /><br />Posted by <span style="font-weight:bold;"><a href="http://github.com/weyo">WeYo</a></span>. 转载请注明出处：<a href="http://weyo.me/pages/techs/magic-mirror-software/">http://weyo.me/pages/techs/magic-mirror-software/</a>
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>本文介绍魔镜制作的软件部分。</p>
+<h2>系统</h2>
+<h3>系统安装</h3>
+<p>首先需要在树莓派官网（<a href="http://www.raspberrypi.org/downloads">http://www.raspberrypi.org/downloads</a>）下载系统镜像，然后将 TF 卡连接到个人电脑上，使用官方的 NOOBS 工具或者其他 U盘镜像烧录工具（例如 Win32 Disk Imager，网上有很多教程，此处不赘述）将系统镜像烧录到 TF 卡中。烧录成功的标志是将 TF 卡装到树莓派上之后打开电源，树莓派能够正常启动系统（俗称“一次点亮”）。</p>
+<h3>系统配置</h3>
+<p>安装好操作系统后，根据需要配置以下内容：</p>
+<ol>
+<li>
+<p>SSH远程访问（系统默认开启）</p>
+</li>
+<li>
+<p>无线网络（使用即插即用的 USB 无线网卡则无需配置）</p>
+</li>
+<li>
+<p>更换软件源</p>
+</li>
+<li>
+<p>扩展可用空间（<code>raspi-config</code> 命令）</p>
+</li>
+<li>
+<p>配置默认启动图形桌面（系统默认启动图形桌面）</p>
+</li>
+<li>
+<p>配置系统时间</p>
+</li>
+<li>
+<p>设置静态IP（未来的魔镜服务器地址）</p>
+</li>
+<li>
+<p>配置防火墙（开放 Web 服务器需要的端口，或者直接关闭防火墙）</p>
+</li>
+<li>
+<p>设置屏幕纵向显示（在 <code>/boot/config.txt</code> 文件中添加 <code>display_rotate=1</code>）</p>
+</li>
+<li>
+<p>设置 HDMI 热插拔（在 <code>/boot/config.txt</code> 文件中取消 <code>hdmi_force_hotplug=1</code> 的注释）</p>
+</li>
+</ol>
+<p>具体的配置方法可在网络上或在本文末尾列出的参考资料中查询到，这里就不重复了。</p>
+<h3>软件安装</h3>
+<h4>浏览器</h4>
+<p>考虑到浏览器的显示效果及兼容性，推荐安装 Chromium：</p>
+<p><code>sudo apt-get install chromium x11-xserver-utils unclutter</code></p>
+<p>最好还在 <code>/etc/xdg/lxsession/LXDE-pi/autostart</code> 配置以下内容以禁用屏幕保护，设置浏览器开机自启动等：</p>
+<p>```
+  # 注释此句禁用屏幕保护
+  # @xscreensaver -no-splash</p>
+<p># 添加以下内容配置自启动
+  @xset s off
+  @xset -dpms
+  @xset s noblank
+  @chromium --kiosk --incognito <Web 服务器访问地址>
+  ```</p>
+<h4>Web 服务器</h4>
+<p>如果选择 MagicMirror 原作者的项目代码，应该安装 PHP + Apache（参阅参考资料【1】）；如果选择本人的项目代码，应该安装 JDK + Tomcat。</p>
+<ul>
+<li>
+<p>JDK 安装：<a href="http://blog.csdn.net/manerfan/article/details/46391857">http://blog.csdn.net/manerfan/article/details/46391857</a></p>
+</li>
+<li>
+<p>Tomcat 安装：不推荐直接使用 <code>sudo apt-get install tomcat7</code> 命令安装 Tomcat，可能安装的 Tomcat 版本与本项目要求不符，推荐到 Tomcat 官网下载 Tomcat 7 以上最新版本（tar.gz 版）并解压缩到用户目录下。</p>
+</li>
+</ul>
+<h2>Server</h2>
+<p>环境完全搭建完成之后就是 Coding 时间了。如果只是简单地使用原有的功能就太没意思了，现在的人工智能、语音识别这些技术已经很成熟了，适当地应用一下也是件很有意思地事。考虑到自己的技能树，干脆直接使用 Java 重构了整个应用（项目源码：<a href="https://github.com/weyo/MagicMirror">https://github.com/weyo/MagicMirror</a>）。</p>
+<h3>功能</h3>
+<p>重构的魔镜服务器主要做了这么几件小事：</p>
+<ol>
+<li>空气质量</li>
+</ol>
+<p>看看最近的新闻就知道这个功能是多么的必要……</p>
+<ol>
+<li>智能机器人</li>
+</ol>
+<p>只能冷冰冰显示东西的镜子当然很无趣，能够愉快聊天的镜子才是好镜子~~</p>
+<ol>
+<li>语音识别</li>
+</ol>
+<p>和智能机器人配套的语音输入服务。</p>
+<h3>配置</h3>
+<p>在 <code>config.js</code> 中根据个人需要修改以下配置信息：</p>
+<ul>
+<li>时间格式</li>
+<li>所在城市</li>
+<li>APPID（在 OpenWeatherMap 网站上注册用户获取免费的 APPID）</li>
+<li>AppKey（在 <a href="http://pm25.in/api_doc">PM25.in</a> 网站上申请的 AppKey）</li>
+<li>Key（在 <a href="http://www.tuling123.com">图灵机器人</a> 网站上申请的 Key）</li>
+<li>欢迎词</li>
+<li>最大日程数量及个人日程表链接（iPhone 可以在 iCloud 中将某个日历设为公开日历得到）</li>
+<li>新闻 RSS （可自行搜索可用的新闻 RSS，国内用户推荐使用新浪的 RSS）</li>
+<li>需要启动的功能服务</li>
+<li>...</li>
+</ul>
+<p>趁着阿里云近期有优惠活动，专门搭建了一个 Demo 服务器：<a href="http://60.205.205.171:8080/server/">http://60.205.205.171:8080/server/</a>，有效期半年（至 2017年6月），在有效期内可以在该地址上查看魔镜的应用效果（浏览器最好使用最新版本的 Chrome）。</p>
+<h2>APP</h2>
+<p>最后，作为一个 21 世纪的应用，当然少不了 APP~~ :P</p>
+<p>由于直接使用树莓派的音频功能需要配置专门的硬件，制作成本和使用体验都不太好，这里就直接使用 APP 来代替外接话筒的功能。</p>
+<p><br />
+ <img src="../../../images/pics/magic-mirror-software/fig1.jpg" width = "450" height = "800" alt="pic1" align=center />
+<br /></p>
+<h4>APP 设置选项说明</h4>
+<ul>
+<li>服务器地址：魔镜服务器后台地址（默认为 Demo 服务器地址）；</li>
+<li>语言：语音输入语言；</li>
+<li>标点符号：语音识别结果是否带有标点符号；</li>
+<li>语音输入前端点超时时间：静音时间，即开始录音之后用户多长时间不说话则当做超时处理；</li>
+<li>语音输入后端点超时时间：后端点静音检测时间，即用户停止说话多长时间内即认为不再输入， 自动停止录音。</li>
+</ul>
+<p>在浏览器上打开 Demo 地址 <a href="http://60.205.205.171:8080/server/">http://60.205.205.171:8080/server/</a>，使用该 APP 输入语音即可看到交互效果。</p>
+<h2>其他</h2>
+<h3>新功能</h3>
+<p>目前考虑的新功能有 Slides 照片展示、触摸屏支持等。屏幕空间有限，每个人的需求也不尽相同，怎么利用好有限的空间也是个值得思考的问题。</p>
+<h3>APP</h3>
+<p>由于没有 IOS 开发者账号，暂时只开发了 Android 的 APP，后续考虑提供微信语音输入支持（这个功能需要稳定的服务器资源，暂时还只是想法 :-)</p>
+<h2>参考资料</h2>
+<ul>
+<li>
+<p>【1】<a href="http://michaelteeuw.nl/post/83188136918/magic-mirror-part-v-installing-the-raspberry-pi">http://michaelteeuw.nl/post/83188136918/magic-mirror-part-v-installing-the-raspberry-pi</a></p>
+</li>
+<li>
+<p>【2】<a href="http://michaelteeuw.nl/post/83916869600/magic-mirror-part-vi-production-of-the">http://michaelteeuw.nl/post/83916869600/magic-mirror-part-vi-production-of-the</a></p>
+</li>
+<li>
+<p>【3】<a href="http://www.cnblogs.com/abel/p/3441175.html">http://www.cnblogs.com/abel/p/3441175.html</a></p>
+</li>
+<li>
+<p>【4】<a href="https://linux.cn/article-4374-1.html">https://linux.cn/article-4374-1.html</a></p>
+</li>
+</ul>
+            </div>
+            <!-- /.entry-content -->
+<hr />
+<ul style="list-style-type: none; margin-left: -38px">
+     <li>
+         <span class="label label-default"><i class="icon-chevron-down"></i>下一篇</span>
+         <a href="http://weyo.me/pages/techs/magic-mirror-hardware/">
+             魔镜制作——硬件篇
+         </a>
+     </li>
+</ul>    <hr />
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'weyo'; // required: replace example with your forum shortname
+            var disqus_identifier = 'magic-mirror-software';
+            var disqus_url = 'http://weyo.me/pages/techs/magic-mirror-software/';
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
     </section>
+        </article>
+    </section>
+
         </div>
         <div class="col-lg-3 well well-sm" id="sidebar">
 
