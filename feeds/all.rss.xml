@@ -43,15 +43,17 @@
 &lt;p&gt;考虑到浏览器的显示效果及兼容性，推荐安装 Chromium：&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;sudo apt-get install chromium x11-xserver-utils unclutter&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;最好还在 &lt;code&gt;/etc/xdg/lxsession/LXDE-pi/autostart&lt;/code&gt; 配置以下内容以禁用屏幕保护，设置浏览器开机自启动等：&lt;/p&gt;
-&lt;p&gt;```
-  # 注释此句禁用屏幕保护
-  # @xscreensaver -no-splash&lt;/p&gt;
-&lt;p&gt;# 添加以下内容配置自启动
-  @xset s off
-  @xset -dpms
-  @xset s noblank
-  @chromium --kiosk --incognito &lt;Web 服务器访问地址&gt;
-  ```&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;# 注释此句禁用屏幕保护
+# @xscreensaver -no-splash
+
+# 添加以下内容配置自启动
+@xset s off
+@xset -dpms
+@xset s noblank
+@chromium --kiosk --incognito &amp;lt;Web 服务器访问地址&amp;gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
 &lt;h4&gt;Web 服务器&lt;/h4&gt;
 &lt;p&gt;如果选择 MagicMirror 原作者的项目代码，应该安装 PHP + Apache（参阅参考资料【1】）；如果选择本人的项目代码，应该安装 JDK + Tomcat。&lt;/p&gt;
 &lt;ul&gt;
@@ -67,17 +69,13 @@
 &lt;h3&gt;功能&lt;/h3&gt;
 &lt;p&gt;重构的魔镜服务器主要做了这么几件小事：&lt;/p&gt;
 &lt;ol&gt;
-&lt;li&gt;空气质量&lt;/li&gt;
+&lt;li&gt;空气质量
+  看看最近的新闻就知道这个功能是多么的必要……&lt;/li&gt;
+&lt;li&gt;智能机器人
+  只能冷冰冰显示东西的镜子当然很无趣，能够愉快聊天的镜子才是好镜子~~&lt;/li&gt;
+&lt;li&gt;语音识别
+  和智能机器人配套的语音输入服务。&lt;/li&gt;
 &lt;/ol&gt;
-&lt;p&gt;看看最近的新闻就知道这个功能是多么的必要……&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;智能机器人&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;只能冷冰冰显示东西的镜子当然很无趣，能够愉快聊天的镜子才是好镜子~~&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;语音识别&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;和智能机器人配套的语音输入服务。&lt;/p&gt;
 &lt;h3&gt;配置&lt;/h3&gt;
 &lt;p&gt;在 &lt;code&gt;config.js&lt;/code&gt; 中根据个人需要修改以下配置信息：&lt;/p&gt;
 &lt;ul&gt;

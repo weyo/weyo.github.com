@@ -165,15 +165,17 @@
 <p>考虑到浏览器的显示效果及兼容性，推荐安装 Chromium：</p>
 <p><code>sudo apt-get install chromium x11-xserver-utils unclutter</code></p>
 <p>最好还在 <code>/etc/xdg/lxsession/LXDE-pi/autostart</code> 配置以下内容以禁用屏幕保护，设置浏览器开机自启动等：</p>
-<p>```
-  # 注释此句禁用屏幕保护
-  # @xscreensaver -no-splash</p>
-<p># 添加以下内容配置自启动
-  @xset s off
-  @xset -dpms
-  @xset s noblank
-  @chromium --kiosk --incognito <Web 服务器访问地址>
-  ```</p>
+<div class="highlight"><pre><span></span># 注释此句禁用屏幕保护
+# @xscreensaver -no-splash
+
+# 添加以下内容配置自启动
+@xset s off
+@xset -dpms
+@xset s noblank
+@chromium --kiosk --incognito &lt;Web 服务器访问地址&gt;
+</pre></div>
+
+
 <h4>Web 服务器</h4>
 <p>如果选择 MagicMirror 原作者的项目代码，应该安装 PHP + Apache（参阅参考资料【1】）；如果选择本人的项目代码，应该安装 JDK + Tomcat。</p>
 <ul>
@@ -189,17 +191,13 @@
 <h3>功能</h3>
 <p>重构的魔镜服务器主要做了这么几件小事：</p>
 <ol>
-<li>空气质量</li>
+<li>空气质量
+  看看最近的新闻就知道这个功能是多么的必要……</li>
+<li>智能机器人
+  只能冷冰冰显示东西的镜子当然很无趣，能够愉快聊天的镜子才是好镜子~~</li>
+<li>语音识别
+  和智能机器人配套的语音输入服务。</li>
 </ol>
-<p>看看最近的新闻就知道这个功能是多么的必要……</p>
-<ol>
-<li>智能机器人</li>
-</ol>
-<p>只能冷冰冰显示东西的镜子当然很无趣，能够愉快聊天的镜子才是好镜子~~</p>
-<ol>
-<li>语音识别</li>
-</ol>
-<p>和智能机器人配套的语音输入服务。</p>
 <h3>配置</h3>
 <p>在 <code>config.js</code> 中根据个人需要修改以下配置信息：</p>
 <ul>
@@ -313,6 +311,11 @@
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
                         <li class="list-group-item tag-1">
+                            <a href="http://weyo.me/tag/storm.html">
+                                Storm
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-1">
                             <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
                                 分布式计算
                             </a>
@@ -320,16 +323,6 @@
                         <li class="list-group-item tag-1">
                             <a href="http://weyo.me/tag/translation.html">
                                 translation
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/storm.html">
-                                Storm
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/kafka.html">
-                                Kafka
                             </a>
                         </li>
                         <li class="list-group-item tag-2">
@@ -340,6 +333,11 @@
                         <li class="list-group-item tag-2">
                             <a href="http://weyo.me/tag/huan-jing-da-jian.html">
                                 环境搭建
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-2">
+                            <a href="http://weyo.me/tag/kafka.html">
+                                Kafka
                             </a>
                         </li>
                         <li class="list-group-item tag-3">
@@ -353,18 +351,8 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/mapreduce.html">
-                                MapReduce
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
                             <a href="http://weyo.me/tag/linux.html">
                                 Linux
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/magic-mirror.html">
-                                Magic Mirror
                             </a>
                         </li>
                         <li class="list-group-item tag-3">
@@ -372,14 +360,34 @@
                                 Hadoop
                             </a>
                         </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/zookeeper.html">
-                                ZooKeeper
+                        <li class="list-group-item tag-3">
+                            <a href="http://weyo.me/tag/mapreduce.html">
+                                MapReduce
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-3">
+                            <a href="http://weyo.me/tag/magic-mirror.html">
+                                Magic Mirror
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/flume.html">
-                                Flume
+                            <a href="http://weyo.me/tag/windows.html">
+                                Windows
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/shell.html">
+                                Shell
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/benchmark.html">
+                                Benchmark
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/rpc.html">
+                                RPC
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -393,38 +401,8 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/jedis.html">
-                                Jedis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/rpc.html">
-                                RPC
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/undefined.html">
-                                Undefined
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/windows.html">
-                                Windows
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/benchmark.html">
-                                Benchmark
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/shell.html">
-                                Shell
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/yaml.html">
-                                Yaml
+                            <a href="http://weyo.me/tag/zookeeper.html">
+                                ZooKeeper
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -433,8 +411,28 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/flume.html">
+                                Flume
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/undefined.html">
+                                Undefined
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/yaml.html">
+                                Yaml
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
                             <a href="http://weyo.me/tag/redis.html">
                                 Redis
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/jedis.html">
+                                Jedis
                             </a>
                         </li>
         </ul>
