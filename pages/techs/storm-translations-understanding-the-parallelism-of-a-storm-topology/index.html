@@ -178,7 +178,7 @@
 <p>在上面的代码中，我们为 <code>GreenBolt</code> 配置了 2 个初始执行线程（executor）和 4 个关联任务（task）。这样，每个执行线程中会运行 2 个任务。如果你在设置 bolt 的时候不指定 task 的数量，那么每个 executor 的 task 数会默认设置为 1。</p>
 <h2>拓扑示例</h2>
 <p>下图显示了一个与实际应用场景很接近的简单拓扑的结构。这个拓扑由三个组件构成：一个名为 <code>BlueSpout</code> 的 spout，和两个名为 <code>GreenBolt</code> 和 <code>YellowBolt</code> 的 bolt。这些组件之间的关系是：<code>BlueSpout</code> 将它的输出发送到 <code>GreenBolt</code> 中，然后 <code>GreenBolt</code> 将消息继续发送到 <code>YellowBolt</code> 中。</p>
-<p><img alt="running-topology" src="http://storm.apache.org/documentation/images/example-of-a-running-topology.png" /></p>
+<p><img alt="running-topology" src="http://storm.apache.org/releases/1.1.1/images/example-of-a-running-topology.png" /></p>
 <blockquote>
 <p>图中是一个包含有两个 worker 进程的拓扑。其中，蓝色的 <code>BlueSpout</code> 有两个 executor，每个 executor 中有一个 task，并行度为 2；绿色的 <code>GreenBolt</code> 有两个 executor，每个 executor 有两个 task，并行度也为2；而黄色的 <code>YellowBolt</code> 有 6 个 executor，每个 executor 中有一个 task，并行度为 6，因此，这个拓扑的总并行度就是 2 + 2 + 6 = 10。具体分配到每个 worker 就有 10 / 2 = 5 个 executor。</p>
 </blockquote>
@@ -308,13 +308,13 @@ $ storm rebalance mytopology -n 5 -e blue-spout=3 -e yellow-bolt=10
                             </a>
                         </li>
                         <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
-                                环境搭建
+                            <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
+                                实时计算
                             </a>
                         </li>
                         <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
-                                实时计算
+                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
+                                环境搭建
                             </a>
                         </li>
                         <li class="list-group-item tag-2">
@@ -323,8 +323,8 @@ $ storm rebalance mytopology -n 5 -e blue-spout=3 -e yellow-bolt=10
                             </a>
                         </li>
                         <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/hadoop.html">
-                                Hadoop
+                            <a href="http://weyo.me/tag/java.html">
+                                Java
                             </a>
                         </li>
                         <li class="list-group-item tag-3">
@@ -333,23 +333,48 @@ $ storm rebalance mytopology -n 5 -e blue-spout=3 -e yellow-bolt=10
                             </a>
                         </li>
                         <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/linux.html">
-                                Linux
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/java.html">
-                                Java
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
                             <a href="http://weyo.me/tag/algorithm.html">
                                 Algorithm
                             </a>
                         </li>
                         <li class="list-group-item tag-3">
+                            <a href="http://weyo.me/tag/hadoop.html">
+                                Hadoop
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-3">
                             <a href="http://weyo.me/tag/magic-mirror.html">
                                 Magic Mirror
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-3">
+                            <a href="http://weyo.me/tag/linux.html">
+                                Linux
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/virtualbox.html">
+                                VirtualBox
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/flume.html">
+                                Flume
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/shell.html">
+                                Shell
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/flink.html">
+                                Flink
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/log4j.html">
+                                log4j
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -363,38 +388,13 @@ $ storm rebalance mytopology -n 5 -e blue-spout=3 -e yellow-bolt=10
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/windows.html">
-                                Windows
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/shell.html">
-                                Shell
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/redis.html">
-                                Redis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/zookeeper.html">
-                                ZooKeeper
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
                             <a href="http://weyo.me/tag/undefined.html">
                                 Undefined
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/flume.html">
-                                Flume
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/log4j.html">
-                                log4j
+                            <a href="http://weyo.me/tag/windows.html">
+                                Windows
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -403,23 +403,23 @@ $ storm rebalance mytopology -n 5 -e blue-spout=3 -e yellow-bolt=10
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/zookeeper.html">
+                                ZooKeeper
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
                             <a href="http://weyo.me/tag/benchmark.html">
                                 Benchmark
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/flink.html">
-                                Flink
+                            <a href="http://weyo.me/tag/redis.html">
+                                Redis
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
                             <a href="http://weyo.me/tag/yaml.html">
                                 Yaml
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/virtualbox.html">
-                                VirtualBox
                             </a>
                         </li>
         </ul>
