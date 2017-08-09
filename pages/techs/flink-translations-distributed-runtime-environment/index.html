@@ -3,7 +3,7 @@
       xmlns:og="http://ogp.me/ns#"
       xmlns:fb="https://www.facebook.com/2008/fbml">
 <head>
-    <title>Not able to use latest Kafka Consumer API
+    <title>Apache Flink 官方文档翻译 —— 分布式运行时环境
    - Let There Be Light
 </title>
     <!-- Using the latest rendering mode for IE -->
@@ -15,9 +15,9 @@
     <!-- Open Graph tags -->
 
             <meta property="og:type" content="article"/>
-            <meta property="og:title" content="Not able to use latest Kafka Consumer API"/>
-            <meta property="og:url" content="http://weyo.me/pages/techs/not-able-to-use-latest-kafka-consumer-api/"/>
-            <meta property="og:description" content="Bad news of Kafka."/>
+            <meta property="og:title" content="Apache Flink 官方文档翻译 —— 分布式运行时环境"/>
+            <meta property="og:url" content="http://weyo.me/pages/techs/flink-translations-distributed-runtime-environment/"/>
+            <meta property="og:description" content="Apache Flink 的分布式环境。"/>
 
     <!-- Bootstrap -->
         <link rel="stylesheet" href="http://weyo.me/theme/css/bootstrap.min.css" type="text/css"/>
@@ -89,10 +89,10 @@
         <article>
             <header class="page-header">
                 <h1>
-                    <a href="http://weyo.me/pages/techs/not-able-to-use-latest-kafka-consumer-api/"
+                    <a href="http://weyo.me/pages/techs/flink-translations-distributed-runtime-environment/"
                        rel="bookmark"
-                       title="Permalink to Not able to use latest Kafka Consumer API">
-                        Not able to use latest Kafka Consumer API
+                       title="Permalink to Apache Flink 官方文档翻译 —— 分布式运行时环境">
+                        Apache Flink 官方文档翻译 —— 分布式运行时环境
                     </a>
                 </h1>
             </header>
@@ -102,7 +102,7 @@
 <footer class="post-info">
     <span class="label label-default">Date</span>
     <span class="published">
-        <i class="icon-calendar"></i>2015-07-01
+        <i class="icon-calendar"></i>2017-08-09
     </span>
 	<span style="font-size:12px;">&nbsp;&nbsp;</span>
     <!--     <span class="label label-default">By</span>
@@ -116,81 +116,95 @@
 
 
 <span class="label label-default">Tags</span>
-	<a href="http://weyo.me/tag/kafka.html">Kafka</a>
+	<a href="http://weyo.me/tag/flink.html">Flink</a>
+        /
+	<a href="http://weyo.me/tag/translation.html">Translation</a>
 	
-	<br /><br />Posted by <span style="font-weight:bold;"><a href="http://github.com/weyo">WeYo</a></span>. 转载请注明出处：<a href="http://weyo.me/pages/techs/not-able-to-use-latest-kafka-consumer-api/">http://weyo.me/pages/techs/not-able-to-use-latest-kafka-consumer-api/</a>
+	<br /><br />Posted by <span style="font-weight:bold;"><a href="http://github.com/weyo">WeYo</a></span>. 转载请注明出处：<a href="http://weyo.me/pages/techs/flink-translations-distributed-runtime-environment/">http://weyo.me/pages/techs/flink-translations-distributed-runtime-environment/</a>
 </footer><!-- /.post-info -->                    </div>
                 </div>
-                <p>Days ago I was to get start with the newest Kafka document <a href="http://kafka.apache.org/documentation.html">http://kafka.apache.org/documentation.html</a> to learn about Kafka. But I meet some problem when I try to use the new Consumer API. I'd done the job with following steps:</p>
-<p><strong>1. Add a new dependency</strong></p>
-<div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
-    <span class="nt">&lt;groupId&gt;</span>org.apache.kafka<span class="nt">&lt;/groupId&gt;</span>
-    <span class="nt">&lt;artifactId&gt;</span>kafka-clients<span class="nt">&lt;/artifactId&gt;</span>
-    <span class="nt">&lt;version&gt;</span>0.8.2.1<span class="nt">&lt;/version&gt;</span>
-<span class="nt">&lt;/dependency&gt;</span>
-</pre></div>
-
-
-<p><strong>2. Add configurations</strong></p>
-<p>Latest documents did not contains such configurable things, it took me a while to figure out how <code>KafkaProducer</code> works, and I used some similar configurations to set the config map</p>
-<div class="highlight"><pre><span></span>    <span class="nt">Map</span><span class="o">&lt;</span><span class="nt">String</span><span class="o">,</span> <span class="nt">Object</span><span class="o">&gt;</span> <span class="nt">config</span> <span class="o">=</span> <span class="nt">new</span> <span class="nt">HashMap</span><span class="o">&lt;</span><span class="nt">String</span><span class="o">,</span> <span class="nt">Object</span><span class="o">&gt;();</span>
-    <span class="nt">config</span><span class="nc">.put</span><span class="o">(</span><span class="nt">ConsumerConfig</span><span class="nc">.BOOTSTRAP_SERVERS_CONFIG</span><span class="o">,</span>
-            <span class="s2">&quot;host:9092&quot;</span><span class="o">);</span>
-    <span class="nt">config</span><span class="nc">.put</span><span class="o">(</span><span class="nt">ConsumerConfig</span><span class="nc">.GROUP_ID_CONFIG</span><span class="o">,</span> <span class="s2">&quot;test&quot;</span><span class="o">);</span>
-    <span class="nt">config</span><span class="nc">.put</span><span class="o">(</span><span class="nt">ConsumerConfig</span><span class="nc">.KEY_DESERIALIZER_CLASS_CONFIG</span><span class="o">,</span>
-            <span class="nt">StringDeserializer</span><span class="nc">.class.getName</span><span class="o">());</span>
-    <span class="nt">config</span><span class="nc">.put</span><span class="o">(</span><span class="nt">ConsumerConfig</span><span class="nc">.VALUE_DESERIALIZER_CLASS_CONFIG</span><span class="o">,</span>
-            <span class="nt">StringDeserializer</span><span class="nc">.class.getName</span><span class="o">());</span>
-    <span class="nt">config</span><span class="nc">.put</span><span class="o">(</span><span class="nt">ConsumerConfig</span><span class="nc">.PARTITION_ASSIGNMENT_STRATEGY</span><span class="o">,</span> <span class="s2">&quot;range&quot;</span><span class="o">);</span>
-</pre></div>
-
-
-<p><strong>3. Use KafkaConsumer API</strong></p>
-<div class="highlight"><pre><span></span>KafkaConsumer&lt;String, String&gt; consumer = new KafkaConsumer&lt;String, String&gt;(config);
-consumer.subscribe(&quot;topic&quot;);
-</pre></div>
-
-
-<p>However, when I try to poll message from the broker, I got nothing but null:</p>
-<div class="highlight"><pre><span></span>Map&lt;String, ConsumerRecords&lt;String, String&gt;&gt; records = consumer.poll(0);
-if (records != null)
-    process(records);
-else
-    System.err.println(&quot;null&quot;);
-</pre></div>
-
-
-<p>And then I know what's wrong with the consumer after I checked the source code:</p>
-<div class="highlight"><pre><span></span>@Override
-public Map&lt;String, ConsumerRecords&lt;K,V&gt;&gt; poll(long timeout) {
-    // TODO Auto-generated method stub
-    return null;
-}
-</pre></div>
-
-
-<p>To make matters worse, I couldnot find any other useful information about the 0.8.2 API, since all usages about Kafka were not compatible with the latest version. I had to ask a <a href="https://stackoverflow.com/questions/30857650/how-to-use-consumer-api-of-kafka-0-8-2">question</a> on SO, wishing to get some helpful advice.</p>
-<p>Unfortunately, I could only get a bad news after ten days waiting:</p>
-<blockquote>
-<p>--- <em><a href="https://stackoverflow.com/users/595943/habsq">@habsq</a></em> ---<br />
-The new KafkaConsumer API will only be available in 0.8.3 <a href="https://cwiki.apache.org/confluence/display/KAFKA/Future+release+plan">cwiki.apache.org/confluence/display/KAFKA/Future+release+plan</a>. Apparently there are some implementation in the trunk, although I have no clue about the state. For the time being I'm using the old consumer implementation.</p>
+                <blockquote>
+<p>本文基于 Apache Flink 1.3 版本官方文档（<a href="https://ci.apache.org/projects/flink/flink-docs-release-1.3/concepts/runtime.html">https://ci.apache.org/projects/flink/flink-docs-release-1.3/concepts/runtime.html</a>）翻译。</p>
 </blockquote>
-<p>Oops, documents could also lie, that's so sad (x﹏x)</p>
 <hr />
+<table>
+<thead>
+<tr>
+<th>目录</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#1">任务与运算链</a></td>
+</tr>
+<tr>
+<td><a href="#2">作业管理器，任务管理器与客户端</a></td>
+</tr>
+<tr>
+<td><a href="#3">任务槽与资源</a></td>
+</tr>
+<tr>
+<td><a href="#4">后端存储</a></td>
+</tr>
+<tr>
+<td><a href="#5">保存点</a></td>
+</tr>
+</tbody>
+</table>
+<h1 id='1'>任务与运算符链接</h1>
+
+<p>在实际的分布式计算环境中，Flink 会将多个运算子任务链接到分布式计算任务中。每个线程执行一个计算任务。将运算符链接到计算任务中对于系统性能的提升有很大的帮助：它降低了线程间切换与缓冲的开销，并且在降低延时的同时减少了系统的总体吞吐量。可以对这种链接操作进行配置，具体内容请参考<a href="https://ci.apache.org/projects/flink/flink-docs-release-1.3/dev/datastream_api.html#task-chaining-and-resource-groups">链接文档</a>。</p>
+<p>如下图所示的数据流图包含五个子任务，也就是说其中有五个并发执行的线程：</p>
+<p><img alt="tasks_chains" src="https://ci.apache.org/projects/flink/flink-docs-release-1.3/fig/tasks_chains.svg" /></p>
+<h1 id='2'>作业管理器，任务管理器与客户端</h1>
+
+<p>Flink 运行时环境由两种类型进程组成：</p>
+<ul>
+<li>作业管理器（也称为 master）用于协调程序的分布式执行。它的主要功能是调度任务，调整检查点，并在任务失败时安排恢复过程等。</li>
+</ul>
+<p>每个 Flink 环境中只有一个作业管理器。未来的高可用设计中会包含多个作业管理器，其中一个是 leader，其他作为备份程序。</p>
+<ul>
+<li>任务管理器（也称为 worker）用于执行数据流图的任务（更准确地说，是计算子任务），并对数据流进行缓冲、交换。</li>
+</ul>
+<p>每个 Flink 环境中至少包含一个任务管理器。</p>
+<p>可以以多种方式启动作业管理器和任务管理器：直接作为独立的集群在机器上启动，在容器中启动，或者通过 <a href="https://ci.apache.org/projects/flink/flink-docs-release-1.3/setup/yarn_setup.html">YARN</a>、<a href="https://ci.apache.org/projects/flink/flink-docs-release-1.3/setup/mesos.html">Mesos</a> 这类资源框架进行管理。启动之后，任务管理器会主动上连到作业管理器来报告自身的状态，以便作业管理器来分配任务。</p>
+<p><strong>客户端</strong>的主要作用是准备并向作业管理器发送数据流图，它实际上并不是运行时环境的一个组成部分。在发送完数据流图之后，客户端可以选择断开与作业管理器的连接，也可以继续保持连接以等待程序运行结果。客户端程序可以以 Java/Scala 程序的形式执行，也可以以命令行的形式（<code>./bin/flink run ...</code>）执行。</p>
+<p><img alt="processes" src="https://ci.apache.org/projects/flink/flink-docs-release-1.3/fig/processes.svg" /></p>
+<h1 id='3'>任务槽与资源</h1>
+
+<p>每个 worker（任务管理器）都是一个独立的 JVM 进程，每个子任务就是运行在其中的独立线程里。为了控制 worker 接收任务的数量，在 worker 中引入了任务槽的概念（每个 worker 中至少包含一个任务槽）。</p>
+<p>每个任务槽代表任务管理器中一个特定的资源池子集。例如，如果任务管理器有3个槽，它会为每个槽分配 1/3 的内存。将资源池槽化可以让子任务获取指定容量的内存资源，而避免同其他作业中的子任务竞争。注意，这里没有对 CPU 进行隔离；目前任务槽仅仅用于划分任务的内存。</p>
+<p>通过调整任务槽的数量，用户可以设定子任务之间独立运行的程度。如果任务管理器中只有一个槽，那么每个任务组都会在一个独立的 JVM（例如 JVM 可以在一个独立的容器中启动）中运行。任务管理器中配置更多的槽就意味着会有更多的子任务共享同一个 JVM。在同一个 JVM 中的任务会共享 TCP 连接（通过多路复用的方式）和心跳信息，同时他们也会共享数据集和数据结构，这在某种程度上可以降低单任务的开销。</p>
+<p><img alt="tasks_slots" src="https://ci.apache.org/projects/flink/flink-docs-release-1.3/fig/tasks_slots.svg" /></p>
+<p>默认情况下，Flink 会允许同一个作业的多个子任务共享一个槽，即便这些子任务来自不同的任务。这种情况下，有可能会出现某个槽中包含一个完整的作业流水的场景。这样做主要有两点好处：</p>
+<ul>
+<li>
+<p>Flink 集群需要在作业中确保任务槽数量和程序并发量完全一致，而并不需要计算程序中任务（每个任务的并发量也许都不相同）的具体数量。</p>
+</li>
+<li>
+<p>可以提高资源利用率。如果没有任务槽共享机制，非密集型的 <em>source/map()</em> 子任务就会和密集型的 <em>window</em> 子任务一样阻塞大量资源。如果有任务槽共享机制，在程序的并发量从 2 提高到 6 的情况下（举个例子），就可以让密集型子任务完全分散到任务管理器中，从而可以显著提高槽的资源利用率。</p>
+</li>
+</ul>
+<p><img alt="slot_sharing" src="https://ci.apache.org/projects/flink/flink-docs-release-1.3/fig/slot_sharing.svg" /></p>
+<p>Flink API 中包含一个<a href="https://ci.apache.org/projects/flink/flink-docs-release-1.3/dev/datastream_api.html#task-chaining-and-resource-groups">资源组</a>机制，可以避免不合理的任务槽共享。</p>
+<p>依照以往的经验来说，默认的任务槽数量应设置为 CPU 核心的数量。如果使用超线程技术，每个槽中甚至可以调度处理超过 2 个硬件线程。</p>
+<h1 id='4'>后端存储</h1>
+
+<p>通过键值对索引的数据结构保存在选定的<a href="https://ci.apache.org/projects/flink/flink-docs-release-1.3/ops/state_backends.html">后端存储</a>中。有的后端存储将数据保存在内存中的哈希表中，而有的存储会使用 <a href="http://rocksdb.org/">RocksDB</a> 来保存键值对。除了定义保存状态的数据结构之外，后端存储还实现了获取键值对的特定时间点快照的功能，该功能可以将快照保存为检查点的一部分。</p>
+<p><img alt="checkpoints" src="https://ci.apache.org/projects/flink/flink-docs-release-1.3/fig/checkpoints.svg" /></p>
+<h1 id='5'>保存点</h1>
+
+<p>使用数据流 API 的程序可以从指定的保存点恢复。保存点具备更新程序和 Flink 集群而不丢失任何状态的功能。</p>
+<p><a href="https://ci.apache.org/projects/flink/flink-docs-release-1.3//setup/savepoints.html">保存点</a>可以看作是一种<strong>手动触发的检查点</strong>，该检查点可以获取程序的快照并将其写入后端存储中。所以说保存点的功能依赖于一般的检查点机制。程序执行时会定期在 worker 节点生成快照和检查点。由于 Flink 的恢复机制只需要使用最新一个有效的检查点，在新的检查点生成后就可以安全移除其余旧的检查点了。</p>
+<p>保存点和定期检查点在大部分情况下都很相似，区别只在于保存点是<strong>由用户触发的</strong>，并且在新的检查点生成后<strong>不会自动过期失效</strong>。保存点可以通过<a href="https://ci.apache.org/projects/flink/flink-docs-release-1.3/setup/cli.html#savepoints">命令行</a>生成，也可以在调用 <a href="https://ci.apache.org/projects/flink/flink-docs-release-1.3/monitoring/rest_api.html#cancel-job-with-savepoint">REST API</a> 取消作业时产生。</p>
             </div>
             <!-- /.entry-content -->
 <hr />
 <ul style="list-style-type: none; margin-left: -38px">
-     <li style="margin-top: 5px">
-         <span class="label label-default"><i class="icon-chevron-up"></i>上一篇</span>
-         <a href="http://weyo.me/pages/techs/mapreduce-how-does-reducetask-manage-key/">
-             Hadoop 源码走读之 Key 的变与不变
-         </a>
-     </li>
      <li>
          <span class="label label-default"><i class="icon-chevron-down"></i>下一篇</span>
-         <a href="http://weyo.me/pages/techs/make-gnome-look-good-on-high-resolution-displays/">
-             高分辨率下 Gnome 的优化
+         <a href="http://weyo.me/pages/techs/flink-translations-dataflow-programming-model/">
+             Apache Flink 官方文档翻译 —— 编程模型
          </a>
      </li>
 </ul>    <hr />
@@ -200,8 +214,8 @@ The new KafkaConsumer API will only be available in 0.8.3 <a href="https://cwiki
         <script type="text/javascript">
             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
             var disqus_shortname = 'weyo'; // required: replace example with your forum shortname
-            var disqus_identifier = 'not-able-to-use-latest-kafka-consumer-api';
-            var disqus_url = 'http://weyo.me/pages/techs/not-able-to-use-latest-kafka-consumer-api/';
+            var disqus_identifier = 'flink-translations-distributed-runtime-environment';
+            var disqus_url = 'http://weyo.me/pages/techs/flink-translations-distributed-runtime-environment/';
 
             /* * * DON'T EDIT BELOW THIS LINE * * */
             (function () {

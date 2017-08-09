@@ -5,44 +5,51 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://weyo.me/</loc>
-<lastmod>2017-08-06T20:19:47-00:00</lastmod>
+<lastmod>2017-08-09T19:40:48-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://weyo.me/archives.html</loc>
-<lastmod>2017-08-06T20:19:47-00:00</lastmod>
+<lastmod>2017-08-09T19:40:48-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://weyo.me/tags.html</loc>
-<lastmod>2017-08-06T20:19:47-00:00</lastmod>
+<lastmod>2017-08-09T19:40:48-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://weyo.me/categories.html</loc>
-<lastmod>2017-08-06T20:19:47-00:00</lastmod>
+<lastmod>2017-08-09T19:40:48-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://weyo.me/pages/about.html</loc>
-<lastmod>2017-08-06T20:19:47-00:00</lastmod>
+<lastmod>2017-08-09T19:40:48-00:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://weyo.me/pages/gallery.html</loc>
-<lastmod>2017-08-06T20:19:47-00:00</lastmod>
+<lastmod>2017-08-09T19:40:48-00:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.5</priority>
+</url>
+
+<url>
+<loc>http://weyo.me/pages/techs/flink-translations-distributed-runtime-environment/</loc>
+<lastmod>2017-08-09T00:00:00+08:00</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.7</priority>
 </url>
 
 <url>
@@ -348,7 +355,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://weyo.me/category/techs.html</loc>
-<lastmod>2017-07-31T00:00:00+08:06</lastmod>
+<lastmod>2017-08-09T00:00:00+08:06</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
@@ -467,7 +474,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://weyo.me/tag/flink.html</loc>
-<lastmod>2017-07-31T00:00:00+08:06</lastmod>
+<lastmod>2017-08-09T00:00:00+08:06</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
@@ -488,7 +495,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://weyo.me/tag/translation.html</loc>
-<lastmod>2017-07-31T00:00:00+08:06</lastmod>
+<lastmod>2017-08-09T00:00:00+08:06</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
@@ -537,7 +544,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://weyo.me/author/weyo.html</loc>
-<lastmod>2017-07-31T00:00:00+08:06</lastmod>
+<lastmod>2017-08-09T00:00:00+08:06</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
