@@ -1,5 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0"><channel><title>Let There Be Light</title><link>http://weyo.me/</link><description></description><lastBuildDate>Wed, 09 Aug 2017 00:00:00 +0800</lastBuildDate><item><title>Apache Flink 官方文档翻译 —— 分布式运行时环境</title><link>http://weyo.me/pages/techs/flink-translations-distributed-runtime-environment/</link><description>&lt;blockquote&gt;
+<rss version="2.0"><channel><title>Let There Be Light</title><link>http://weyo.me/</link><description></description><lastBuildDate>Sat, 09 Jun 2018 00:00:00 +0800</lastBuildDate><item><title>VMware虚拟机嵌套部署KVM虚拟机指南</title><link>http://weyo.me/pages/techs/vmware-vm-for-kvm/</link><description>&lt;p&gt;嵌套虚拟化（nested virtualization）是一种在虚拟机内部继续虚拟化的一种技术，曾经一直认为嵌套虚拟化只支持同类虚拟化技术（例如VMware虚拟机内嵌套部署VMware虚拟机，知乎也有人讨论过只要硬件给力理论上是能够无限嵌套的：&lt;a href="https://www.zhihu.com/question/20145026"&gt;虚拟机中运行虚拟机中运行虚拟机……如此循环能运行多少个？&lt;/a&gt;），最近在研究KVM虚拟机镜像制作的时候才发现VMware实际上也是支持虚拟化KVM的（当然，前提还是硬件支持），不过实际操作才发现有些过程并不像网上的文章那么简单（主要是由于GDK的bug），这里汇总记录下完整的操作步骤。（本文写作过程参考过多篇文章，详情列于文末以示感谢）&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;NOTE: 本文基于 vSphere 6.0 版本操作，其他版本可类比参考操作。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3&gt;1. 开启VMware虚拟机的CPU虚拟化选项&lt;/h3&gt;
+&lt;p&gt;首先，在VMware中创建一台虚拟机，并安装Linux操作系统（本文安装的是CentOS 7.2系统），在虚拟机关机的情况下做如下配置：&lt;/p&gt;
+&lt;p&gt;1）登录VMware桌面客户端 vsphere client，编辑虚拟机属性设置CPU/MMU虚拟化，使用Intel VT-x/AMD-v进行指令集虚拟化并使用Intel EPT/AMD RVI进行MMU虚拟化；&lt;/p&gt;
+&lt;p&gt;&lt;br /&gt;
+ &lt;img src="../../../images/pics/vmware-vm-for-kvm/fig1.png" width = "640" height = "480" alt="pic1" align=center /&gt;
+&lt;br /&gt;&lt;/p&gt;
+&lt;p&gt;2）登录VMware网页客户端vsphere web client；&lt;/p&gt;
+&lt;p&gt;3）如果该虚拟机版本较低，还需要升级虚拟机兼容性：在虚机上右键选择”所有vCenter操作”-&amp;gt;”兼容性“-&amp;gt;”升级虚拟机兼容性“；&lt;/p&gt;
+&lt;p&gt;&lt;br /&gt;
+ &lt;img src="../../../images/pics/vmware-vm-for-kvm/fig2.gif" width = "590" height = "194" alt="pic2" align=center /&gt;
+&lt;br /&gt;&lt;/p&gt;
+&lt;p&gt;4）再次进入虚拟机的编辑设置界面，如下图，打开CPU选项卡，有一行硬件虚拟化：向客户机操作系统公开硬件辅助的虚拟化，将其打钩即可打开虚拟机的CPU虚拟化功能；&lt;/p&gt;
+&lt;p&gt;&lt;br /&gt;
+ &lt;img src="../../../images/pics/vmware-vm-for-kvm/fig3.png" width = "354" height = "356" alt="pic3" align=center /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="../../../images/pics/vmware-vm-for-kvm/fig4.gif" width = "572" height = "382" alt="pic4" align=center /&gt;
+&lt;br /&gt;&lt;/p&gt;
+&lt;p&gt;5）打开虚拟机，分别执行以下命令检查虚拟机是否支持虚拟化：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;对于 Intel CPU：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;# grep vmx /proc/cpuinfo
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;对于 AMD CPU：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;# grep svm /proc/cpuinfo
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;如果有信息输出，就说明CPU支持虚拟化;如果没有任何的输出，说明CPU不支持，将无法使用KVM虚拟机。&lt;/p&gt;
+&lt;p&gt;6）查看是否加载KVM模块，执行以下命令：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;# lsmod | grep kvm
+kvm_intel             170086  0
+kvm                   566340  1 kvm_intel
+irqbypass              13503  1 kvm
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;如果没有加载，运行以下命令：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;# modprobe kvm
+# modprobe kvm-intel（针对Intel CPU）或者 modprobe kvm-amd（针对AMD CPU）
+# lsmod | grep kvm
+kvm_intel             170086  0
+kvm                   566340  1 kvm_intel
+irqbypass              13503  1 kvm
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;2. 虚拟机环境安装&lt;/h3&gt;
+&lt;p&gt;1）将虚拟机Python环境配置为2.7版本，并安装 KVM 与 virt-manager；&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;yum install qemu qemu-kvm
+yum install virt-manager libvirt libvirt-Python python-virtinst libvirt-client virt-viewer -y
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;2）为防止出现GDK图形界面异常：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;DEBUG (cli:257) Uncaught exception:
+Traceback (most recent call last):
+  File &amp;quot;/usr/share/virt-manager/virtManager/createnet.py&amp;quot;, line 830, in finish
+    self.set_finish_cursor()
+  File &amp;quot;/usr/share/virt-manager/virtManager/baseclass.py&amp;quot;, line 272, in set_finish_cursor
+    cursor = Gdk.Cursor.new_from_name(gdk_window.get_display(), &amp;quot;progress&amp;quot;)
+TypeError: constructor returned NULL
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;需要编辑 &lt;code&gt;/usr/share/virt-manager/virtManager/baseclass.py&lt;/code&gt;
+将其中涉及&lt;code&gt;Gdk.Cursor.new_from_name&lt;/code&gt;行注释掉&lt;strong&gt;&lt;em&gt;（简单粗暴的操作）&lt;/em&gt;&lt;/strong&gt;：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;        #cursor = Gdk.Cursor.new_from_name(gdk_window.get_display(), &amp;quot;progress&amp;quot;)
+        #gdk_window.set_cursor(cursor)
+        #cursor = Gdk.Cursor.new_from_name(gdk_window.get_display(), &amp;quot;default&amp;quot;)
+        #gdk_window.set_cursor(cursor)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;同样编辑 &lt;code&gt;/usr/share/virt-manager/virtManager/asyncjob.py&lt;/code&gt;
+将其中涉及 &lt;code&gt;Gdk.Cursor.new_from_name&lt;/code&gt; 行注释掉：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;            #gdk_window.set_cursor(
+            #    Gdk.Cursor.new_from_name(gdk_window.get_display(), &amp;quot;progress&amp;quot;))
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;3）在 Terminal 中运行 virt-manager 命令打开 Virtual Machine Manager：&lt;/p&gt;
+&lt;p&gt;&lt;br /&gt;
+ &lt;img src="../../../images/pics/vmware-vm-for-kvm/fig5.png" width = "640" height = "297" alt="pic5" align=center /&gt;
+&lt;br /&gt;&lt;/p&gt;
+&lt;p&gt;4）如果没有图中的 connection，可以新建一个connection（QEMU/KVM）；&lt;/p&gt;
+&lt;p&gt;5）对已有的 connection 创建NAT虚拟网络：&lt;/p&gt;
+&lt;p&gt;&lt;br /&gt;
+ &lt;img src="../../../images/pics/vmware-vm-for-kvm/fig6.png" width = "640" height = "455" alt="pic6" align=center /&gt;
+&lt;br /&gt;&lt;/p&gt;
+&lt;p&gt;6）为了防止打开控制台窗口出现无法连接到图形界面错误：&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Error connecting to graphical console: could not get a reference to type class&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;需要设置显示模式为“vnc server”&lt;/p&gt;
+&lt;p&gt;&lt;br /&gt;
+ &lt;img src="../../../images/pics/vmware-vm-for-kvm/fig7.png" width = "640" height = "477" alt="pic7" align=center /&gt;
+&lt;br /&gt;&lt;/p&gt;
+&lt;p&gt;随后，就可以按照正常的操作系统安装步骤配置安装虚拟机了。&lt;/p&gt;
+&lt;h3&gt;Tips&lt;/h3&gt;
+&lt;p&gt;virt-manager 的日志位于 &lt;code&gt;/root/.cache/virt-manager/virt-manager.log&lt;/code&gt;，任何问题均可以查询日志。使用参数&lt;code&gt;--no-fork&lt;/code&gt;打开virt-manager（&lt;code&gt;virt-manager --no-fork&lt;/code&gt;）可以不输出日志。&lt;/p&gt;
+&lt;h3&gt;Reference&lt;/h3&gt;
+&lt;p&gt;[1] &lt;a href="https://blog.csdn.net/qq_35611533/article/details/51917141"&gt;https://blog.csdn.net/qq_35611533/article/details/51917141&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;[2] &lt;a href="http://pubs.vmware.com/vsphere-50/index.jsp?topic=%2Fcom.vmware.vsphere.vm_admin.doc_50%2FGUID-36E772F7-3512-49BA-8FA9-60D6DA961560.html"&gt;http://pubs.vmware.com/vsphere-50/index.jsp?topic=%2Fcom.vmware.vsphere.vm_admin.doc_50%2FGUID-36E772F7-3512-49BA-8FA9-60D6DA961560.html&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;[3] &lt;a href="https://www.centos.bz/2018/02/centos7-4%E5%AE%89%E8%A3%85kvm%E8%99%9A%E6%8B%9F%E6%9C%BA%EF%BC%88%E4%BD%BF%E7%94%A8virt-manager%E7%AE%A1%E7%90%86%EF%BC%89/"&gt;https://www.centos.bz/2018/02/centos7-4%E5%AE%89%E8%A3%85kvm%E8%99%9A%E6%8B%9F%E6%9C%BA%EF%BC%88%E4%BD%BF%E7%94%A8virt-manager%E7%AE%A1%E7%90%86%EF%BC%89/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;[4] &lt;a href="http://fedoraproject.org/wiki/How_to_debug_Virtualization_problems"&gt;http://fedoraproject.org/wiki/How_to_debug_Virtualization_problems&lt;/a&gt;&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">WeYo</dc:creator><pubDate>Sat, 09 Jun 2018 00:00:00 +0800</pubDate><guid isPermaLink="false">tag:weyo.me,2018-06-09:pages/techs/vmware-vm-for-kvm/</guid><category>VMware</category><category>KVM</category></item><item><title>Apache Flink 官方文档翻译 —— 分布式运行时环境</title><link>http://weyo.me/pages/techs/flink-translations-distributed-runtime-environment/</link><description>&lt;blockquote&gt;
 &lt;p&gt;本文基于 Apache Flink 1.3 版本官方文档（&lt;a href="https://ci.apache.org/projects/flink/flink-docs-release-1.3/concepts/runtime.html"&gt;https://ci.apache.org/projects/flink/flink-docs-release-1.3/concepts/runtime.html&lt;/a&gt;）翻译。&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;hr /&gt;
@@ -27,7 +138,7 @@
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
-&lt;h1 id='1'&gt;任务与运算符链接&lt;/h1&gt;
+&lt;h1 id='1'&gt;任务与运算链&lt;/h1&gt;
 
 &lt;p&gt;在实际的分布式计算环境中，Flink 会将多个运算子任务链接到分布式计算任务中。每个线程执行一个计算任务。将运算符链接到计算任务中对于系统性能的提升有很大的帮助：它降低了线程间切换与缓冲的开销，并且在降低延时的同时减少了系统的总体吞吐量。可以对这种链接操作进行配置，具体内容请参考&lt;a href="https://ci.apache.org/projects/flink/flink-docs-release-1.3/dev/datastream_api.html#task-chaining-and-resource-groups"&gt;链接文档&lt;/a&gt;。&lt;/p&gt;
 &lt;p&gt;如下图所示的数据流图包含五个子任务，也就是说其中有五个并发执行的线程：&lt;/p&gt;

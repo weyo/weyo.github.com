@@ -151,7 +151,7 @@
 </tr>
 </tbody>
 </table>
-<h1 id='1'>任务与运算符链接</h1>
+<h1 id='1'>任务与运算链</h1>
 
 <p>在实际的分布式计算环境中，Flink 会将多个运算子任务链接到分布式计算任务中。每个线程执行一个计算任务。将运算符链接到计算任务中对于系统性能的提升有很大的帮助：它降低了线程间切换与缓冲的开销，并且在降低延时的同时减少了系统的总体吞吐量。可以对这种链接操作进行配置，具体内容请参考<a href="https://ci.apache.org/projects/flink/flink-docs-release-1.3/dev/datastream_api.html#task-chaining-and-resource-groups">链接文档</a>。</p>
 <p>如下图所示的数据流图包含五个子任务，也就是说其中有五个并发执行的线程：</p>
@@ -201,6 +201,12 @@
             <!-- /.entry-content -->
 <hr />
 <ul style="list-style-type: none; margin-left: -38px">
+     <li style="margin-top: 5px">
+         <span class="label label-default"><i class="icon-chevron-up"></i>上一篇</span>
+         <a href="http://weyo.me/pages/techs/vmware-vm-for-kvm/">
+             VMware虚拟机嵌套部署KVM虚拟机指南
+         </a>
+     </li>
      <li>
          <span class="label label-default"><i class="icon-chevron-down"></i>下一篇</span>
          <a href="http://weyo.me/pages/techs/flink-translations-dataflow-programming-model/">
@@ -265,18 +271,18 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
-                                分布式计算
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
                             <a href="http://weyo.me/tag/translation.html">
                                 Translation
                             </a>
                         </li>
+                        <li class="list-group-item tag-1">
+                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
+                                分布式计算
+                            </a>
+                        </li>
                         <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
-                                实时计算
+                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
+                                环境搭建
                             </a>
                         </li>
                         <li class="list-group-item tag-2">
@@ -285,28 +291,8 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
-                                环境搭建
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/linux.html">
-                                Linux
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/java.html">
-                                Java
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/flink.html">
-                                Flink
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/hadoop.html">
-                                Hadoop
+                            <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
+                                实时计算
                             </a>
                         </li>
                         <li class="list-group-item tag-3">
@@ -315,8 +301,18 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/magic-mirror.html">
-                                Magic Mirror
+                            <a href="http://weyo.me/tag/linux.html">
+                                Linux
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-3">
+                            <a href="http://weyo.me/tag/hadoop.html">
+                                Hadoop
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-3">
+                            <a href="http://weyo.me/tag/flink.html">
+                                Flink
                             </a>
                         </li>
                         <li class="list-group-item tag-3">
@@ -324,9 +320,29 @@
                                 Algorithm
                             </a>
                         </li>
+                        <li class="list-group-item tag-3">
+                            <a href="http://weyo.me/tag/magic-mirror.html">
+                                Magic Mirror
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-3">
+                            <a href="http://weyo.me/tag/java.html">
+                                Java
+                            </a>
+                        </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/gnome.html">
-                                Gnome
+                            <a href="http://weyo.me/tag/kvm.html">
+                                KVM
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/yaml.html">
+                                Yaml
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/vmware.html">
+                                VMware
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -340,43 +356,8 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/undefined.html">
-                                Undefined
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/windows.html">
-                                Windows
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/rpc.html">
-                                RPC
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/flume.html">
-                                Flume
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/virtualbox.html">
-                                VirtualBox
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/redis.html">
-                                Redis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
                             <a href="http://weyo.me/tag/jedis.html">
                                 Jedis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/shell.html">
-                                Shell
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -385,8 +366,43 @@
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/yaml.html">
-                                Yaml
+                            <a href="http://weyo.me/tag/undefined.html">
+                                Undefined
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/shell.html">
+                                Shell
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/windows.html">
+                                Windows
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/redis.html">
+                                Redis
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/rpc.html">
+                                RPC
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/virtualbox.html">
+                                VirtualBox
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/gnome.html">
+                                Gnome
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/flume.html">
+                                Flume
                             </a>
                         </li>
         </ul>
@@ -400,7 +416,7 @@
         <p class="pull-right"><i class="icon-arrow-up"></i> <a href="#">Back to top</a></p>
 
 
-        <p>&copy; 2017 WeYo &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+        <p>&copy; 2018 WeYo &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
             <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
             <a href="http://getbootstrap.com" target="_blank">Bootstrap</a></p>
     </div>
