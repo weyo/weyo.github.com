@@ -1,5 +1,319 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Let There Be Light</title><link href="http://weyo.me/" rel="alternate"></link><link href="http://weyo.me/feeds/weyo.atom.xml" rel="self"></link><id>http://weyo.me/</id><updated>2018-06-09T00:00:00+08:00</updated><entry><title>VMware虚拟机嵌套部署KVM虚拟机指南</title><link href="http://weyo.me/pages/techs/vmware-vm-for-kvm/" rel="alternate"></link><published>2018-06-09T00:00:00+08:00</published><author><name>WeYo</name></author><id>tag:weyo.me,2018-06-09:pages/techs/vmware-vm-for-kvm/</id><summary type="html">&lt;p&gt;嵌套虚拟化（nested virtualization）是一种在虚拟机内部继续虚拟化的一种技术，曾经一直认为嵌套虚拟化只支持同类虚拟化技术（例如VMware虚拟机内嵌套部署VMware虚拟机，知乎也有人讨论过只要硬件给力理论上是能够无限嵌套的：&lt;a href="https://www.zhihu.com/question/20145026"&gt;虚拟机中运行虚拟机中运行虚拟机……如此循环能运行多少个？&lt;/a&gt;），最近在研究KVM虚拟机镜像制作的时候才发现VMware实际上也是支持虚拟化KVM的（当然，前提还是硬件支持），不过实际操作才发现有些过程并不像网上的文章那么简单（主要是由于GDK的bug），这里汇总记录下完整的操作步骤。（本文写作过程参考过多篇文章，详情列于文末以示感谢）&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Let There Be Light</title><link href="http://weyo.me/" rel="alternate"></link><link href="http://weyo.me/feeds/weyo.atom.xml" rel="self"></link><id>http://weyo.me/</id><updated>2018-12-10T00:00:00+08:00</updated><entry><title>使用 tunasync 搭建开源镜像站</title><link href="http://weyo.me/pages/techs/how-to-make-a-mirror-site/" rel="alternate"></link><published>2018-12-10T00:00:00+08:00</published><author><name>WeYo</name></author><id>tag:weyo.me,2018-12-10:pages/techs/how-to-make-a-mirror-site/</id><summary type="html">&lt;blockquote&gt;
+&lt;p&gt;公司的企业私有云平台建立之后，为了便于云主机操作系统与软件快速更新，需要搭建企业内网的开源镜像站。调研了国内各大开源镜像站点的技术之后，最终决定使用清华大学开源软件镜像站开发的镜像管理器 &lt;a href="https://github.com/tuna/tunasync"&gt;tunasync&lt;/a&gt; 来构建云平台的软件镜像服务，毕竟使用成熟的镜像管理器比从头造轮子还是方便了许多，镜像站不是云的核心服务也不需要投入太多人力去做开发。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;本文介绍了从0开始搭建一个内网开源镜像站并为用户提供 web 访问服务的全过程，希望对有构建内网镜像站服务需求的同学有所帮助。&lt;/p&gt;
+&lt;h2&gt;1. 准备工作&lt;/h2&gt;
+&lt;p&gt;镜像站需要一台服务器，如果有条件，建议准备一台专用的X86物理服务器作为镜像站的服务器。服务器推荐配置：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;CPU: 8 核心 2.5GHz 以上&lt;/p&gt;
+&lt;p&gt;内存: 64 GB以上&lt;/p&gt;
+&lt;p&gt;硬盘: 3TB 以上&lt;/p&gt;
+&lt;p&gt;网络: 千兆上行带宽及以上&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;当然，如果条件不具备，以上配置可以无视，选择自己最好配置的机器即可，毕竟服务器配置还是取决于最终用户的需求。&lt;/p&gt;
+&lt;p&gt;特别说要说明的是，硬盘大小要求必须超过需要同步的源文件大小，比如需要同时同步 CentOS 与 Ubuntu，就需要准备一块 1.6T 以上大小的硬盘。每个镜像的具体大小可以在清华大学开源软件镜像站 &lt;a href="https://mirrors.tuna.tsinghua.edu.cn/status/#syncing-status"&gt;同步状态&lt;/a&gt; 页面查到。&lt;/p&gt;
+&lt;h2&gt;2. 同步源与架构选择&lt;/h2&gt;
+&lt;p&gt;在官方提供的源列表中选择最方便的同步源（支持rsync的国内镜像源）。
+Ubuntu 源列表：&lt;a href="https://launchpad.net/ubuntu/+archivemirrors"&gt;https://launchpad.net/ubuntu/+archivemirrors&lt;/a&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;rsync://mirrors.shuosc.org/ubuntu/
+rsync://mirrors.sohu.com/ubuntu/
+rsync://mirrors.tuna.tsinghua.edu.cn/ubuntu/
+rsync://mirrors.ustc.edu.cn/ubuntu/
+rsync://mirrors.yun-idc.com/ubuntu/
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;CentOS 源列表：&lt;a href="https://www.centos.org/download/mirrors/"&gt;https://www.centos.org/download/mirrors/&lt;/a&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;rsync://mirrors.tuna.tsinghua.edu.cn/centos/
+rsync://mirror.es.its.nyu.edu/centos/
+rsync://centos.sonn.com/CentOS/
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;EPEL 源列表：&lt;a href="https://www.centos.org/download/mirrors/"&gt;https://admin.fedoraproject.org/mirrormanager/mirrors/EPEL&lt;/a&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;rsync://mirrors.yun-idc.com/epel
+rsync://rsync.mirrors.ustc.edu.cn/epel
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;3. 同步工具&lt;/h2&gt;
+&lt;p&gt;同步原理是使用 rsync 做增量同步。“&lt;a href="https://fangpeishi.com/build_opensource_mirror.html"&gt;搭建开源镜像站&lt;/a&gt;”一文介绍了几种同步工具，经过验证，还是&lt;a href="https://mirrors.tuna.tsinghua.edu.cn/"&gt;清华大学开源软件镜像站&lt;/a&gt;开发的 tunasync 最方便易用，所以这里使用 tunasync 来做同步。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;环境与配置&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;tunasync 使用 Golang 开发，如果使用项目源码编译程序，需要配置 Golang 环境。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;tunasync 项目提供预编译版程序，为了简化操作（偷懒），可以直接从 &lt;a href="https://github.com/tuna/tunasync/releases/latest"&gt;Github releases&lt;/a&gt; 下载使用预编译版本。&lt;/p&gt;
+&lt;h2&gt;4. 系统配置&lt;/h2&gt;
+&lt;p&gt;在操作系统中做如下配置初始化镜像服务器环境。&lt;/p&gt;
+&lt;h4&gt;创建用户及用户组&lt;/h4&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;groupadd -g 2001 mirrorgroup
+useradd -u 2101 -g mirrorgroup mirrors
+passwd mirrors
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;注意，以下所有操作如无特殊声明均使用mirrors用户。&lt;/p&gt;
+&lt;h4&gt;建立应用及数据目录&lt;/h4&gt;
+&lt;p&gt;建立程序目录：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;mkdir /home/mirrors/tunasync
+mkdir /home/mirrors/tunasync/conf
+mkdir /home/mirrors/tunasync/db
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;建立镜像数据目录（使用root用户创建）：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;mkdir /mirrors
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;修改数据目录用户（使用root用户）：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;chown -R mirrors:mirrorgroup /mirrors
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h4&gt;部署 tunasync&lt;/h4&gt;
+&lt;p&gt;下载 tunasync-linux-bin.tar.gz 到 &lt;code&gt;/home/mirrors/tunasync&lt;/code&gt; 目录，随后解压缩，生成 tunasync 可执行文件。&lt;/p&gt;
+&lt;h4&gt;配置环境变量&lt;/h4&gt;
+&lt;p&gt;编辑 ~/.bash_profile 文件，增加 TUNAPATH：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="x"&gt;TUNAPATH=/home/mirrors/tunasync&lt;/span&gt;
+&lt;span class="x"&gt;PATH=&lt;/span&gt;&lt;span class="p"&gt;$&lt;/span&gt;&lt;span class="nv"&gt;PATH&lt;/span&gt;&lt;span class="x"&gt;:&lt;/span&gt;&lt;span class="p"&gt;$&lt;/span&gt;&lt;span class="nv"&gt;TUNAPATH&lt;/span&gt;&lt;span class="x"&gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;并执行&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;source ~/.bash_profile
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;使得环境变量生效。&lt;/p&gt;
+&lt;h2&gt;5. 同步应用配置&lt;/h2&gt;
+&lt;p&gt;接下来就是最关键的步骤，配置 tunasync 的同步服务端与客户端。为便于操作管理，tunasync 的所有配置文件统一放置在 &lt;code&gt;/home/mirrors/tunasync/conf/&lt;/code&gt; 目录下。&lt;/p&gt;
+&lt;h4&gt;manager 配置&lt;/h4&gt;
+&lt;p&gt;创建服务端配置文件 &lt;code&gt;/home/mirrors/tunasync/conf/manager.conf&lt;/code&gt;，内容如下：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;debug = false
+
+[server]
+addr = &amp;quot;127.0.0.1&amp;quot;
+port = 14242
+ssl_cert = &amp;quot;&amp;quot;
+ssl_key = &amp;quot;&amp;quot;
+
+[files]
+db_type = &amp;quot;bolt&amp;quot;
+db_file = &amp;quot;/home/mirrors/tunasync/db/manager.db&amp;quot;
+ca_cert = &amp;quot;&amp;quot;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;配置说明&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;port：监听端口，由于我下载的预编译版 tunasync 的一个小 bug，这里的 &lt;code&gt;port&lt;/code&gt; 需固定配置为 14242&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;ssl_cert与ssl_key：ssl 配置，不需要 ssl 的同学不用配置&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;db_file：数据库文件，目前统一放在 &lt;code&gt;/home/mirrors/tunasync/db/&lt;/code&gt; 目录&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
+&lt;h4&gt;worker 配置&lt;/h4&gt;
+&lt;p&gt;根据需要创建需同步的镜像配置文件。以 CentOS 镜像为例，同步 CentOS 需要创建 &lt;code&gt;/home/mirrors/tunasync/conf/worker-centos.conf&lt;/code&gt;，文件内容如下：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;[global]&lt;/span&gt;
+&lt;span class="na"&gt;name&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;centos_worker&amp;quot;&lt;/span&gt;
+&lt;span class="na"&gt;log_dir&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;/mirrors/log/tunasync/{{.Name}}&amp;quot;&lt;/span&gt;
+&lt;span class="na"&gt;mirror_dir&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;/mirrors&amp;quot;&lt;/span&gt;
+&lt;span class="na"&gt;concurrent&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;10&lt;/span&gt;
+&lt;span class="na"&gt;interval&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;1440&lt;/span&gt;
+
+&lt;span class="k"&gt;[manager]&lt;/span&gt;
+&lt;span class="na"&gt;api_base&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;http://localhost:14242&amp;quot;&lt;/span&gt;
+&lt;span class="na"&gt;token&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;some_token&amp;quot;&lt;/span&gt;
+&lt;span class="na"&gt;ca_cert&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;&amp;quot;&lt;/span&gt;
+
+&lt;span class="k"&gt;[cgroup]&lt;/span&gt;
+&lt;span class="na"&gt;enable&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;false&lt;/span&gt;
+&lt;span class="na"&gt;base_path&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;/sys/fs/cgroup&amp;quot;&lt;/span&gt;
+&lt;span class="na"&gt;group&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;tunasync&amp;quot;&lt;/span&gt;
+
+&lt;span class="k"&gt;[server]&lt;/span&gt;
+&lt;span class="na"&gt;hostname&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;localhost&amp;quot;&lt;/span&gt;
+&lt;span class="na"&gt;listen_addr&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;127.0.0.1&amp;quot;&lt;/span&gt;
+&lt;span class="na"&gt;listen_port&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;16010&lt;/span&gt;
+&lt;span class="na"&gt;ssl_cert&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;&amp;quot;&lt;/span&gt;
+&lt;span class="na"&gt;ssl_key&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;&amp;quot;&lt;/span&gt;
+
+&lt;span class="k"&gt;[[mirrors]]&lt;/span&gt;
+&lt;span class="na"&gt;name&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;centos&amp;quot;&lt;/span&gt;
+&lt;span class="na"&gt;provider&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;rsync&amp;quot;&lt;/span&gt;
+&lt;span class="na"&gt;upstream&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;rsync://mirrors.tuna.tsinghua.edu.cn/centos/&amp;quot;&lt;/span&gt;
+&lt;span class="na"&gt;use_ipv6&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;false&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;配置说明&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;global name：worker 进程名称，用于程序识别&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;log_dir：tunasync 的日志路径&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;mirror_dir：镜像下载地址&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;concurrent：并发线程数&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;interval：rsync 同步周期，以分钟为单位&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;api_base：manager 地址，注意此处需与 manager 所在服务器配置保持一致&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;server listen_port：该 worker 自身的监听端口，如果同一台服务器上有多个 worker，各个 worker 的配置文件中务必配置不同端口&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;mirrors name：镜像名称，tunasync 会在镜像根目录下建立一个该名称的目录用于下载镜像&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;upstream：同步地址，注意，参数最后需要有“/”，否则启动 tunasync 时会报错&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
+&lt;h2&gt;6. 启动同步应用&lt;/h2&gt;
+&lt;p&gt;启动 tunasync 需开启 manager 进程与 worker 进程，先启动 manager，后启动 worker。为了便于监控系统进程情况，建立 &lt;code&gt;/mirrors/log/plog/&lt;/code&gt; 目录，所有进程的工作日志在该目录中（注意，此处日志为系统终端输出日志，与 tunasync 自身工作日志不同）。同样的，以下命令由 mirrors 用户操作。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;开启manager服务（后台进程）：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;tunasync manager --config /home/mirrors/tunasync/conf/manager.conf &amp;gt;&amp;gt; /mirrors/log/plog/manager.log &amp;amp;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;开启 worker 服务（根据需要同步的镜像开启，这里以 CentOS 为例）：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;tunasync worker --config /home/mirrors/tunasync/conf/worker-centos.conf &amp;gt;&amp;gt; /mirrors/log/plog/worker-centos.log &amp;amp;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;7. 提供 http 服务&lt;/h2&gt;
+&lt;p&gt;镜像下载完成之后可以为内网用户开放 web 访问服务。理论上可以根据需要提供各种 ftp/http/rsync 服务，不过从用户友好性角度考虑，这里提供最常见的 http 服务。&lt;/p&gt;
+&lt;p&gt;http 服务需要搭建 apache 服务器，可能有些同学不了解 apache 的操作配置，这里也一并介绍下 apache 的搭建过程（基于 CentOS 7 环境），熟悉 apache 的同学可以跳过本章节。&lt;/p&gt;
+&lt;h4&gt;7.1 配置 yum 源&lt;/h4&gt;
+&lt;p&gt;在 &lt;code&gt;/etc/yum.repos.d&lt;/code&gt; 目录下，备份 CentOS-Base.repo，随后下载某个源服务器的 repo 文件（这里以网易的源为例）&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;mv CentOS-Base.repo CentOS-Base.repo.bak
+mv CentOS-Media.repo CentOS-Media.repo.bak
+wget http://mirrors.163.com/.help/CentOS7-Base-163.repo
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;随后运行以下命令生成yum缓存&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;yum clean all
+yum makecache
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h4&gt;7.2 安装 apache 服务器&lt;/h4&gt;
+&lt;p&gt;运行 &lt;code&gt;yum install httpd&lt;/code&gt; 安装 apache。&lt;/p&gt;
+&lt;h4&gt;7.3 配置apache服务器&lt;/h4&gt;
+&lt;p&gt;编辑 &lt;code&gt;/etc/httpd/conf/httpd.conf&lt;/code&gt; 文件，将web目录指向提供的镜像目录（这里以“/mirrors”目录为例。在 &lt;code&gt;httpd.conf&lt;/code&gt; 中修改以下配置内容：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;DocumentRoot &amp;quot;/mirrors&amp;quot;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;添加目录访问权限：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nt"&gt;&amp;lt;Directory&lt;/span&gt; &lt;span class="err"&gt;&amp;quot;/mirrors&amp;quot;&lt;/span&gt;&lt;span class="nt"&gt;&amp;gt;&lt;/span&gt;
+    Options Indexes FollowSymLinks
+    AllowOverride None
+    Require all granted
+&lt;span class="nt"&gt;&amp;lt;/Directory&amp;gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;并根据需要补充 &lt;code&gt;index.html&lt;/code&gt; 和配置的 web 文件到 &lt;code&gt;/mirrors&lt;/code&gt; 目录。&lt;/p&gt;
+&lt;h4&gt;7.4 防火墙配置&lt;/h4&gt;
+&lt;p&gt;CentOS 7 系统打开http服务端口：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;firewall-cmd --permanent --zone=public --add-service=http
+firewall-cmd --permanent --zone=public --add-service=https
+firewall-cmd --reload
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h4&gt;7.5 配置访问权限&lt;/h4&gt;
+&lt;p&gt;镜像目录权限设置（DocumentRoot 参数对应的所有层级目录均设置为 755 权限）&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;chmod 755 /mirrors
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;SELINUX权限设置&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;chcon -R -t httpd_sys_content_t /home/mirrors/mirror/
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h4&gt;7.6 设置启动项&lt;/h4&gt;
+&lt;p&gt;开启 apache 服务器并设置开机启动项&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;systemctl start httpd.service
+systemctl enable httpd.service
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;个人网易开源镜像站的样式基础上创建了一个简单的 web 程序，大家可以在 &lt;a href="https://github.com/weyo/mirrors/tree/master/web"&gt;Github/weyo/mirrors&lt;/a&gt; 上下载使用（所有 web 文件放到 &lt;code&gt;/mirrors&lt;/code&gt; 目录即可）。&lt;/p&gt;
+&lt;p&gt;至此，同步服务以及 web 访问服务全部搭建完成，内网的小伙伴们可以通过浏览器访问镜像站了 &lt;a href="http://服务器IP/"&gt;http://服务器IP/&lt;/a&gt;。&lt;/p&gt;
+&lt;h2&gt;8. 运行维护&lt;/h2&gt;
+&lt;p&gt;tunasync 还提供了一个管理工具 tunasynctl，可以用于对镜像服务做更多维度的管理。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;更新镜像信息&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;tunasynctl set-size -w &amp;lt;worker-id&amp;gt; &amp;lt;mirror&amp;gt; &amp;lt;size&amp;gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;获取任务状态信息并保存为 json 文件&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;wget -c http://localhost:14242/jobs -O /mirrors/jobs.json -o /mirrors/log/plog/wget.log
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;以上任务可以整合为crontab定时任务，并同步到 web 前端页面中。&lt;/p&gt;
+&lt;h2&gt;9. mirrors 项目说明&lt;/h2&gt;
+&lt;p&gt;以上镜像站搭建过程中所使用的脚本、配置、html 文件等源码已经整合到 Github 的 &lt;a href="https://github.com/weyo/mirrors"&gt;mirrors&lt;/a&gt; 项目中，可以直接应用该项目文件搭建镜像站。该项目目录结构如下：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;mirrors
+├─ ─ ─ tunasync              # tunasync 相关文件
+│       ├─ ─ conf            # tunasync 配置文件
+│       └─ ─ scripts         # 用于获取同步状态的定时脚本
+└─ ─ ─ web                   # web 文件
+        ├─ ─ index.html
+        ├─ ─ .help           # 帮助文件
+        └─ ─ .resource       # css/img/js 等资源文件
+               ├─ css
+               ├─ img
+               └─ js
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h4&gt;使用方法&lt;/h4&gt;
+&lt;ol&gt;
+&lt;li&gt;完成上述第 1-4 章节环境准备工作；&lt;/li&gt;
+&lt;li&gt;将 tunasync 目录下的文件复制到服务器的 &lt;code&gt;/home/mirrors/tunasync&lt;/code&gt; 目录中，本项目中已经配置好 CentOS，EPEL，Ubuntu，Pypi 四个镜像源的配置文件；&lt;/li&gt;
+&lt;li&gt;按照第 6 章节说明根据需要选择所需镜像启动 tunasync；&lt;/li&gt;
+&lt;li&gt;将 web 目录下的文件复制到服务器的 &lt;code&gt;/mirrors&lt;/code&gt; 目录中，同样的，本项目中已经配置好 Web 页面中 CentOS，EPEL，Ubuntu，Pypi 四个镜像源以及相应的帮助文件，可根据需要增减；&lt;/li&gt;
+&lt;li&gt;配置并启动 apache 服务器；&lt;/li&gt;
+&lt;li&gt;将 &lt;code&gt;tunasync/scripts/updateTunasync.sh&lt;/code&gt; 文件配置成 crontab 定时任务，建议定时周期设置在 5-30min 之间。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr /&gt;
+&lt;p&gt;以上是关于镜像站搭建的全部内容，关于镜像站搭建的问题欢迎感兴趣的同学交流反馈，最后，特别感谢以下站点为本文提供的工具或思路或方法，Thanks！&lt;/p&gt;
+&lt;h2&gt;Reference &amp;amp; 致谢&lt;/h2&gt;
+&lt;p&gt;[1] &lt;a href="https://fangpeishi.com/build_opensource_mirror.html"&gt;搭建开源镜像站&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;[2] &lt;a href="https://mirrors.tuna.tsinghua.edu.cn/"&gt;清华大学开源软件镜像站&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;[3] &lt;a href="http://mirrors.163.com/"&gt;网易开源镜像站&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;[4] &lt;a href="https://mirrors.ustc.edu.cn/"&gt;USTC open source software mirror&lt;/a&gt;&lt;/p&gt;</summary><category term="opensource"></category><category term="tunasync"></category><category term="环境搭建"></category></entry><entry><title>VMware虚拟机嵌套部署KVM虚拟机指南</title><link href="http://weyo.me/pages/techs/vmware-vm-for-kvm/" rel="alternate"></link><published>2018-12-09T00:00:00+08:00</published><author><name>WeYo</name></author><id>tag:weyo.me,2018-12-09:pages/techs/vmware-vm-for-kvm/</id><summary type="html">&lt;p&gt;嵌套虚拟化（nested virtualization）是一种在虚拟机内部继续虚拟化的一种技术，曾经一直认为嵌套虚拟化只支持同类虚拟化技术（例如VMware虚拟机内嵌套部署VMware虚拟机，知乎也有人讨论过只要硬件给力理论上是能够无限嵌套的：&lt;a href="https://www.zhihu.com/question/20145026"&gt;虚拟机中运行虚拟机中运行虚拟机……如此循环能运行多少个？&lt;/a&gt;），最近在研究KVM虚拟机镜像制作的时候才发现VMware实际上也是支持虚拟化KVM的（当然，前提还是硬件支持），不过实际操作才发现有些过程并不像网上的文章那么简单（主要是由于GDK的bug），这里汇总记录下完整的操作步骤。（本文写作过程参考过多篇文章，详情列于文末以示感谢）&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;NOTE: 本文基于 vSphere 6.0 版本操作，其他版本可类比参考操作。&lt;/p&gt;
 &lt;/blockquote&gt;
@@ -110,7 +424,7 @@ TypeError: constructor returned NULL
 &lt;p&gt;[1] &lt;a href="https://blog.csdn.net/qq_35611533/article/details/51917141"&gt;https://blog.csdn.net/qq_35611533/article/details/51917141&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;[2] &lt;a href="http://pubs.vmware.com/vsphere-50/index.jsp?topic=%2Fcom.vmware.vsphere.vm_admin.doc_50%2FGUID-36E772F7-3512-49BA-8FA9-60D6DA961560.html"&gt;http://pubs.vmware.com/vsphere-50/index.jsp?topic=%2Fcom.vmware.vsphere.vm_admin.doc_50%2FGUID-36E772F7-3512-49BA-8FA9-60D6DA961560.html&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;[3] &lt;a href="https://www.centos.bz/2018/02/centos7-4%E5%AE%89%E8%A3%85kvm%E8%99%9A%E6%8B%9F%E6%9C%BA%EF%BC%88%E4%BD%BF%E7%94%A8virt-manager%E7%AE%A1%E7%90%86%EF%BC%89/"&gt;https://www.centos.bz/2018/02/centos7-4%E5%AE%89%E8%A3%85kvm%E8%99%9A%E6%8B%9F%E6%9C%BA%EF%BC%88%E4%BD%BF%E7%94%A8virt-manager%E7%AE%A1%E7%90%86%EF%BC%89/&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;[4] &lt;a href="http://fedoraproject.org/wiki/How_to_debug_Virtualization_problems"&gt;http://fedoraproject.org/wiki/How_to_debug_Virtualization_problems&lt;/a&gt;&lt;/p&gt;</summary><category term="VMware"></category><category term="KVM"></category></entry><entry><title>Apache Flink 官方文档翻译 —— 分布式运行时环境</title><link href="http://weyo.me/pages/techs/flink-translations-distributed-runtime-environment/" rel="alternate"></link><published>2017-08-09T00:00:00+08:00</published><author><name>WeYo</name></author><id>tag:weyo.me,2017-08-09:pages/techs/flink-translations-distributed-runtime-environment/</id><summary type="html">&lt;blockquote&gt;
+&lt;p&gt;[4] &lt;a href="http://fedoraproject.org/wiki/How_to_debug_Virtualization_problems"&gt;http://fedoraproject.org/wiki/How_to_debug_Virtualization_problems&lt;/a&gt;&lt;/p&gt;</summary><category term="VMware"></category><category term="KVM"></category><category term="环境搭建"></category></entry><entry><title>Apache Flink 官方文档翻译 —— 分布式运行时环境</title><link href="http://weyo.me/pages/techs/flink-translations-distributed-runtime-environment/" rel="alternate"></link><published>2017-08-09T00:00:00+08:00</published><author><name>WeYo</name></author><id>tag:weyo.me,2017-08-09:pages/techs/flink-translations-distributed-runtime-environment/</id><summary type="html">&lt;blockquote&gt;
 &lt;p&gt;本文基于 Apache Flink 1.3 版本官方文档（&lt;a href="https://ci.apache.org/projects/flink/flink-docs-release-1.3/concepts/runtime.html"&gt;https://ci.apache.org/projects/flink/flink-docs-release-1.3/concepts/runtime.html&lt;/a&gt;）翻译。&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;hr /&gt;
