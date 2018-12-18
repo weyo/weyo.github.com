@@ -125,7 +125,7 @@
 	<br /><br />Posted by <span style="font-weight:bold;"><a href="http://github.com/weyo">WeYo</a></span>. 转载请注明出处：<a href="http://weyo.me/pages/techs/vmware-vm-for-kvm/">http://weyo.me/pages/techs/vmware-vm-for-kvm/</a>
 </footer><!-- /.post-info -->                    </div>
                 </div>
-                <p>嵌套虚拟化（nested virtualization）是一种在虚拟机内部继续虚拟化的一种技术，曾经一直认为嵌套虚拟化只支持同类虚拟化技术（例如VMware虚拟机内嵌套部署VMware虚拟机，知乎也有人讨论过只要硬件给力理论上是能够无限嵌套的：<a href="https://www.zhihu.com/question/20145026">虚拟机中运行虚拟机中运行虚拟机……如此循环能运行多少个？</a>），最近在研究KVM虚拟机镜像制作的时候才发现VMware实际上也是支持虚拟化KVM的（当然，前提还是硬件支持），不过实际操作才发现有些过程并不像网上的文章那么简单（主要是由于GDK的bug），这里汇总记录下完整的操作步骤。（本文写作过程参考过多篇文章，详情列于文末以示感谢。）</p>
+                <p>嵌套虚拟化（nested virtualization）是一种在虚拟机内部继续虚拟化的一种技术，曾经一直认为嵌套虚拟化只支持同类虚拟化技术（例如VMware虚拟机内嵌套部署VMware虚拟机，知乎也有人讨论过只要硬件给力理论上是能够无限嵌套的：<a href="https://www.zhihu.com/question/20145026">虚拟机中运行虚拟机中运行虚拟机……如此循环能运行多少个？</a>），最近在研究KVM虚拟机镜像制作的时候才发现VMware实际上也是支持虚拟化KVM的（当然，前提还是硬件支持），不过实际操作才发现有些过程并不像网上的文章那么简单（主要是由于GDK的bug），这里汇总整理下完整的操作步骤。（本文操作过程引用参考过多篇文章，详情列于文末以示感谢。）</p>
 <blockquote>
 <p>NOTE: 本文基于 vSphere 6.0 版本操作，其他版本可类比操作。</p>
 </blockquote>
@@ -232,7 +232,7 @@ TypeError: constructor returned NULL
 <p>virt-manager 的日志位于 <code>/root/.cache/virt-manager/virt-manager.log</code>，任何问题均可以查询日志。使用参数<code>--no-fork</code>打开virt-manager（<code>virt-manager --no-fork</code>）可以不输出日志。</p>
 <h3>Reference</h3>
 <p>[1] <a href="https://blog.csdn.net/qq_35611533/article/details/51917141">对ESXi主机内的虚拟机开启CPU硬件虚拟化支持</a></p>
-<p>[2] <a href="http://pubs.vmwa在 vSphere Client 中更改 CPU/MMU 虚拟化设置re.com/vsphere-50/index.jsp?topic=%2Fcom.vmware.vsphere.vm_admin.doc_50%2FGUID-36E772F7-3512-49BA-8FA9-60D6DA961560.html">vSphere 5 文档中心: 在 vSphere Client 中更改 CPU/MMU 虚拟化设置</a></p>
+<p>[2] <a href="http://pubs.vmware.com/vsphere-50/index.jsp?topic=%2Fcom.vmware.vsphere.vm_admin.doc_50%2FGUID-36E772F7-3512-49BA-8FA9-60D6DA961560.html">vSphere 5 文档中心: 在 vSphere Client 中更改 CPU/MMU 虚拟化设置</a></p>
 <p>[3] <a href="https://www.centos.bz/2018/02/centos7-4%E5%AE%89%E8%A3%85kvm%E8%99%9A%E6%8B%9F%E6%9C%BA%EF%BC%88%E4%BD%BF%E7%94%A8virt-manager%E7%AE%A1%E7%90%86%EF%BC%89/">Centos7.4安装kvm虚拟机（使用virt-manager管理）</a></p>
 <p>[4] <a href="http://fedoraproject.org/wiki/How_to_debug_Virtualization_problems">How to debug Virtualization problems</a></p>
             </div>
@@ -304,6 +304,11 @@ TypeError: constructor returned NULL
 
                 <li class="list-group-item"><a href="http://weyo.me/tags.html"><h4><i class="icon-tags icon-large"></i>Tags</h4></a></li>
                         <li class="list-group-item tag-1">
+                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
+                                分布式计算
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-1">
                             <a href="http://weyo.me/tag/translation.html">
                                 Translation
                             </a>
@@ -313,9 +318,9 @@ TypeError: constructor returned NULL
                                 Storm
                             </a>
                         </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/fen-bu-shi-ji-suan.html">
-                                分布式计算
+                        <li class="list-group-item tag-2">
+                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
+                                环境搭建
                             </a>
                         </li>
                         <li class="list-group-item tag-2">
@@ -324,13 +329,23 @@ TypeError: constructor returned NULL
                             </a>
                         </li>
                         <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/huan-jing-da-jian.html">
-                                环境搭建
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
                             <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
                                 实时计算
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-3">
+                            <a href="http://weyo.me/tag/hadoop.html">
+                                Hadoop
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-3">
+                            <a href="http://weyo.me/tag/mapreduce.html">
+                                MapReduce
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-3">
+                            <a href="http://weyo.me/tag/algorithm.html">
+                                Algorithm
                             </a>
                         </li>
                         <li class="list-group-item tag-3">
@@ -349,43 +364,8 @@ TypeError: constructor returned NULL
                             </a>
                         </li>
                         <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/mapreduce.html">
-                                MapReduce
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/hadoop.html">
-                                Hadoop
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
                             <a href="http://weyo.me/tag/magic-mirror.html">
                                 Magic Mirror
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/algorithm.html">
-                                Algorithm
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/yaml.html">
-                                Yaml
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/log4j.html">
-                                log4j
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/jedis.html">
-                                Jedis
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/undefined.html">
-                                Undefined
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -394,33 +374,33 @@ TypeError: constructor returned NULL
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/kvm.html">
-                                KVM
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/opensource.html">
-                                opensource
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
                             <a href="http://weyo.me/tag/gnome.html">
                                 Gnome
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/rpc.html">
-                                RPC
+                            <a href="http://weyo.me/tag/tunasync.html">
+                                tunasync
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/shell.html">
-                                Shell
+                            <a href="http://weyo.me/tag/yaml.html">
+                                Yaml
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/redis.html">
-                                Redis
+                            <a href="http://weyo.me/tag/kvm.html">
+                                KVM
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/windows.html">
+                                Windows
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/undefined.html">
+                                Undefined
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -434,23 +414,43 @@ TypeError: constructor returned NULL
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/benchmark.html">
-                                Benchmark
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/windows.html">
-                                Windows
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/tunasync.html">
-                                tunasync
+                            <a href="http://weyo.me/tag/jedis.html">
+                                Jedis
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
                             <a href="http://weyo.me/tag/virtualbox.html">
                                 VirtualBox
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/rpc.html">
+                                RPC
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/benchmark.html">
+                                Benchmark
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/log4j.html">
+                                log4j
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/opensource.html">
+                                opensource
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/shell.html">
+                                Shell
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/redis.html">
+                                Redis
                             </a>
                         </li>
         </ul>
