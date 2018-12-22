@@ -3,7 +3,7 @@
       xmlns:og="http://ogp.me/ns#"
       xmlns:fb="https://www.facebook.com/2008/fbml">
 <head>
-    <title>VMware虚拟机嵌套部署KVM虚拟机指南
+    <title>VMware虚拟机嵌套部署KVM虚拟机小结
    - Let There Be Light
 </title>
     <!-- Using the latest rendering mode for IE -->
@@ -15,9 +15,9 @@
     <!-- Open Graph tags -->
 
             <meta property="og:type" content="article"/>
-            <meta property="og:title" content="VMware虚拟机嵌套部署KVM虚拟机指南"/>
+            <meta property="og:title" content="VMware虚拟机嵌套部署KVM虚拟机小结"/>
             <meta property="og:url" content="http://weyo.me/pages/techs/vmware-vm-for-kvm/"/>
-            <meta property="og:description" content="在VMware虚拟机中安装virt-manager及KVM虚拟机说明。"/>
+            <meta property="og:description" content="在VMware虚拟机中安装部署virt-manager及KVM虚拟机说明。"/>
 
     <!-- Bootstrap -->
         <link rel="stylesheet" href="http://weyo.me/theme/css/bootstrap.min.css" type="text/css"/>
@@ -91,8 +91,8 @@
                 <h1>
                     <a href="http://weyo.me/pages/techs/vmware-vm-for-kvm/"
                        rel="bookmark"
-                       title="Permalink to VMware虚拟机嵌套部署KVM虚拟机指南">
-                        VMware虚拟机嵌套部署KVM虚拟机指南
+                       title="Permalink to VMware虚拟机嵌套部署KVM虚拟机小结">
+                        VMware虚拟机嵌套部署KVM虚拟机小结
                     </a>
                 </h1>
             </header>
@@ -125,67 +125,66 @@
 	<br /><br />Posted by <span style="font-weight:bold;"><a href="http://github.com/weyo">WeYo</a></span>. 转载请注明出处：<a href="http://weyo.me/pages/techs/vmware-vm-for-kvm/">http://weyo.me/pages/techs/vmware-vm-for-kvm/</a>
 </footer><!-- /.post-info -->                    </div>
                 </div>
-                <p>嵌套虚拟化（nested virtualization）是一种在虚拟机内部继续虚拟化的一种技术，曾经一直认为嵌套虚拟化只支持同类虚拟化技术（例如VMware虚拟机内嵌套部署VMware虚拟机，知乎也有人讨论过只要硬件给力理论上是能够无限嵌套的：<a href="https://www.zhihu.com/question/20145026">虚拟机中运行虚拟机中运行虚拟机……如此循环能运行多少个？</a>），最近在研究KVM虚拟机镜像制作的时候才发现VMware实际上也是支持虚拟化KVM的（当然，前提还是硬件支持），不过实际操作才发现有些过程并不像网上的文章那么简单（主要是由于GDK的bug），这里汇总整理下完整的操作步骤。（本文操作过程引用参考过多篇文章，详情列于文末以示感谢。）</p>
+                <p>嵌套虚拟化（nested virtualization）是一种在虚拟机内部继续虚拟化的一种技术，Linux Kernel 文档 <a href="https://www.kernel.org/doc/Documentation/virtual/kvm/nested-vmx.txt">Nested VMX</a> 对于嵌套虚拟特性有详细说明。个人曾经一度认为嵌套虚拟化只支持同类虚拟化技术（例如VMware虚拟机内嵌套部署VMware虚拟机，知乎也有人讨论过只要硬件给力理论上是能够无限嵌套的：<a href="https://www.zhihu.com/question/20145026">虚拟机中运行虚拟机中运行虚拟机……如此循环能运行多少个？</a>），最近在研究KVM虚拟机镜像制作的时候才发现 VMware 实际上也是支持虚拟化 KVM 的（当然，前提还是硬件支持），不过实际操作才发现有些过程并不像网上的文章那么简单（主要的坑在于 GDK 的 bug），这里汇总整理下完整的操作步骤。（本文操作过程引用参考过多篇文章，详情列于文末以示感谢。）</p>
 <blockquote>
-<p>NOTE: 本文基于 vSphere 6.0 版本操作，其他版本可类比操作。</p>
+<p>NOTE: </p>
+<ol>
+<li>
+<p>本文基于 vSphere 6.0 版本操作，其他版本可类比操作；</p>
+</li>
+<li>
+<p>应用嵌套虚拟化之后性能必然有所下降，也会带来一定的不稳定性，比较适用于需要在 VMware 环境模拟 KVM 的场景，不建议使用在生产环境。</p>
+</li>
+</ol>
 </blockquote>
 <h3>1. 开启VMware虚拟机的CPU虚拟化选项</h3>
-<p>首先，在VMware中创建一台虚拟机，并安装Linux操作系统（本文安装的是CentOS 7.2系统），在虚拟机关机的情况下做如下配置：</p>
-<p>1）登录VMware桌面客户端 vsphere client，编辑虚拟机属性设置CPU/MMU虚拟化，使用Intel VT-x/AMD-v进行指令集虚拟化并使用Intel EPT/AMD RVI进行MMU虚拟化；</p>
+<p>首先，在VMware中创建一台虚拟机（建议版本 10 以上），并安装 Linux 操作系统（本文安装的是CentOS 7.2系统），在虚拟机关机的情况下做如下配置：</p>
+<p>1）登录VMware桌面客户端 vsphere client，编辑虚拟机，设置“CPU/MMU虚拟化”选项，配置“使用Intel VT-x/AMD-v进行指令集虚拟化并使用Intel EPT/AMD RVI进行MMU虚拟化”；</p>
 <p><br />
  <img src="../../../images/pics/vmware-vm-for-kvm/fig1.png" width = "640" height = "480" alt="pic1" align=center />
 <br /></p>
-<p>2）登录VMware网页客户端vsphere web client；</p>
-<p>3）如果该虚拟机版本较低，还需要升级虚拟机兼容性：在虚机上右键选择“兼容性”-&gt;“升级虚拟机兼容性”；</p>
+<p>2）登录 VMware 网页客户端 vsphere web client 对虚拟机做其他配置（VMware 还是太分裂，强行将设置放在 web 端，所以这里建议 vSphere 版本在 6.0 以上，web 的支持相对好那么一点点，虽然也还是一样难用）；</p>
+<p>3）如果前面创建的虚拟机版本较低（版本9、10），这里还需要升级虚拟机的兼容性：在虚机上右键选择“兼容性”-&gt;“升级虚拟机兼容性”；</p>
 <p><br />
  <img src="../../../images/pics/vmware-vm-for-kvm/fig2.png" width = "640" height = "326" alt="pic2" align=center />
 <br /></p>
-<p>4）再次进入虚拟机的编辑设置界面，打开CPU选项卡，有一行硬件虚拟化：向客户机操作系统公开硬件辅助的虚拟化，将其打钩即可打开虚拟机的CPU虚拟化功能；</p>
+<p>4）再次进入虚拟机的编辑设置界面，打开 CPU 选项卡，有一行“硬件虚拟化：向客户机操作系统公开硬件辅助的虚拟化”，将其打钩即可打开虚拟机的 CPU 虚拟化功能；</p>
 <p><br />
  <img src="../../../images/pics/vmware-vm-for-kvm/fig4.png" width = "640" height = "345" alt="pic4" align=center />
 <br /></p>
-<p>5）打开虚拟机，分别执行以下命令检查虚拟机是否支持虚拟化：</p>
-<ul>
-<li>对于 Intel CPU：</li>
-</ul>
+<p>VMware 的配置操作到此结束，接下来是虚拟机内部操作。</p>
+<h3>2. 配置虚拟机 KVM 模块</h3>
+<p>1）打开虚拟机电源，登录虚拟机执行以下命令检查虚拟机是否支持虚拟化：</p>
 <div class="highlight"><pre><span></span># grep vmx /proc/cpuinfo
 </pre></div>
 
 
-<ul>
-<li>对于 AMD CPU：</li>
-</ul>
-<div class="highlight"><pre><span></span># grep svm /proc/cpuinfo
-</pre></div>
-
-
-<p>如果有信息输出，就说明CPU支持虚拟化;如果没有任何的输出，说明CPU不支持，将无法使用KVM虚拟机。</p>
-<p>6）查看是否加载KVM模块，执行以下命令：</p>
+<p>如果该命令有信息输出，就说明 CPU 支持虚拟化，可以继续往下进行；否则 CPU 不支持的情况下无法进行嵌套虚拟化部署。</p>
+<blockquote>
+<p>注意，由于大多数服务器基于 Intel CPU，本命令只针对 Intel CPU（对于 AMD CPU 将命令中的 vmx 改成 svm 即可）。</p>
+</blockquote>
+<p>2）执行以下命令查看是否加载KVM模块：</p>
 <div class="highlight"><pre><span></span># lsmod | grep kvm
-kvm_intel             170086  0
-kvm                   566340  1 kvm_intel
-irqbypass              13503  1 kvm
 </pre></div>
 
 
-<p>如果没有加载，运行以下命令：</p>
+<p>如果没有加载，依次执行以下命令：</p>
 <div class="highlight"><pre><span></span># modprobe kvm
+
 # modprobe kvm-intel（针对Intel CPU）或者 modprobe kvm-amd（针对AMD CPU）
+
 # lsmod | grep kvm
-kvm_intel             170086  0
-kvm                   566340  1 kvm_intel
-irqbypass              13503  1 kvm
 </pre></div>
 
 
-<h3>2. 虚拟机环境安装</h3>
-<p>1）将虚拟机Python环境配置为2.7版本，并安装 KVM 与 virt-manager；</p>
+<h3>3. 虚拟机环境安装</h3>
+<p>1）将虚拟机 Python 环境配置为 2.7 版本，并安装 KVM 与 virt-manager；</p>
 <div class="highlight"><pre><span></span>yum install qemu qemu-kvm
 yum install virt-manager libvirt libvirt-Python python-virtinst libvirt-client virt-viewer -y
 </pre></div>
 
 
-<p>2）为防止出现GDK图形界面异常：</p>
+<p>2）为防止出现 GDK 图形界面异常：</p>
 <div class="highlight"><pre><span></span>DEBUG (cli:257) Uncaught exception:
 Traceback (most recent call last):
   File &quot;/usr/share/virt-manager/virtManager/createnet.py&quot;, line 830, in finish
@@ -197,7 +196,7 @@ TypeError: constructor returned NULL
 
 
 <p>需要编辑 <code>/usr/share/virt-manager/virtManager/baseclass.py</code>
-将其中涉及<code>Gdk.Cursor.new_from_name</code>行注释掉<strong><em>（简单粗暴的操作）</em></strong>：</p>
+将其中涉及<code>Gdk.Cursor.new_from_name</code>行注释掉<strong><em>（简单粗暴的操作有时候意外的有效）</em></strong>：</p>
 <div class="highlight"><pre><span></span>        #cursor = Gdk.Cursor.new_from_name(gdk_window.get_display(), &quot;progress&quot;)
         #gdk_window.set_cursor(cursor)
         #cursor = Gdk.Cursor.new_from_name(gdk_window.get_display(), &quot;default&quot;)
@@ -221,7 +220,8 @@ TypeError: constructor returned NULL
 <p><br />
  <img src="../../../images/pics/vmware-vm-for-kvm/fig6.png" width = "640" height = "455" alt="pic6" align=center />
 <br /></p>
-<p>6）为了防止打开控制台窗口出现无法连接到图形界面错误：</p>
+<p>6）在控制台界面或者直接使用命令创建新的虚拟机。</p>
+<p>创建虚拟机之后，为了防止打开控制台窗口出现无法连接到图形界面错误：</p>
 <p><code>Error connecting to graphical console: could not get a reference to type class</code></p>
 <p>需要设置显示模式为“vnc server”</p>
 <p><br />
@@ -235,6 +235,7 @@ TypeError: constructor returned NULL
 <p>[2] <a href="http://pubs.vmware.com/vsphere-50/index.jsp?topic=%2Fcom.vmware.vsphere.vm_admin.doc_50%2FGUID-36E772F7-3512-49BA-8FA9-60D6DA961560.html">vSphere 5 文档中心: 在 vSphere Client 中更改 CPU/MMU 虚拟化设置</a></p>
 <p>[3] <a href="https://www.centos.bz/2018/02/centos7-4%E5%AE%89%E8%A3%85kvm%E8%99%9A%E6%8B%9F%E6%9C%BA%EF%BC%88%E4%BD%BF%E7%94%A8virt-manager%E7%AE%A1%E7%90%86%EF%BC%89/">Centos7.4安装kvm虚拟机（使用virt-manager管理）</a></p>
 <p>[4] <a href="http://fedoraproject.org/wiki/How_to_debug_Virtualization_problems">How to debug Virtualization problems</a></p>
+<p>[5] <a href="http://www.cnblogs.com/jython/p/4458807.html">KVM虚拟化之嵌套虚拟化nested</a></p>
             </div>
             <!-- /.entry-content -->
 <hr />
@@ -309,13 +310,18 @@ TypeError: constructor returned NULL
                             </a>
                         </li>
                         <li class="list-group-item tag-1">
+                            <a href="http://weyo.me/tag/storm.html">
+                                Storm
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-1">
                             <a href="http://weyo.me/tag/translation.html">
                                 Translation
                             </a>
                         </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://weyo.me/tag/storm.html">
-                                Storm
+                        <li class="list-group-item tag-2">
+                            <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
+                                实时计算
                             </a>
                         </li>
                         <li class="list-group-item tag-2">
@@ -328,19 +334,9 @@ TypeError: constructor returned NULL
                                 Kafka
                             </a>
                         </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://weyo.me/tag/shi-shi-ji-suan.html">
-                                实时计算
-                            </a>
-                        </li>
                         <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/hadoop.html">
-                                Hadoop
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/mapreduce.html">
-                                MapReduce
+                            <a href="http://weyo.me/tag/magic-mirror.html">
+                                Magic Mirror
                             </a>
                         </li>
                         <li class="list-group-item tag-3">
@@ -354,33 +350,23 @@ TypeError: constructor returned NULL
                             </a>
                         </li>
                         <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/linux.html">
-                                Linux
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-3">
                             <a href="http://weyo.me/tag/flink.html">
                                 Flink
                             </a>
                         </li>
                         <li class="list-group-item tag-3">
-                            <a href="http://weyo.me/tag/magic-mirror.html">
-                                Magic Mirror
+                            <a href="http://weyo.me/tag/hadoop.html">
+                                Hadoop
                             </a>
                         </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/flume.html">
-                                Flume
+                        <li class="list-group-item tag-3">
+                            <a href="http://weyo.me/tag/linux.html">
+                                Linux
                             </a>
                         </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/gnome.html">
-                                Gnome
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/tunasync.html">
-                                tunasync
+                        <li class="list-group-item tag-3">
+                            <a href="http://weyo.me/tag/mapreduce.html">
+                                MapReduce
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -389,8 +375,38 @@ TypeError: constructor returned NULL
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/opensource.html">
+                                opensource
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/benchmark.html">
+                                Benchmark
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
                             <a href="http://weyo.me/tag/kvm.html">
                                 KVM
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/log4j.html">
+                                log4j
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/tunasync.html">
+                                tunasync
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/redis.html">
+                                Redis
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/shell.html">
+                                Shell
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -399,18 +415,8 @@ TypeError: constructor returned NULL
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/undefined.html">
-                                Undefined
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/zookeeper.html">
-                                ZooKeeper
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/vmware.html">
-                                VMware
+                            <a href="http://weyo.me/tag/flume.html">
+                                Flume
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
@@ -424,33 +430,28 @@ TypeError: constructor returned NULL
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/zookeeper.html">
+                                ZooKeeper
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/vmware.html">
+                                VMware
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
+                            <a href="http://weyo.me/tag/undefined.html">
+                                Undefined
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-4">
                             <a href="http://weyo.me/tag/rpc.html">
                                 RPC
                             </a>
                         </li>
                         <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/benchmark.html">
-                                Benchmark
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/log4j.html">
-                                log4j
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/opensource.html">
-                                opensource
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/shell.html">
-                                Shell
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://weyo.me/tag/redis.html">
-                                Redis
+                            <a href="http://weyo.me/tag/gnome.html">
+                                Gnome
                             </a>
                         </li>
         </ul>
