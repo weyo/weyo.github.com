@@ -5,44 +5,51 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://weyo.me/</loc>
-<lastmod>2018-12-22T23:03:59-00:00</lastmod>
+<lastmod>2019-02-14T20:57:23-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://weyo.me/archives.html</loc>
-<lastmod>2018-12-22T23:03:59-00:00</lastmod>
+<lastmod>2019-02-14T20:57:23-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://weyo.me/tags.html</loc>
-<lastmod>2018-12-22T23:03:59-00:00</lastmod>
+<lastmod>2019-02-14T20:57:23-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://weyo.me/categories.html</loc>
-<lastmod>2018-12-22T23:03:59-00:00</lastmod>
+<lastmod>2019-02-14T20:57:23-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://weyo.me/pages/about.html</loc>
-<lastmod>2018-12-22T23:03:59-00:00</lastmod>
+<lastmod>2019-02-14T20:57:23-00:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://weyo.me/pages/gallery.html</loc>
-<lastmod>2018-12-22T23:03:59-00:00</lastmod>
+<lastmod>2019-02-14T20:57:23-00:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.5</priority>
+</url>
+
+<url>
+<loc>http://weyo.me/pages/techs/wikis-by-amwiki/</loc>
+<lastmod>2019-02-12T00:00:00+08:00</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.7</priority>
 </url>
 
 <url>
@@ -369,7 +376,14 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://weyo.me/category/techs.html</loc>
-<lastmod>2018-12-10T00:00:00+08:06</lastmod>
+<lastmod>2019-02-12T00:00:00+08:06</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>http://weyo.me/tag/wiki.html</loc>
+<lastmod>2019-02-12T00:00:00+08:06</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
@@ -543,6 +557,13 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 </url>
 
 <url>
+<loc>http://weyo.me/tag/amwiki.html</loc>
+<lastmod>2019-02-12T00:00:00+08:06</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
 <loc>http://weyo.me/tag/undefined.html</loc>
 <lastmod>2015-05-13T00:00:00+08:06</lastmod>
 <changefreq>daily</changefreq>
@@ -586,7 +607,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://weyo.me/author/weyo.html</loc>
-<lastmod>2018-12-10T00:00:00+08:06</lastmod>
+<lastmod>2019-02-12T00:00:00+08:06</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>

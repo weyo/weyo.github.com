@@ -3,7 +3,7 @@
       xmlns:og="http://ogp.me/ns#"
       xmlns:fb="https://www.facebook.com/2008/fbml">
 <head>
-    <title>Storm 官方文档翻译(11) —— Storm 常用模式
+    <title>使用 amWiki 搭建自动构建的轻量级知识库平台
    - Let There Be Light
 </title>
     <!-- Using the latest rendering mode for IE -->
@@ -15,9 +15,9 @@
     <!-- Open Graph tags -->
 
             <meta property="og:type" content="article"/>
-            <meta property="og:title" content="Storm 官方文档翻译(11) —— Storm 常用模式"/>
-            <meta property="og:url" content="http://weyo.me/pages/techs/storm-translations-common-topoloty-patterns/"/>
-            <meta property="og:description" content="本文列出了 Storm 拓扑中的一些常见模式，包括：1. 数据流的 join；2. 批处理；3. BasicBolt；4. 内存缓存与域分组的结合；5. Top N 流式计算；6. TimeCacheMap；7. CoordinatedBolt 与 KeyedFairBolt。"/>
+            <meta property="og:title" content="使用 amWiki 搭建自动构建的轻量级知识库平台"/>
+            <meta property="og:url" content="http://weyo.me/pages/techs/wikis-by-amwiki/"/>
+            <meta property="og:description" content="构建服务器定制版 amWiki，用于实现在服务器端运行的轻量级 Wiki 文库。"/>
 
     <!-- Bootstrap -->
         <link rel="stylesheet" href="http://weyo.me/theme/css/bootstrap.min.css" type="text/css"/>
@@ -89,10 +89,10 @@
         <article>
             <header class="page-header">
                 <h1>
-                    <a href="http://weyo.me/pages/techs/storm-translations-common-topoloty-patterns/"
+                    <a href="http://weyo.me/pages/techs/wikis-by-amwiki/"
                        rel="bookmark"
-                       title="Permalink to Storm 官方文档翻译(11) —— Storm 常用模式">
-                        Storm 官方文档翻译(11) —— Storm 常用模式
+                       title="Permalink to 使用 amWiki 搭建自动构建的轻量级知识库平台">
+                        使用 amWiki 搭建自动构建的轻量级知识库平台
                     </a>
                 </h1>
             </header>
@@ -102,7 +102,7 @@
 <footer class="post-info">
     <span class="label label-default">Date</span>
     <span class="published">
-        <i class="icon-calendar"></i>2015-06-23
+        <i class="icon-calendar"></i>2019-02-12
     </span>
 	<span style="font-size:12px;">&nbsp;&nbsp;</span>
     <!--     <span class="label label-default">By</span>
@@ -116,97 +116,175 @@
 
 
 <span class="label label-default">Tags</span>
-	<a href="http://weyo.me/tag/storm.html">Storm</a>
+	<a href="http://weyo.me/tag/wiki.html">wiki</a>
         /
-	<a href="http://weyo.me/tag/translation.html">Translation</a>
+	<a href="http://weyo.me/tag/amwiki.html">amWiki</a>
 	
-	<br /><br />Posted by <span style="font-weight:bold;"><a href="http://github.com/weyo">WeYo</a></span>. 转载请注明出处：<a href="http://weyo.me/pages/techs/storm-translations-common-topoloty-patterns/">http://weyo.me/pages/techs/storm-translations-common-topoloty-patterns/</a>
+	<br /><br />Posted by <span style="font-weight:bold;"><a href="http://github.com/weyo">WeYo</a></span>. 转载请注明出处：<a href="http://weyo.me/pages/techs/wikis-by-amwiki/">http://weyo.me/pages/techs/wikis-by-amwiki/</a>
 </footer><!-- /.post-info -->                    </div>
                 </div>
-                <h1>Storm 常用模式</h1>
-<p>本文列出了 Storm 拓扑中使用的一些常见模式，包括：</p>
-<ol>
-<li>数据流的 join</li>
-<li>批处理</li>
-<li>BasicBolt</li>
-<li>内存缓存与域分组的结合</li>
-<li>Top N 流式计算</li>
-<li>TimeCacheMap</li>
-<li>CoordinatedBolt 与 KeyedFairBolt</li>
-</ol>
-<h2>Joins</h2>
-<p>数据流的 join 一般指的是通过共有的域来聚合两个或多个数据流的过程。与一般的数据库中 join 操作要求有限的输入与清晰的语义不同，数据流 join 的输入往往是无限的数据集，而且并不具备明确的语义。</p>
-<p>join 的类型一般是由应用的需求决定的。有些应用需要将两个流在某个固定时间内的所有 tuple 进行 join，另外一些应用却可能要求对每个 join 域的 join 操作过程的两侧只保留一个 tuple，而其他的应用也许还有一些其他需求。不过这些 join 类型一般都会有一个基本的模式，那就是将多个输入流进行分区。Storm 可以很容易地使用域分组的方法将多个输入流聚集到一个联结 bolt 中，比如下面这样：</p>
-<div class="highlight"><pre><span></span><span class="n">builder</span><span class="o">.</span><span class="na">setBolt</span><span class="o">(</span><span class="s">&quot;join&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">MyJoiner</span><span class="o">(),</span> <span class="n">parallelism</span><span class="o">)</span>
-  <span class="o">.</span><span class="na">fieldsGrouping</span><span class="o">(</span><span class="s">&quot;1&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">Fields</span><span class="o">(</span><span class="s">&quot;joinfield1&quot;</span><span class="o">,</span> <span class="s">&quot;joinfield2&quot;</span><span class="o">))</span>
-  <span class="o">.</span><span class="na">fieldsGrouping</span><span class="o">(</span><span class="s">&quot;2&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">Fields</span><span class="o">(</span><span class="s">&quot;joinfield1&quot;</span><span class="o">,</span> <span class="s">&quot;joinfield2&quot;</span><span class="o">))</span>
-  <span class="o">.</span><span class="na">fieldsGrouping</span><span class="o">(</span><span class="s">&quot;3&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">Fields</span><span class="o">(</span><span class="s">&quot;joinfield1&quot;</span><span class="o">,</span> <span class="s">&quot;joinfield2&quot;</span><span class="o">));</span>
+                <h1>关于 amWiki</h1>
+<p>很早就想搭建一个足够轻量方便易用的Wiki平台用于个人和团队的知识交互，由于预算有限，商业化的confluence只能暂时放弃，另外也不想花费太大精力去维护这个平台，其他的各类开源免费的Wiki技术（比如mediawiki，dokuwiki 等等）也就不考虑了。寻觅良久，终于发现了一个有意思的项目：<a href="http://amwiki.org/">amWiki</a>。</p>
+<p>根据官网介绍，amWiki的优点在于：</p>
+<ul>
+<li><strong>文档系统采用 markdown 语法</strong></li>
+<li><strong>不用数据库，文档使用 .md 格式保存本地文件</strong></li>
+<li><strong>无需服务端开发，只需支持 http 静态访问网页空间</strong></li>
+<li>一键创建新的文库</li>
+<li>自动更新文库导航目录</li>
+<li><strong>支持多级目录</strong></li>
+<li>支持截图直接粘帖为本地 png 并插入当前 markdown</li>
+<li><strong>文档web端自适应显示，适合所有平台</strong></li>
+<li>支持接口文档自动抓取内容生成简单的ajax测试</li>
+<li><strong>无需服务端的全文库内容搜索与计分排序</strong></li>
+</ul>
+<p>以上加粗字体的内容是我最喜欢amWiki的特性。出于易维护性（i.e. lazy）的需要，不用维护数据库直接使用md文件真的是码农的福音。</p>
+<h1>定制 amWiki</h1>
+<h2>特性</h2>
+<p>不过可惜的是，不知道是不是跟Github逐渐放弃Atom有关，原作者在发布1.2.1版本之后就不再更新了，我也不希望只在本地使用wiki，希望能发布成对外的服务，于是就自己捣鼓了几天 nodejs 折腾出了服务器版本的amWiki（Github：<a href="https://github.com/weyo/amWiki">https://github.com/weyo/amWiki</a>）。</p>
+<p>这个版本的amWiki支持这些特性：</p>
+<ul>
+<li><strong>在服务器端直接发布 Wiki 服务</strong>，并可以通过PM2进行管理</li>
+<li><strong>支持同时发布多个 Wiki 文库</strong>（在首页显示列表）</li>
+<li><strong>支持自定义配置服务器域名（或地址）</strong>，以便在云计算平台（以及需要映射实际地址的网络场景）部署服务</li>
+<li><strong>支持使用命令初始化 Wiki 文库项目</strong>并自定义项目名称</li>
+<li><strong>支持创建文库时配置文库名称及版本</strong></li>
+</ul>
+<h2>使用方法</h2>
+<p>使用方法如下。</p>
+<p><strong>1</strong>. 安装 nodejs 及 PM2 管理工具。</p>
+<p><strong>2</strong>. 下载 <a href="https://github.com/weyo/amWiki">amWiki-服务器版</a> 并拷贝到服务器（以下示例为放入 <code>/usr/local/src/</code> 目录，为规范化 nodejs 模块考虑，也可以放入 node_modules 目录），并根据需要建立软链接，如将程序启动命令设置为 <code>amwiki2</code>：</p>
+<div class="highlight"><pre><span></span>ln -s /usr/local/src/amWiki/bin/main.js /usr/local/bin/amwiki2
 </pre></div>
 
 
-<p>当然，上面的代码只是个例子，实际上不同的流完全可以具有不同的输入域。</p>
-<h2>批处理</h2>
-<p>通常由于效率或者其他方面的原因，你需要使用将 tuple 们组合成 batch 来处理，而不是一个个分别处理它们。比如，在做数据库更新操作或者流聚合操作时，你就会需要这样的批处理形式。</p>
-<p>要确保数据处理的可靠性，正确的方式是在 bolt 进行批处理之前将 tuple 们缓存在一个实例变量中。在完成批处理操作之后，你就可以一起 ack 所有的缓存的 tuple 了。</p>
-<p>如果这个批处理 bolt 还需要继续向下游发送 tuple，你可能还需要使用多锚定（multi-anchoring）来确保可靠性。具体怎么做取决于应用的需求。想要了解更多关于可靠性的工作机制的内容请参考<a href="https://github.com/weyo/Storm-Documents/blob/master/Manual/zh/Guaranteeing-Message-Processing.md">消息的可靠性保障</a>一文。</p>
-<h2>BasicBolt</h2>
-<p>Bolt 处理 tuple 的一种基本模式是在 <code>execute</code> 方法中读取输入 tuple、发送出基于输入 tuple 的新 tuple，然后在方法末尾对 tuple 进行应答（ack）。符合这种模式的 bolt 一般是一种函数或者过滤器。对于这种基本的处理模式，Storm 提供了 <code>IBasicBolt</code> 接口来自动实现这个过程。更多内容请参考<a href="https://github.com/weyo/Storm-Documents/blob/master/Manual/zh/Guaranteeing-Message-Processing.md">消息的可靠性保障</a>一文。</p>
-<h2>内存缓存与域分组的结合</h2>
-<p>在 Storm 的 bolt 中保存一定的缓存也是一种比较常见的方式。尤其是在于域分组结合的时候，缓存的作用特别显著。例如，假如你有一个用于将短链接（short URLs，例如 bit.ly, t.co，等等）转化成长链接（龙 URLs）的 bolt。你可以通过一个将短链接映射到长链接的 LRU 缓存来提高系统的性能，避免反复的 HTTP 请求操作。假如现在有一个名为 “urls” 的组件用于发送短链接，另外有一个 “expand” 组件用于将短链接扩展为长链接，并且在 “expand” 内部保留一个缓存。让我们来看看下面两段代码有什么不同：</p>
-<div class="highlight"><pre><span></span><span class="n">builder</span><span class="o">.</span><span class="na">setBolt</span><span class="o">(</span><span class="s">&quot;expand&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">ExpandUrl</span><span class="o">(),</span> <span class="n">parallelism</span><span class="o">)</span>
-  <span class="o">.</span><span class="na">shuffleGrouping</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+<p><strong>3</strong>. 在服务器上创建 amWiki 项目目录：</p>
+<div class="highlight"><pre><span></span>mkdir /data/wikis
 </pre></div>
 
 
-<div class="highlight"><pre><span></span><span class="n">builder</span><span class="o">.</span><span class="na">setBolt</span><span class="o">(</span><span class="s">&quot;expand&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">ExpandUrl</span><span class="o">(),</span> <span class="n">parallelism</span><span class="o">)</span>
-  <span class="o">.</span><span class="na">fieldsGrouping</span><span class="o">(</span><span class="s">&quot;urls&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">Fields</span><span class="o">(</span><span class="s">&quot;url&quot;</span><span class="o">));</span>
+<p><strong>4</strong>. 切换至 amWiki 项目目录，初始化目录：</p>
+<div class="highlight"><pre><span></span><span class="nb">cd</span> /data/wikis
+amwiki2 -i 我的 Wiki 文库
 </pre></div>
 
 
-<p>由于域分组可以使得相同的 URL 永远被发往同一个 task，第二段代码会比第一段代码高效得多。这样可以避免在不同的 task 的缓存中的复制动作，并且看上去短 URL 可以更好地在命中缓存。</p>
-<h2>Top N</h2>
-<p>Storm 中一种常见的连续计算模式是计算数据流中某种形式的 Top N 结果。假如现在有一个可以以 ["value", "count"] 的形式发送 tuple 的 bolt，并且你需要一个可以根据 count 计算结果输出前 N 个 tuple 的 bolt。实现这个操作的最简单的方法就是使用一个对数据流进行全局分组的 bolt，并且在内存中维护一个包含 top N 结果的列表。</p>
-<p>这种方法并不适用于大规模数据流，因为整个数据流都会发往同一个 task，会造成该 task 的内存负载过高。更好的做法是将数据流分区，同时对每个分区计算 top N 结果，然后将这些结果汇总来得到最终的全局 top N 结果。下面是这个模式的代码：</p>
-<div class="highlight"><pre><span></span><span class="n">builder</span><span class="o">.</span><span class="na">setBolt</span><span class="o">(</span><span class="s">&quot;rank&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">RankObjects</span><span class="o">(),</span> <span class="n">parallelism</span><span class="o">)</span>
-  <span class="o">.</span><span class="na">fieldsGrouping</span><span class="o">(</span><span class="s">&quot;objects&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">Fields</span><span class="o">(</span><span class="s">&quot;value&quot;</span><span class="o">));</span>
-<span class="n">builder</span><span class="o">.</span><span class="na">setBolt</span><span class="o">(</span><span class="s">&quot;merge&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">MergeObjects</span><span class="o">())</span>
-  <span class="o">.</span><span class="na">globalGrouping</span><span class="o">(</span><span class="s">&quot;rank&quot;</span><span class="o">);</span>
+<blockquote>
+<p>根据需要配置 wikis.json 配置文件：</p>
+<ul>
+<li>
+<p><code>name</code> - amWiki 项目名称</p>
+</li>
+<li>
+<p><code>domain</code> - amWiki 项目服务端域名或地址（不配置则直接展示本地IP）</p>
+</li>
+</ul>
+</blockquote>
+<p><strong>5</strong>. 创建新 Wiki 文库：</p>
+<div class="highlight"><pre><span></span>amwiki2 create 我的知识库1
+amwiki2 create 我的知识库2 V0.1
 </pre></div>
 
 
-<p>这个方法之所以可行是因为第一个 bolt 的域分组操作确保了每个小分区在语义上的正确性。你可以在 <a href="https://github.com/apache/storm/blob/master/examples/storm-starter/src/jvm/storm/starter/RollingTopWords.java">storm-starter</a> 里看到使用这个模式的一个例子。</p>
-<p>当然，如果待处理的数据集存在较严重的数据倾斜，那么还是应该使用 partialKeyGrouping 来代替 fieldsGrouping，因为 partialKeyGrouping 可以通过两个下游 bolt 分散每个 key 的负载。</p>
-<div class="highlight"><pre><span></span><span class="n">builder</span><span class="o">.</span><span class="na">setBolt</span><span class="o">(</span><span class="s">&quot;count&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">CountObjects</span><span class="o">(),</span> <span class="n">parallelism</span><span class="o">)</span>
-  <span class="o">.</span><span class="na">partialKeyGrouping</span><span class="o">(</span><span class="s">&quot;objects&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">Fields</span><span class="o">(</span><span class="s">&quot;value&quot;</span><span class="o">));</span>
-<span class="n">builder</span><span class="o">.</span><span class="na">setBolt</span><span class="o">(</span><span class="s">&quot;rank&quot;</span> <span class="k">new</span> <span class="n">AggregateCountsAndRank</span><span class="o">(),</span> <span class="n">parallelism</span><span class="o">)</span>
-  <span class="o">.</span><span class="na">fieldsGrouping</span><span class="o">(</span><span class="s">&quot;count&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">Fields</span><span class="o">(</span><span class="s">&quot;key&quot;</span><span class="o">))</span>
-<span class="n">builder</span><span class="o">.</span><span class="na">setBolt</span><span class="o">(</span><span class="s">&quot;merge&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">MergeRanksObjects</span><span class="o">())</span>
-  <span class="o">.</span><span class="na">globalGrouping</span><span class="o">(</span><span class="s">&quot;rank&quot;</span><span class="o">);</span>
+<blockquote>
+<p>根据需要配置各个文库的 config.json 配置文件，配置方法参阅<a href="http://amwiki.org/doc/?file=030-%E6%96%87%E6%A1%A3%E6%8A%80%E6%9C%AF%E7%AF%87/100-config%E9%85%8D%E7%BD%AE">config.json 配置</a>。</p>
+</blockquote>
+<p><strong>6</strong>. 编辑修改新文库并更新：</p>
+<div class="highlight"><pre><span></span>amwiki2 update 我的知识库1
+amwiki2 update 我的知识库2
 </pre></div>
 
 
-<p>这个拓扑中需要一个中间层来聚合来自上游 bolt 数据流的分区计数结果，但这一层仅仅会做一个简单的聚合处理，这样 bolt 就不会受到由于数据倾斜带来的负载压力。你可以在 <a href="https://github.com/apache/storm/blob/master/examples/storm-starter/src/jvm/storm/starter/SkewedRollingTopWords.java">storm-starter</a> 中看到使用这个模式的一个例子。</p>
-<h2>支持 LRU 的 TimeCacheMap</h2>
-<p>有时候你可能会需要一个能够保留“活跃的”数据并且能够使得超时的“非活跃的”数据自动失效的缓存。<a href="http://storm.apache.org/javadoc/apidocs/backtype/storm/utils/TimeCacheMap.html">TimeCacheMap</a> 是一个可以高效地实现此功能的数据结构。它还提供了一个钩子用于实现在数据失效后的回调操作。</p>
-<h2>用于分布式 RPC 的 CoordinatedBolt 与 KeyedFairBolt</h2>
-<p>在构建 Storm 上层的分布式 RPC 应用时，通常会用到两种常用的模式。现在这两种模式已经被封装为 <a href="http://storm.apache.org/javadoc/apidocs/backtype/storm/task/CoordinatedBolt.html">CoordinatedBolt</a> 和 <a href="http://storm.apache.org/javadoc/apidocs/backtype/storm/task/KeyedFairBolt.html">KeyedFairBolt</a>，并且已经加入了 Storm 标准库中。</p>
-<p><code>CoordinatedBolt</code> 将你的处理逻辑 bolt 包装起来，并且在你的 bolt 收到了指定请求的所有 tuple 之后发出通知。<code>CoordinatedBolt</code> 中大量使用了直接数据流组来实现此功能。</p>
-<p><code>KeyedFairBolt</code> 同样包装了你的处理逻辑 bolt，并且可以让你的拓扑同时处理多个 DRPC 调用，而不是每次只执行一个。</p>
-<p>如果需要了解更多内容请参考<a href="https://github.com/weyo/Storm-Documents/blob/master/Manual/zh/Distributed-RPC.md">分布式RPC</a>一文。</p>
+<p><strong>7</strong>. 使用 PM2 启动 amWiki 服务：</p>
+<div class="highlight"><pre><span></span>pm2 start <span class="s1">&#39;amwiki2 -s&#39;</span>
+</pre></div>
+
+
+<p>随后，即可在浏览器中访问文库：http://&lt;服务器IP&gt;:5171/（端口可根据需要在步骤 7 中调整）。</p>
+<p>最终形成的服务器端 amWiki 文库目录结构如下：</p>
+<div class="highlight"><pre><span></span>/data
+├── jenkins
+│   ├── scripts
+│   │   ├── wikis_master.log
+│   │   ├── wikis_master.sh
+│   │   ├── wikis_branch1.log
+│   │   └── wikis_branch1.sh
+│   ├── slave.jar
+│   └── workspace
+│       ├── wikis-master
+│       └── wikis-branch1
+├── wikis
+│   ├── README.md
+│   ├── wikis.json
+│   ├── 我的知识库1
+│   │   ├── amWiki
+│   │   ├── config.json
+│   │   ├── index.html
+│   │   └── library
+│   └── 我的知识库2
+│       ├── amWiki
+│       ├── config.json
+│       ├── index.html
+│       └── library
+└── wikis_bak
+    ├── README.md
+    ├── wikis.json
+    ├── 我的知识库1
+    │   ├── amWiki
+    │   ├── config.json
+    │   ├── index.html
+    │   └── library
+    └── 我的知识库2
+        ├── amWiki
+        ├── config.json
+        ├── index.html
+        └── library
+</pre></div>
+
+
+<h2>配置 Jenkins 自动发布</h2>
+<p>为了便于 wiki 的更新维护，使用 git 和 jenkins 搭建了一套自动发布环境，通过 git 仓库管理 md 格式的 wiki 文库，可以在提交更新后自动在服务器端进行发布。</p>
+<h3>Git 仓库管理模式</h3>
+<p>为了支持不同项目组维护不同的 wiki 文库，有两种方式，第一种方式是每一个 wiki 文库分别建立不同的 git 仓库，每个 git 仓库对应一个 jenkins 任务；第二种方式是建立一个 git 仓库，然后在不同的 git 分支分别管理不同的 wiki 文库，并针对每一个分支分别建立独立的 jenkins 任务，两种方式各有优劣，可根据需要选择。</p>
+<h3>本地 Wiki 项目目录</h3>
+<p>以下是一个建立好的 git 仓库本地 wiki 目录结构图（本文均以 master 分支为例）。</p>
+<p><br />
+ <img src="../../../images/pics/wikis-by-amwiki/pic1.png"  alt="pic1" align=center />
+<br /></p>
+<h3>Jenkins 配置</h3>
+<p><strong>1</strong>. 指定文库服务器做构建服务器，并配置 git 仓库（注意，需要先将构建服务器的公钥 id_rsa.pub 添加到 git 项目的 key 中）；</p>
+<p><br />
+<img src="../../../images/pics/wikis-by-amwiki/pic2.png" alt="pic1" align=center />
+<br /></p>
+<p><strong>2</strong>. 配置构建计划（这里每5分钟执行一次检查），并确认构建命令脚本</p>
+<p><br />
+<img src="../../../images/pics/wikis-by-amwiki/pic3.png" alt="pic1" align=center />
+<br /></p>
+<p>其中，脚本内容（wikis_master.sh）如下，供参考：</p>
+<div class="highlight"><pre><span></span><span class="ch">#! /bin/bash</span>
+rm -rf /data/wikis_bak/WeYo的知识库/<span class="o">{</span>library,config.json<span class="o">}</span>
+mv /data/wikis/WeYo的知识库/<span class="o">{</span>library,config.json<span class="o">}</span> /data/wikis_bak/WeYo的知识库
+mv /data/wikis/wikis.json /data/wikis_bak
+cp -r ./WeYo的知识库/<span class="o">{</span>library,config.json<span class="o">}</span> /data/wikis/WeYo的知识库
+cp ./wikis.json /data/wikis
+<span class="nb">cd</span> /data/wikis
+<span class="c1"># 防止windows gbk编码与amwiki要求的utf-8编码不同，需要做编码转换</span>
+convmv -f gbk -t utf8 -r --notest ./
+amwiki2 -u WeYo的知识库
+<span class="nb">exit</span> 0
+<span class="c1"># END</span>
+</pre></div>
+
+
+<p><strong>3</strong>. 本地编辑 wiki 文库，并提交 git 仓库，确认 Jenkins 执行状态，如果构建成功刷新浏览器即可看到文库的更新内容。</p>
             </div>
             <!-- /.entry-content -->
 <hr />
 <ul style="list-style-type: none; margin-left: -38px">
-     <li style="margin-top: 5px">
-         <span class="label label-default"><i class="icon-chevron-up"></i>上一篇</span>
-         <a href="http://weyo.me/pages/techs/mr-writable-coding-problem/">
-             MR 中定义 Writable 对象的坑
-         </a>
-     </li>
      <li>
          <span class="label label-default"><i class="icon-chevron-down"></i>下一篇</span>
-         <a href="http://weyo.me/pages/techs/storm-translations-trident-spouts/">
-             Storm 官方文档翻译(10) —— Trident Spouts
+         <a href="http://weyo.me/pages/techs/how-to-make-a-mirror-site/">
+             使用 tunasync 搭建开源镜像站
          </a>
      </li>
 </ul>    <hr />
@@ -216,8 +294,8 @@
         <script type="text/javascript">
             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
             var disqus_shortname = 'weyo'; // required: replace example with your forum shortname
-            var disqus_identifier = 'storm-translations-common-topoloty-patterns';
-            var disqus_url = 'http://weyo.me/pages/techs/storm-translations-common-topoloty-patterns/';
+            var disqus_identifier = 'wikis-by-amwiki';
+            var disqus_url = 'http://weyo.me/pages/techs/wikis-by-amwiki/';
 
             /* * * DON'T EDIT BELOW THIS LINE * * */
             (function () {

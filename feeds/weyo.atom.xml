@@ -1,5 +1,158 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Let There Be Light</title><link href="http://weyo.me/" rel="alternate"></link><link href="http://weyo.me/feeds/weyo.atom.xml" rel="self"></link><id>http://weyo.me/</id><updated>2018-12-10T00:00:00+08:00</updated><entry><title>使用 tunasync 搭建开源镜像站</title><link href="http://weyo.me/pages/techs/how-to-make-a-mirror-site/" rel="alternate"></link><published>2018-12-10T00:00:00+08:00</published><author><name>WeYo</name></author><id>tag:weyo.me,2018-12-10:pages/techs/how-to-make-a-mirror-site/</id><summary type="html">&lt;blockquote&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Let There Be Light</title><link href="http://weyo.me/" rel="alternate"></link><link href="http://weyo.me/feeds/weyo.atom.xml" rel="self"></link><id>http://weyo.me/</id><updated>2019-02-12T00:00:00+08:00</updated><entry><title>使用 amWiki 搭建自动构建的轻量级知识库平台</title><link href="http://weyo.me/pages/techs/wikis-by-amwiki/" rel="alternate"></link><published>2019-02-12T00:00:00+08:00</published><author><name>WeYo</name></author><id>tag:weyo.me,2019-02-12:pages/techs/wikis-by-amwiki/</id><summary type="html">&lt;h1&gt;关于 amWiki&lt;/h1&gt;
+&lt;p&gt;很早就想搭建一个足够轻量方便易用的Wiki平台用于个人和团队的知识交互，由于预算有限，商业化的confluence只能暂时放弃，另外也不想花费太大精力去维护这个平台，其他的各类开源免费的Wiki技术（比如mediawiki，dokuwiki 等等）也就不考虑了。寻觅良久，终于发现了一个有意思的项目：&lt;a href="http://amwiki.org/"&gt;amWiki&lt;/a&gt;。&lt;/p&gt;
+&lt;p&gt;根据官网介绍，amWiki的优点在于：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;文档系统采用 markdown 语法&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;不用数据库，文档使用 .md 格式保存本地文件&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;无需服务端开发，只需支持 http 静态访问网页空间&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;一键创建新的文库&lt;/li&gt;
+&lt;li&gt;自动更新文库导航目录&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;支持多级目录&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;支持截图直接粘帖为本地 png 并插入当前 markdown&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;文档web端自适应显示，适合所有平台&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;支持接口文档自动抓取内容生成简单的ajax测试&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;无需服务端的全文库内容搜索与计分排序&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;以上加粗字体的内容是我最喜欢amWiki的特性。出于易维护性（i.e. lazy）的需要，不用维护数据库直接使用md文件真的是码农的福音。&lt;/p&gt;
+&lt;h1&gt;定制 amWiki&lt;/h1&gt;
+&lt;h2&gt;特性&lt;/h2&gt;
+&lt;p&gt;不过可惜的是，不知道是不是跟Github逐渐放弃Atom有关，原作者在发布1.2.1版本之后就不再更新了，我也不希望只在本地使用wiki，希望能发布成对外的服务，于是就自己捣鼓了几天 nodejs 折腾出了服务器版本的amWiki（Github：&lt;a href="https://github.com/weyo/amWiki"&gt;https://github.com/weyo/amWiki&lt;/a&gt;）。&lt;/p&gt;
+&lt;p&gt;这个版本的amWiki支持这些特性：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;在服务器端直接发布 Wiki 服务&lt;/strong&gt;，并可以通过PM2进行管理&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;支持同时发布多个 Wiki 文库&lt;/strong&gt;（在首页显示列表）&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;支持自定义配置服务器域名（或地址）&lt;/strong&gt;，以便在云计算平台（以及需要映射实际地址的网络场景）部署服务&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;支持使用命令初始化 Wiki 文库项目&lt;/strong&gt;并自定义项目名称&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;支持创建文库时配置文库名称及版本&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;使用方法&lt;/h2&gt;
+&lt;p&gt;使用方法如下。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;1&lt;/strong&gt;. 安装 nodejs 及 PM2 管理工具。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;2&lt;/strong&gt;. 下载 &lt;a href="https://github.com/weyo/amWiki"&gt;amWiki-服务器版&lt;/a&gt; 并拷贝到服务器（以下示例为放入 &lt;code&gt;/usr/local/src/&lt;/code&gt; 目录，为规范化 nodejs 模块考虑，也可以放入 node_modules 目录），并根据需要建立软链接，如将程序启动命令设置为 &lt;code&gt;amwiki2&lt;/code&gt;：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;ln -s /usr/local/src/amWiki/bin/main.js /usr/local/bin/amwiki2
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;strong&gt;3&lt;/strong&gt;. 在服务器上创建 amWiki 项目目录：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;mkdir /data/wikis
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;strong&gt;4&lt;/strong&gt;. 切换至 amWiki 项目目录，初始化目录：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nb"&gt;cd&lt;/span&gt; /data/wikis
+amwiki2 -i 我的 Wiki 文库
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;blockquote&gt;
+&lt;p&gt;根据需要配置 wikis.json 配置文件：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;name&lt;/code&gt; - amWiki 项目名称&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;domain&lt;/code&gt; - amWiki 项目服务端域名或地址（不配置则直接展示本地IP）&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;strong&gt;5&lt;/strong&gt;. 创建新 Wiki 文库：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;amwiki2 create 我的知识库1
+amwiki2 create 我的知识库2 V0.1
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;blockquote&gt;
+&lt;p&gt;根据需要配置各个文库的 config.json 配置文件，配置方法参阅&lt;a href="http://amwiki.org/doc/?file=030-%E6%96%87%E6%A1%A3%E6%8A%80%E6%9C%AF%E7%AF%87/100-config%E9%85%8D%E7%BD%AE"&gt;config.json 配置&lt;/a&gt;。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;strong&gt;6&lt;/strong&gt;. 编辑修改新文库并更新：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;amwiki2 update 我的知识库1
+amwiki2 update 我的知识库2
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;strong&gt;7&lt;/strong&gt;. 使用 PM2 启动 amWiki 服务：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pm2 start &lt;span class="s1"&gt;&amp;#39;amwiki2 -s&amp;#39;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;随后，即可在浏览器中访问文库：http://&amp;lt;服务器IP&amp;gt;:5171/（端口可根据需要在步骤 7 中调整）。&lt;/p&gt;
+&lt;p&gt;最终形成的服务器端 amWiki 文库目录结构如下：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;/data
+├── jenkins
+│   ├── scripts
+│   │   ├── wikis_master.log
+│   │   ├── wikis_master.sh
+│   │   ├── wikis_branch1.log
+│   │   └── wikis_branch1.sh
+│   ├── slave.jar
+│   └── workspace
+│       ├── wikis-master
+│       └── wikis-branch1
+├── wikis
+│   ├── README.md
+│   ├── wikis.json
+│   ├── 我的知识库1
+│   │   ├── amWiki
+│   │   ├── config.json
+│   │   ├── index.html
+│   │   └── library
+│   └── 我的知识库2
+│       ├── amWiki
+│       ├── config.json
+│       ├── index.html
+│       └── library
+└── wikis_bak
+    ├── README.md
+    ├── wikis.json
+    ├── 我的知识库1
+    │   ├── amWiki
+    │   ├── config.json
+    │   ├── index.html
+    │   └── library
+    └── 我的知识库2
+        ├── amWiki
+        ├── config.json
+        ├── index.html
+        └── library
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;配置 Jenkins 自动发布&lt;/h2&gt;
+&lt;p&gt;为了便于 wiki 的更新维护，使用 git 和 jenkins 搭建了一套自动发布环境，通过 git 仓库管理 md 格式的 wiki 文库，可以在提交更新后自动在服务器端进行发布。&lt;/p&gt;
+&lt;h3&gt;Git 仓库管理模式&lt;/h3&gt;
+&lt;p&gt;为了支持不同项目组维护不同的 wiki 文库，有两种方式，第一种方式是每一个 wiki 文库分别建立不同的 git 仓库，每个 git 仓库对应一个 jenkins 任务；第二种方式是建立一个 git 仓库，然后在不同的 git 分支分别管理不同的 wiki 文库，并针对每一个分支分别建立独立的 jenkins 任务，两种方式各有优劣，可根据需要选择。&lt;/p&gt;
+&lt;h3&gt;本地 Wiki 项目目录&lt;/h3&gt;
+&lt;p&gt;以下是一个建立好的 git 仓库本地 wiki 目录结构图（本文均以 master 分支为例）。&lt;/p&gt;
+&lt;p&gt;&lt;br /&gt;
+ &lt;img src="../../../images/pics/wikis-by-amwiki/pic1.png"  alt="pic1" align=center /&gt;
+&lt;br /&gt;&lt;/p&gt;
+&lt;h3&gt;Jenkins 配置&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;1&lt;/strong&gt;. 指定文库服务器做构建服务器，并配置 git 仓库（注意，需要先将构建服务器的公钥 id_rsa.pub 添加到 git 项目的 key 中）；&lt;/p&gt;
+&lt;p&gt;&lt;br /&gt;
+&lt;img src="../../../images/pics/wikis-by-amwiki/pic2.png" alt="pic1" align=center /&gt;
+&lt;br /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;2&lt;/strong&gt;. 配置构建计划（这里每5分钟执行一次检查），并确认构建命令脚本&lt;/p&gt;
+&lt;p&gt;&lt;br /&gt;
+&lt;img src="../../../images/pics/wikis-by-amwiki/pic3.png" alt="pic1" align=center /&gt;
+&lt;br /&gt;&lt;/p&gt;
+&lt;p&gt;其中，脚本内容（wikis_master.sh）如下，供参考：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="ch"&gt;#! /bin/bash&lt;/span&gt;
+rm -rf /data/wikis_bak/WeYo的知识库/&lt;span class="o"&gt;{&lt;/span&gt;library,config.json&lt;span class="o"&gt;}&lt;/span&gt;
+mv /data/wikis/WeYo的知识库/&lt;span class="o"&gt;{&lt;/span&gt;library,config.json&lt;span class="o"&gt;}&lt;/span&gt; /data/wikis_bak/WeYo的知识库
+mv /data/wikis/wikis.json /data/wikis_bak
+cp -r ./WeYo的知识库/&lt;span class="o"&gt;{&lt;/span&gt;library,config.json&lt;span class="o"&gt;}&lt;/span&gt; /data/wikis/WeYo的知识库
+cp ./wikis.json /data/wikis
+&lt;span class="nb"&gt;cd&lt;/span&gt; /data/wikis
+&lt;span class="c1"&gt;# 防止windows gbk编码与amwiki要求的utf-8编码不同，需要做编码转换&lt;/span&gt;
+convmv -f gbk -t utf8 -r --notest ./
+amwiki2 -u WeYo的知识库
+&lt;span class="nb"&gt;exit&lt;/span&gt; 0
+&lt;span class="c1"&gt;# END&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;strong&gt;3&lt;/strong&gt;. 本地编辑 wiki 文库，并提交 git 仓库，确认 Jenkins 执行状态，如果构建成功刷新浏览器即可看到文库的更新内容。&lt;/p&gt;</summary><category term="wiki"></category><category term="amWiki"></category></entry><entry><title>使用 tunasync 搭建开源镜像站</title><link href="http://weyo.me/pages/techs/how-to-make-a-mirror-site/" rel="alternate"></link><published>2018-12-10T00:00:00+08:00</published><author><name>WeYo</name></author><id>tag:weyo.me,2018-12-10:pages/techs/how-to-make-a-mirror-site/</id><summary type="html">&lt;blockquote&gt;
 &lt;p&gt;公司的企业私有云平台建立之后，为了便于云主机操作系统与软件快速更新，需要搭建企业内网的开源镜像站。调研了国内各大开源镜像站点的技术之后，最终决定使用清华大学开源软件镜像站开发的镜像管理器 &lt;a href="https://github.com/tuna/tunasync"&gt;tunasync&lt;/a&gt; 来构建云平台的软件镜像服务，毕竟使用成熟的镜像管理器比从头造轮子还是方便了许多，镜像站不是云的核心服务也不需要投入太多人力去做开发。&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;本文介绍了从0开始搭建一个内网开源镜像站并为用户提供 web 访问服务的全过程，希望对有构建内网镜像站服务需求的同学有所帮助。&lt;/p&gt;
@@ -348,7 +501,7 @@ systemctl enable httpd.service
 
 &lt;p&gt;如果该命令有信息输出，就说明 CPU 支持虚拟化，可以继续往下进行；否则 CPU 不支持的情况下无法进行嵌套虚拟化部署。&lt;/p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;注意，由于大多数服务器基于 Intel CPU，本命令只针对 Intel CPU（对于 AMD CPU 将命令中的 vmx 改成 svm 即可）。&lt;/p&gt;
+&lt;p&gt;注意，本命令只针对 Intel CPU，对于 AMD CPU 将命令中的 vmx 改成 svm 即可。&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;2）执行以下命令查看是否加载KVM模块：&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;# lsmod | grep kvm
